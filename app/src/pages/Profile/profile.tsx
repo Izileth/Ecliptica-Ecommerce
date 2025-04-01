@@ -1,13 +1,12 @@
-
-
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '~/src/hooks/useAuth'
+import { useProducts } from '~/src/hooks/useStorage' // Importe o hook de produtos
 import { UserAvatar } from '~/src/components/ui/Avatar/avatar'
 import { LogoutButton } from '~/src/components/ui/User/logout'
-import { ProductService } from '~/src/services/produtcService'
-import type { User, Product } from '~/src/services/type'
 import { toast } from 'sonner'
+import { UserService } from '~/src/services/userService'
+import { formatPrice } from '~/src/utils/format'
 
 // Components from shadcn/ui
 import { Button } from '~/src/components/imported/button'
@@ -17,13 +16,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/src/components/impor
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '~/src/components/imported/card'
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '~/src/components/imported/table'
 import { Badge } from '~/src/components/imported/badge'
-import { Skeleton } from '~/src/components/imported//skeleton'
+import { Skeleton } from '~/src/components/imported/skeleton'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '~/src/components/imported/alert-dialog'
-import { UserService } from '~/src/services/userService'
 
 export default function Profile() {
-  const { user, logout} = useAuth()
+  const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const {
+    userProducts,
+    loading: productsLoading,
+    getUserProducts,
+    removeProduct
+  } = useProducts() // Use o hook de produtos
+
   const [activeTab, setActiveTab] = useState<string>('profile')
   const [userData, setUserData] = useState({
     name: '',
@@ -34,10 +39,8 @@ export default function Profile() {
     newPassword: '',
     confirmPassword: ''
   })
-  const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState({
     profile: false,
-    products: false,
     password: false,
     delete: false
   })
@@ -50,21 +53,10 @@ export default function Profile() {
         name: user.name,
         email: user.email
       })
-      loadUserProducts()
+      // Carrega os produtos do usuário
+      getUserProducts(1) // Página 1
     }
   }, [user])
-
-  const loadUserProducts = async () => {
-    setLoading(prev => ({ ...prev, products: true }))
-    try {
-      const userProducts = await ProductService.getAll({ userId: user?.id })
-      setProducts(userProducts)
-    } catch (error) {
-      toast.error('Falha ao carregar produtos')
-    } finally {
-      setLoading(prev => ({ ...prev, products: false }))
-    }
-  }
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -73,14 +65,12 @@ export default function Profile() {
     try {
       if (!user?.id) throw new Error('Usuário não autenticado')
       
-      // Chama o método atualizado do UserService
       const updatedUser = await UserService.updateProfile(user.id, {
         name: userData.name,
         email: userData.email
       })
       
       toast.success('Perfil atualizado com sucesso')
-      // Atualiza os dados no contexto de autenticação se necessário
     } catch (error: any) {
       toast.error(error.message || 'Falha ao atualizar perfil')
     } finally {
@@ -101,12 +91,11 @@ export default function Profile() {
       return
     }
     
-    setLoading(prev => ({ ...prev, profile: true }))
+    setLoading(prev => ({ ...prev, password: true }))
     
     try {
       if (!user?.id) throw new Error('Usuário não autenticado')
       
-      // Usa o método específico para atualização de senha
       await UserService.updatePassword(
         user.id,
         passwordData.currentPassword,
@@ -122,16 +111,15 @@ export default function Profile() {
     } catch (error: any) {
       toast.error(error.message || 'Falha ao atualizar senha')
     } finally {
-      setLoading(prev => ({ ...prev, profile: false }))
+      setLoading(prev => ({ ...prev, password: false }))
     }
   }
-  
 
   const handleDeleteProduct = async (productId: string) => {
     try {
-      await ProductService.delete(productId)
+      await removeProduct(productId)
       toast.success('Produto removido com sucesso')
-      loadUserProducts()
+      // Não precisamos chamar loadUserProducts() pois o Redux já atualiza o estado
     } catch (error) {
       toast.error('Falha ao remover produto')
     }
@@ -258,13 +246,13 @@ export default function Profile() {
                   </Button>
                 </CardHeader>
                 <CardContent>
-                  {loading.products ? (
+                  {productsLoading ? (
                     <div className="space-y-4">
                       {[...Array(3)].map((_, i) => (
                         <Skeleton key={i} className="h-20 w-full" />
                       ))}
                     </div>
-                  ) : products.length === 0 ? (
+                  ) : userProducts.length === 0 ? (
                     <div className="text-center py-8">
                       <p className="text-gray-500">Você ainda não cadastrou nenhum produto</p>
                     </div>
@@ -279,7 +267,7 @@ export default function Profile() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {products.map((product) => (
+                        {userProducts.map((product) => (
                           <TableRow key={product.id}>
                             <TableCell className="font-medium">
                               <div className="flex items-center gap-4">
@@ -292,8 +280,8 @@ export default function Profile() {
                               </div>
                             </TableCell>
                             <TableCell>
-                              R$ {product.price.toFixed(2)}
-                            </TableCell>
+                              R$ {formatPrice(product.price)}
+                              </TableCell>
                             <TableCell>
                               <Badge variant="outline">{product.category}</Badge>
                             </TableCell>
@@ -380,8 +368,8 @@ export default function Profile() {
                         }
                       />
                     </div>
-                    <Button type="submit" disabled={loading.profile}>
-                      {loading.profile ? 'Salvando...' : 'Alterar Senha'}
+                    <Button type="submit" disabled={loading.password}>
+                      {loading.password ? 'Salvando...' : 'Alterar Senha'}
                     </Button>
                   </form>
                   <div className="border-t pt-6">

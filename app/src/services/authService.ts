@@ -9,32 +9,27 @@ interface LoginData {
 interface AuthResponse {
   user?: User // Não precisa mais do token, pois ele está sendo armazenado no cookie HttpOnly
 }
-
 export const login = async (credentials: LoginData): Promise<AuthResponse> => {
   try {
-    const response = await api.post<AuthResponse>('auth/login', credentials);
-    
+    const response = await api.post('/auth/login', credentials, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      withCredentials: true // Confirme que está true
+    });
+
     if (!response.data.user) {
-      throw new Error('Usuário não encontrado na resposta');
+      throw new Error('Resposta da API não contém dados do usuário');
     }
 
-    // Retorna apenas o usuário, pois o token já está no cookie HttpOnly
-    return {
-      user: response.data.user || {
-        id: 'temp-id',
-        name: credentials.email.split('@')[0] || 'Usuário',
-        email: credentials.email,
-        isAdmin: false
-      }
-    };
-  } catch (error: any) {
-    // Preserva a mensagem de erro original quando disponível
-    if (error.response) {
-      throw error; // Passa o erro completo para a store
-    } else {
-      throw new Error('Serviço indisponível. Tente novamente mais tarde.');
-    }
+    return response.data;
+  } catch (error) {
+    console.error('Erro no login:', error);
+    throw error;
   }
+};
+export const logout = async (): Promise<void> => {
+  await api.post('auth/logout');
 };
 
 export const register = async (userData: { 

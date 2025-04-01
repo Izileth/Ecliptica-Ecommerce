@@ -8,6 +8,8 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
+import { Provider } from 'react-redux'
+import { store } from './src/store/globalStore'
 import Navbar from "./src/components/layout/Navbar/nav.bar";
 import Footer from "./src/components/layout/Footer/footer";
 import "./app.css";
@@ -43,13 +45,29 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+
 export default function App() {
-  return(
-    <>
+  // Detecta ambiente
+  const isServer = typeof window === 'undefined';
+  
+  // No servidor, renderiza sem Redux
+  if (isServer) {
+    return (
+      <>
+        <Navbar />
+        <Outlet />
+        <Footer />
+      </>
+    );
+  }
+  
+  // No cliente, renderiza com Redux
+  return (
+    <Provider store={store}>
       <Navbar />
       <Outlet />
       <Footer />
-    </>
+    </Provider>
   );
 }
 

@@ -1,12 +1,12 @@
 // src/services/types.ts
 export interface User {
-  id: string
-  name: string // Tornando obrigatório
-  email: string
-  image?: string
-  isAdmin?: boolean
-  createdAt?: string
-  updatedAt?: string
+  id: string;
+  name: string;
+  email: string;
+  image?: string;
+  isAdmin?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Product {
@@ -17,12 +17,28 @@ export interface Product {
   image: string;
   category: string;
   countInStock: number;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  createdBy?: {
+    id: string;
+    name: string;
+  };
   // Para produtos em promoção
   promoPrice?: number;
   promoEnd?: string;
-  
+}
+
+export interface PaginatedProducts {
+  data: Product[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
 }
 
 export interface CartItem {
@@ -50,23 +66,16 @@ export interface Order {
   paymentMethod?: string;
 }
 
-// Tipos para autenticação
-export interface AuthResponse {
-  user: User;
-  token: string;
-}
-
 // Tipo para formulário de produto
 export interface ProductFormValues {
+  id?: string;
   name: string;
   description: string;
-  price: string;  // Em número para facilitar validações
+  price: string;
   category: string;
-  countInStock: string;  // Em número para facilitar validações
-  image: File | null;  // Pode ser null até o usuário selecionar
-  
+  countInStock: string;
+  image: File | null; // Remova a opção 'string' se não for usada
 }
-
 
 export interface ProfileFormData {
   name: string

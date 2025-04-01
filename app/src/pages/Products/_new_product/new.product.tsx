@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { ProductService } from '~/src/services/produtcService'
 import { toast } from 'sonner'
 import type { ProductFormValues } from '~/src/services/type'
+import { useProducts } from '~/src/hooks/useStorage'
 
-// Components from shadcn/ui
+// Components
 import { Button } from '~/src/components/imported/button'
 import { Input } from '~/src/components/imported/input'
 import { Label } from '~/src/components/imported/label'
 import { Textarea } from '~/src/components/imported/textarea'
+import { Spinner } from '~/src/components/ui/Spinner/spinner'
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '~/src/components/imported/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/src/components/imported/select'
 
@@ -17,13 +19,14 @@ const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/svg+xml']
 
 export default function NewProductPage() {
   const navigate = useNavigate()
+  const { addProduct } = useProducts()
   const [loading, setLoading] = useState(false)
   const [formValues, setFormValues] = useState<ProductFormValues>({
     name: '',
     description: '',
-    price: '', // Agora como string
+    price: '',
     category: '',
-    countInStock: '', // Agora como string
+    countInStock: '',
     image: null
   })
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
@@ -40,26 +43,29 @@ export default function NewProductPage() {
     const errors: Record<string, string> = {}
     
     if (!formValues.name.trim()) errors.name = 'Nome é obrigatório'
+    if (formValues.name.length > 100) errors.name = 'Nome muito longo (máx. 100 caracteres)'
+    
     if (!formValues.description.trim()) errors.description = 'Descrição é obrigatória'
     
-    // Validação de preço
     const priceValue = parseFloat(formValues.price)
-    if (isNaN(priceValue) || priceValue <= 0) {
-      errors.price = 'Preço inválido'
+    if (isNaN(priceValue)) {
+      errors.price = 'Preço deve ser um número'
+    } else if (priceValue <= 0) {
+      errors.price = 'Preço deve ser maior que zero'
     }
     
-    // Validação de estoque
     const stockValue = parseInt(formValues.countInStock)
-    if (isNaN(stockValue) || stockValue < 0) {
-      errors.countInStock = 'Quantidade inválida'
+    if (isNaN(stockValue)) {
+      errors.countInStock = 'Estoque deve ser um número'
+    } else if (stockValue < 0) {
+      errors.countInStock = 'Estoque não pode ser negativo'
     }
     
     if (!formValues.category) errors.category = 'Selecione uma categoria'
     
-    // Validação da imagem
     if (!formValues.image) {
       errors.image = 'Imagem é obrigatória'
-    } else {
+    } else if (formValues.image instanceof File) {
       if (!ALLOWED_FILE_TYPES.includes(formValues.image.type)) {
         errors.image = 'Apenas imagens JPEG, PNG ou SVG são permitidas'
       }
@@ -75,18 +81,23 @@ export default function NewProductPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     
-    if (name === 'price' || name === 'countInStock') {
-      // Permite apenas números e ponto decimal para preço
+    if (name === 'price') {
+      // Permite apenas números e ponto decimal
       const cleanedValue = value.replace(/[^0-9.]/g, '')
+      const parts = cleanedValue.split('.')
       
-      // Para preço, garante no máximo 2 casas decimais
-      if (name === 'price') {
-        const parts = cleanedValue.split('.')
-        if (parts.length > 1 && parts[1].length > 2) {
-          return // Não atualiza se tiver mais de 2 casas decimais
-        }
+      // Garante no máximo 2 casas decimais
+      if (parts.length > 1 && parts[1].length > 2) {
+        return
       }
       
+      setFormValues(prev => ({
+        ...prev,
+        [name]: cleanedValue
+      }))
+    } else if (name === 'countInStock') {
+      // Permite apenas números inteiros
+      const cleanedValue = value.replace(/[^0-9]/g, '')
       setFormValues(prev => ({
         ...prev,
         [name]: cleanedValue
@@ -107,6 +118,12 @@ export default function NewProductPage() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
+      
+      // Verificação adicional do tipo
+      if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+        setFormErrors(prev => ({ ...prev, image: 'Tipo de arquivo não permitido' }));
+        return;
+      }
       setFormValues(prev => ({
         ...prev,
         image: file
@@ -129,34 +146,33 @@ export default function NewProductPage() {
     e.preventDefault()
     
     if (!validateForm()) return
-    
+
+      // Verificação adicional da imagem
+    if (!formValues.image || !(formValues.image instanceof File)) {
+      toast.error('Selecione uma imagem válida');
+      return;
+    }
+      
     setLoading(true)
     
     try {
-      // Converte os valores string para números antes de enviar
-      const productData: ProductFormValues = {
-        name: formValues.name,
-        description: formValues.description,
-        price: parseFloat(formValues.price) as unknown as string, // conversão de tipo
-        countInStock: parseInt(formValues.countInStock) as unknown as string, // conversão de tipo
-        category: formValues.category,
-        image: formValues.image
-      }
-
-      // Usa o método create do ProductService
-      await ProductService.create(ProductService.toFormData(productData))
+      await addProduct(formValues)
       
       toast.success('Produto criado com sucesso!')
       navigate('/profile?tab=products')
     } catch (error: any) {
       console.error('Error creating product:', error)
-      const errorMessage = error.response?.data?.message || 'Erro ao criar produto'
-      toast.error(errorMessage)
       
-      // Tratamento específico para erros de imagem
-      if (error.response?.data?.error?.includes('imagem')) {
+      let errorMessage = 'Erro ao criar produto'
+      if (error.message.includes('imagem')) {
+        errorMessage = 'Erro ao processar imagem'
         setFormErrors(prev => ({ ...prev, image: errorMessage }))
+      } else if (error.message.includes('nome')) {
+        errorMessage = 'Já existe um produto com este nome'
+        setFormErrors(prev => ({ ...prev, name: errorMessage }))
       }
+      
+      toast.error(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -170,7 +186,7 @@ export default function NewProductPage() {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
+          <div className="space-y-2">
               <Label htmlFor="name">Nome do Produto *</Label>
               <Input
                 id="name"
@@ -288,11 +304,22 @@ export default function NewProductPage() {
               type="button" 
               variant="outline" 
               onClick={() => navigate('/profile')}
+              disabled={loading}
             >
               Cancelar
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Salvando...' : 'Adicionar Produto'}
+              {loading ? (
+                <>
+                <Spinner 
+                  size="lg" 
+                  color="destructive" 
+                  variant="dots" 
+                  className="my-4"
+                  />
+                  Salvando...
+                </>
+              ) : 'Adicionar Produto'}
             </Button>
           </CardFooter>
         </form>

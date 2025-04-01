@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { login as loginService, register as registerService } from '../services/authService';
+import { login as loginService, register as registerService, logout as logoutService } from '../services/authService'; // Adicionei o logoutService
 import type { User } from '../services/type';
-import { toast } from 'sonner'; // Importando o toaster
+import { toast } from 'sonner';
 
 interface AuthState {
     user: User | null;
@@ -10,9 +10,9 @@ interface AuthState {
     error: string | null;
     login: (credentials: { email: string; password: string }) => Promise<void>;
     register: (userData: { name: string; email: string; password: string }) => Promise<void>;
-    logout: (options?: { silent?: boolean }) => void; // Adicionado opção silent
+    logout: (options?: { silent?: boolean }) => Promise<void>; // Mudei para async
     isAuthenticated: () => boolean;
-    resetError: () => void; // Nova função para resetar erros
+    resetError: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -25,13 +25,17 @@ export const useAuthStore = create<AuthState>()(
             login: async (credentials) => {
                 set({ isLoading: true, error: null });
                 try {
-                    const { user } = await loginService(credentials);
+                    const response = await loginService(credentials);
+                    if (!response.user) {
+                        throw new Error('Dados do usuário não retornados pela API');
+                    }
+                    
                     set({
                         user: {
-                            id: user?.id || 'temp-id',
-                            name: user?.name || credentials.email.split('@')[0] || 'Usuário',
-                            email: user?.email || credentials.email,
-                            isAdmin: user?.isAdmin || false,
+                            id: response.user.id,
+                            name: response.user.name,
+                            email: response.user.email,
+                            isAdmin: response.user.isAdmin ?? false, // Fallback seguro para boolean
                         },
                         isLoading: false,
                         error: null
@@ -42,13 +46,10 @@ export const useAuthStore = create<AuthState>()(
                     let errorMessage = 'Erro durante o login';
                     
                     if (error.response) {
-                        // Erro da API com resposta
                         errorMessage = error.response.data?.message || error.response.statusText;
                     } else if (error.request) {
-                        // Erro de conexão
                         errorMessage = 'Não foi possível conectar ao servidor';
                     } else {
-                        // Outros erros
                         errorMessage = error.message || errorMessage;
                     }
                     
@@ -85,21 +86,25 @@ export const useAuthStore = create<AuthState>()(
                 }
             },
 
-            logout: (options = { silent: false }) => {
-                // Limpeza do usuário
-                set({ 
-                    user: null,
-                    error: null // Limpa qualquer erro ao fazer logout
-                });
+            logout: async (options = { silent: false }) => {
+                try {
+                    await logoutService(); // Chama o endpoint de logout no backend
+                } finally {
+                    // Sempre limpa o estado, mesmo se a chamada falhar
+                    set({ 
+                        user: null,
+                        error: null
+                    });
 
-                if (!options.silent) {
-                    toast.success('Logout realizado com sucesso');
+                    if (!options.silent) {
+                        toast.success('Logout realizado com sucesso');
+                    }
                 }
             },
 
             isAuthenticated: () => {
                 const { user } = get();
-                return !!user; // Se o usuário estiver presente, está autenticado
+                return !!user;
             },
 
             resetError: () => {
