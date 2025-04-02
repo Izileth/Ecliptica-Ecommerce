@@ -1,27 +1,40 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '~/src/hooks/useAuth'
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthUser } from '~/src/hooks/useUser';
 import { useProducts } from '~/src/hooks/useStorage' // Importe o hook de produtos
-import { UserAvatar } from '~/src/components/ui/Avatar/avatar'
-import { LogoutButton } from '~/src/components/ui/User/logout'
-import { toast } from 'sonner'
-import { UserService } from '~/src/services/userService'
-import { formatPrice } from '~/src/utils/format'
-
+import { UserAvatar } from '~/src/components/ui/Avatar/avatar';
+import { toast } from 'sonner';
+import { formatPrice } from '~/src/utils/format';
+import { motion } from "framer-motion";
+import { LogoutButton } from '~/src/components/ui/User/logout';
+import { UserIcon } from 'lucide-react';
+import { ShieldIcon } from 'lucide-react';
+import { ShoppingBagIcon } from 'lucide-react';
+import { LogOutIcon } from 'lucide-react';
 // Components from shadcn/ui
-import { Button } from '~/src/components/imported/button'
-import { Input } from '~/src/components/imported/input'
-import { Label } from '~/src/components/imported/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/src/components/imported/tabs'
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '~/src/components/imported/card'
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '~/src/components/imported/table'
-import { Badge } from '~/src/components/imported/badge'
-import { Skeleton } from '~/src/components/imported/skeleton'
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '~/src/components/imported/alert-dialog'
+
+import { Button } from '~/src/components/imported/button';
+import { Input } from '~/src/components/imported/input';
+import { Label } from '~/src/components/imported/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/src/components/imported/tabs';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '~/src/components/imported/card';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '~/src/components/imported/table';
+import { Badge } from '~/src/components/imported/badge';
+import { Skeleton } from '~/src/components/imported/skeleton';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '~/src/components/imported/alert-dialog';
+import { AuthUserService } from '~/src/services/userService';
 
 export default function Profile() {
-  const { user, logout } = useAuth()
-  const navigate = useNavigate()
+  const { 
+    user, 
+    isLoading: authLoading,
+    updateProfile,
+    updatePassword,
+    logout,
+    clearError,
+    fetchProfile // Adicionar para recarregar os dados
+  } = useAuthUser();
+
   const {
     userProducts,
     loading: productsLoading,
@@ -29,91 +42,115 @@ export default function Profile() {
     removeProduct
   } = useProducts() // Use o hook de produtos
 
-  const [activeTab, setActiveTab] = useState<string>('profile')
-  const [userData, setUserData] = useState({
+  
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<string>('profile');
+  const [profileData, setProfileData] = useState({
     name: '',
     email: ''
-  })
+  });
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
-  })
+  });
   const [loading, setLoading] = useState({
     profile: false,
     password: false,
     delete: false
-  })
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  });
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [show, setShow] = useState(false);
 
-  // Load user data
+  // Carrega os dados do usuário quando o componente monta
   useEffect(() => {
+    setTimeout(() => setShow(true), 300);
+    
     if (user) {
-      setUserData({
+      setProfileData({
         name: user.name,
         email: user.email
-      })
-      // Carrega os produtos do usuário
-      getUserProducts(1) // Página 1
+      });
+      getUserProducts(1);
+    } else {
+      fetchProfile(); // Carrega os dados do perfil se não estiverem carregados
     }
-  }, [user])
+  }, [user, fetchProfile]); // Adicionar fetchProfile nas dependências
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(prev => ({ ...prev, profile: true }))
+    e.preventDefault();
+    setLoading(prev => ({ ...prev, profile: true }));
+    clearError();
     
     try {
-      if (!user?.id) throw new Error('Usuário não autenticado')
+      const updatedUser = await updateProfile({
+        name: profileData.name,
+        email: profileData.email
+      });
       
-      const updatedUser = await UserService.updateProfile(user.id, {
-        name: userData.name,
-        email: userData.email
-      })
+      // Atualiza os dados locais com a resposta do servidor
+      setProfileData({
+        name: updatedUser.name,
+        email: updatedUser.email
+      });
       
-      toast.success('Perfil atualizado com sucesso')
+      toast.success('Perfil atualizado com sucesso');
     } catch (error: any) {
-      toast.error(error.message || 'Falha ao atualizar perfil')
+      toast.error(error.message || 'Falha ao atualizar perfil');
     } finally {
-      setLoading(prev => ({ ...prev, profile: false }))
+      setLoading(prev => ({ ...prev, profile: false }));
     }
-  }
-
+  };
   const handlePasswordUpdate = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error('As senhas não coincidem')
-      return
+      toast.error('As senhas não coincidem');
+      return;
     }
     
-    if (!passwordData.currentPassword) {
-      toast.error('A senha atual é obrigatória')
-      return
+    if (passwordData.newPassword.length < 6) {
+      toast.error('A senha deve ter pelo menos 6 caracteres');
+      return;
     }
     
-    setLoading(prev => ({ ...prev, password: true }))
+    setLoading(prev => ({ ...prev, password: true }));
+    clearError();
     
     try {
-      if (!user?.id) throw new Error('Usuário não autenticado')
+      await updatePassword({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      });
       
-      await UserService.updatePassword(
-        user.id,
-        passwordData.currentPassword,
-        passwordData.newPassword
-      )
-      
-      toast.success('Senha atualizada com sucesso')
+      toast.success('Senha atualizada com sucesso');
       setPasswordData({
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
-      })
+      });
     } catch (error: any) {
-      toast.error(error.message || 'Falha ao atualizar senha')
+      toast.error(error.message || 'Falha ao atualizar senha');
     } finally {
-      setLoading(prev => ({ ...prev, password: false }))
+      setLoading(prev => ({ ...prev, password: false }));
     }
-  }
+  };
+
+
+  const confirmAccountDeletion = async () => {
+    setLoading(prev => ({ ...prev, delete: true }));
+    try {
+      await AuthUserService.deleteUser(user?.id || '');
+      logout({ silent: true });
+      navigate('/');
+      toast.success('Sua conta foi excluída com sucesso');
+    } catch (error: any) {
+      toast.error(error.message || 'Falha ao excluir conta');
+    } finally {
+      setLoading(prev => ({ ...prev, delete: false }));
+      setShowDeleteDialog(false);
+    }
+  };
 
   const handleDeleteProduct = async (productId: string) => {
     try {
@@ -125,71 +162,97 @@ export default function Profile() {
     }
   }
 
-  const confirmAccountDeletion = async () => {
-    setLoading(prev => ({ ...prev, delete: true }))
-    try {
-      if (user?.id) {
-        await UserService.delete(user.id)
-        logout()
-        navigate('/login')
-        toast.success('Sua conta foi excluída com sucesso')
-      }
-    } catch (error) {
-      toast.error('Falha ao excluir conta')
-    } finally {
-      setLoading(prev => ({ ...prev, delete: false }))
-      setShowDeleteDialog(false)
-    }
-  }
-
-  if (!user) {
+  if (!user && !authLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle className="text-center">Acesso não autorizado</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-center text-gray-600">
-              Você precisa estar logado para acessar esta página
-            </p>
-          </CardContent>
-          <CardFooter className="flex justify-center">
-            <Button onClick={() => navigate('/login')}>Ir para Login</Button>
-          </CardFooter>
-        </Card>
+      <div className="flex justify-center items-center h-screen text-zinc-950 w-full">
+        {show && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className='border-0 w-full'
+          >
+            <Card className="max-w-full overflow-hidden border-none shadow-none">
+              <CardHeader className='border-0 mb-0 border-none'>
+                <CardTitle className="text-center text-6xl font-semibold tracking-wide border-0 mb-0">
+                  Acesso Restrito
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-center text-gray-700 text-sm">
+                  Para acessar esta página, é necessário estar logado.
+                </p>
+              </CardContent>
+              <CardFooter className="flex justify-center">
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button
+                    className="bg-zinc-950 hover:bg-zinc-900 text-white px-6 py-2 rounded-none shadow-md"
+                    onClick={() => navigate("/login")}
+                  >
+                    Ir para Login
+                  </Button>
+                </motion.div>
+              </CardFooter>
+            </Card>
+          </motion.div>
+        )}
       </div>
-    )
+    );
   }
 
   return (
     <div className="container mx-auto px-4 py-8 mt-20">
       <div className="flex flex-col md:flex-row gap-8">
-        {/* Sidebar */}
+        {/* Sidebar - Dados do Usuário */}
+        {/* Sidebar - Dados do Usuário */}
         <div className="w-full md:w-1/4">
-          <Card className="h-full flex flex-col bg-gradient-to-b from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-800/50 border-0 shadow-sm rounded-xl overflow-hidden">
-            <CardHeader className="items-center flex-col justify-start p-8 pb-6">
-              <div className="p-1 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 shadow-inner">
+          <Card className="h-full flex flex-col bg-white border border-gray-100 rounded-lg overflow-hidden shadow-xs">
+            {/* Header com foto e nome */}
+            <CardHeader className="items-center flex-col justify-start p-6 pb-4 border-b border-gray-50">
+              <div className="p-1 rounded-full border border-gray-100 shadow-sm">
                 <UserAvatar 
-                  size="md" 
-                  className="w-20 h-20 text-3xl border-2 border-white dark:border-gray-800" 
+                  size="lg" 
+                  className="border-2 border-white shadow-sm"
                 />
               </div>
-              <CardTitle className="text-left mt-5 text-2xl font-semibold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-gray-200 dark:to-gray-400 bg-clip-text text-transparent">
-                {user?.name || 'Usuário'}
+              <CardTitle className="text-center mt-4 text-xl font-medium text-gray-900">
+                {user?.name || 'Carregando...'}
               </CardTitle>
-              <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 font-light tracking-wide">
-                {user?.email || 'email@exemplo.com'}
+              <p className="text-gray-500 text-xs mt-1 font-light">
+                {user?.email || 'carregando@email.com'}
               </p>
-              <Badge 
-                variant="outline" 
-                className="mt-3 px-3 py-1 rounded-full border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 font-medium text-xs uppercase tracking-wider"
-              >
-                {user.isAdmin ? 'Administrador' : 'Usuário'}
-              </Badge>
             </CardHeader>
-            <CardFooter className="mt-auto p-0 border-t border-gray-100 dark:border-gray-700/50">
-              <LogoutButton />
+
+            {/* Conteúdo central (pode adicionar mais itens de menu aqui) */}
+            <div className="flex-1 p-4 space-y-2">
+              <div className="flex items-center p-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                <UserIcon className="w-4 h-4 mr-3 text-gray-400" />
+                Meu Perfil
+              </div>
+              <div className="flex items-center p-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                <ShoppingBagIcon className="w-4 h-4 mr-3 text-gray-400" />
+                Meus Pedidos
+              </div>
+              {user?.isAdmin && (
+                <div className="flex items-center p-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                  <ShieldIcon className="w-4 h-4 mr-3 text-gray-400" />
+                  Área Admin
+                </div>
+              )}
+            </div>
+
+            {/* Footer com badge de status e logout */}
+            <CardFooter className="p-4 border-t border-gray-50 flex flex-col items-center">
+              <Badge 
+                variant={user?.isAdmin ? "default" : "secondary"}
+                className="px-2.5 py-0.5 rounded-full text-xs font-medium mb-3"
+              >
+                {user?.isAdmin ? 'Administrador' : 'Membro'}
+              </Badge>
+              <LogoutButton 
+                className="text-xs text-gray-500 hover:text-red-500 flex items-center"
+                showText={true}
+              />
             </CardFooter>
           </Card>
         </div>
@@ -215,8 +278,9 @@ export default function Profile() {
                       <Label htmlFor="name">Nome</Label>
                       <Input
                         id="name"
-                        value={userData.name || ''}
-                        onChange={(e) => setUserData({ ...userData, name: e.target.value })}
+                        value={profileData.name}
+                        onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                        disabled={loading.profile}
                       />
                     </div>
                     <div className="space-y-2">
@@ -224,8 +288,9 @@ export default function Profile() {
                       <Input
                         id="email"
                         type="email"
-                        value={userData.email || ''}
-                        onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                        value={profileData.email}
+                        onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                        disabled={loading.profile}
                       />
                     </div>
                     <Button type="submit" disabled={loading.profile}>
@@ -246,7 +311,7 @@ export default function Profile() {
                   </Button>
                 </CardHeader>
                 <CardContent>
-                  {productsLoading ? (
+                {productsLoading ? (
                     <div className="space-y-4">
                       {[...Array(3)].map((_, i) => (
                         <Skeleton key={i} className="h-20 w-full" />
@@ -333,6 +398,7 @@ export default function Profile() {
                             currentPassword: e.target.value
                           })
                         }
+                        disabled={loading.password}
                       />
                     </div>
                     <div className="space-y-2">
@@ -349,6 +415,7 @@ export default function Profile() {
                             newPassword: e.target.value
                           })
                         }
+                        disabled={loading.password}
                       />
                       <p className="text-xs text-muted-foreground">Mínimo de 6 caracteres</p>
                     </div>
@@ -366,6 +433,7 @@ export default function Profile() {
                             confirmPassword: e.target.value
                           })
                         }
+                        disabled={loading.password}
                       />
                     </div>
                     <Button type="submit" disabled={loading.password}>
@@ -421,5 +489,5 @@ export default function Profile() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }

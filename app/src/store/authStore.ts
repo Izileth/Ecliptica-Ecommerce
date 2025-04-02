@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { login as loginService, register as registerService, logout as logoutService } from '../services/authService'; // Adicionei o logoutService
+import { AuthUserService } from '../services/userService';
 import type { User } from '../services/type';
 import { toast } from 'sonner';
 
@@ -8,115 +8,166 @@ interface AuthState {
     user: User | null;
     isLoading: boolean;
     error: string | null;
+    
+    // Autenticação
     login: (credentials: { email: string; password: string }) => Promise<void>;
     register: (userData: { name: string; email: string; password: string }) => Promise<void>;
-    logout: (options?: { silent?: boolean }) => Promise<void>; // Mudei para async
+    logout: (options?: { silent?: boolean }) => Promise<void>;
+    
+    // Perfil
+    fetchProfile: () => Promise<void>;
+    updateProfile: (data: { name?: string; email?: string }) => Promise<User>;
+    updatePassword: (data: { currentPassword: string; newPassword: string }) => Promise<void>;
+    
+    // Utilitários
     isAuthenticated: () => boolean;
-    resetError: () => void;
+    isAdmin: () => boolean;
+    clearError: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
     persist(
         (set, get) => ({
-            user: null,
-            isLoading: false,
-            error: null,
+        user: null,
+        isLoading: false,
+        error: null,
 
-            login: async (credentials) => {
-                set({ isLoading: true, error: null });
-                try {
-                    const response = await loginService(credentials);
-                    if (!response.user) {
-                        throw new Error('Dados do usuário não retornados pela API');
-                    }
-                    
-                    set({
-                        user: {
-                            id: response.user.id,
-                            name: response.user.name,
-                            email: response.user.email,
-                            isAdmin: response.user.isAdmin ?? false, // Fallback seguro para boolean
-                        },
-                        isLoading: false,
-                        error: null
-                    });
-
-                    toast.success('Login realizado com sucesso');
-                } catch (error: any) {
-                    let errorMessage = 'Erro durante o login';
-                    
-                    if (error.response) {
-                        errorMessage = error.response.data?.message || error.response.statusText;
-                    } else if (error.request) {
-                        errorMessage = 'Não foi possível conectar ao servidor';
-                    } else {
-                        errorMessage = error.message || errorMessage;
-                    }
-                    
-                    set({ 
-                        error: errorMessage,
-                        isLoading: false 
-                    });
-                    
-                    toast.error(errorMessage);
-                }
-            },
-
-            register: async (userData) => {
-                set({ isLoading: true, error: null });
-                try {
-                    const { user } = await registerService(userData);
-                    set({ 
-                        user,
-                        isLoading: false 
-                    });
-                    toast.success('Registro realizado com sucesso');
-                } catch (error: any) {
-                    const errorMessage = error.response?.data?.message 
-                        || error.message 
-                        || 'Erro desconhecido durante o registro';
-                    
-                    set({ 
-                        error: errorMessage,
-                        isLoading: false 
-                    });
-
-                    toast.error(errorMessage);
-                    throw error;
-                }
-            },
-
-            logout: async (options = { silent: false }) => {
-                try {
-                    await logoutService(); // Chama o endpoint de logout no backend
-                } finally {
-                    // Sempre limpa o estado, mesmo se a chamada falhar
-                    set({ 
-                        user: null,
-                        error: null
-                    });
-
-                    if (!options.silent) {
-                        toast.success('Logout realizado com sucesso');
-                    }
-                }
-            },
-
-            isAuthenticated: () => {
-                const { user } = get();
-                return !!user;
-            },
-
-            resetError: () => {
-                set({ error: null });
+        // Autenticação
+        login: async (credentials) => {
+            set({ isLoading: true, error: null });
+            try {
+            const { user } = await AuthUserService.login(credentials);
+            set({ 
+                user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                isAdmin: user.isAdmin || false
+                },
+                isLoading: false 
+            });
+            toast.success('Login realizado com sucesso');
+            } catch (error: any) {
+            set({ 
+                error: error.message,
+                isLoading: false 
+            });
+            toast.error(error.message);
+            throw error; // Re-throw para tratamento adicional se necessário
             }
+        },
+
+        register: async (userData) => {
+            set({ isLoading: true, error: null });
+            try {
+            const { user } = await AuthUserService.register(userData);
+            set({ 
+                user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                isAdmin: user.isAdmin || false
+                },
+                isLoading: false 
+            });
+            toast.success('Registro realizado com sucesso');
+            } catch (error: any) {
+            set({ 
+                error: error.message,
+                isLoading: false 
+            });
+            toast.error(error.message);
+            throw error;
+            }
+        },
+
+        logout: async (options = { silent: false }) => {
+            try {
+            await AuthUserService.logout();
+            } finally {
+            set({ user: null });
+            if (!options.silent) {
+                toast.success('Logout realizado com sucesso');
+            }
+            }
+        },
+
+        // Perfil
+        fetchProfile: async () => {
+            set({ isLoading: true });
+            try {
+            const user = await AuthUserService.getProfile();
+            set({ 
+                user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                isAdmin: user.isAdmin || false
+                },
+                isLoading: false 
+            });
+            } catch (error: any) {
+            set({ 
+                error: error.message,
+                isLoading: false 
+            });
+            // Não mostrar toast para evitar poluição em loads automáticos
+            }
+        },
+
+        updateProfile: async (data) => {
+            set({ isLoading: true, error: null });
+            try {
+            const user = await AuthUserService.updateProfile(data);
+            const updatedUser = {
+                ...get().user,
+                ...user,
+                isAdmin: user.isAdmin || false
+            };
+            
+            set({ 
+                user: updatedUser,
+                isLoading: false 
+            });
+            toast.success('Perfil atualizado com sucesso');
+            return updatedUser;
+            } catch (error: any) {
+            set({ 
+                error: error.message,
+                isLoading: false 
+            });
+            toast.error(error.message);
+            throw error;
+            }
+        },
+
+        updatePassword: async ({ currentPassword, newPassword }) => {
+            set({ isLoading: true, error: null });
+            try {
+            await AuthUserService.updatePassword({ currentPassword, newPassword });
+            set({ isLoading: false });
+            toast.success('Senha atualizada com sucesso');
+            } catch (error: any) {
+            set({ 
+                error: error.message,
+                isLoading: false 
+            });
+            toast.error(error.message);
+            throw error;
+            }
+        },
+
+        // Utilitários
+        isAuthenticated: () => !!get().user,
+        isAdmin: () => get().user?.isAdmin || false,
+        clearError: () => set({ error: null })
         }),
         {
-            name: 'auth-storage',
-            partialize: (state) => ({ 
-                user: state.user 
-            }),
-            version: 0
+        name: 'auth-storage',
+        partialize: (state) => ({ 
+            user: state.user 
+        }),
+        version: 1 // Incrementar se mudar a estrutura
         }
     )
 );

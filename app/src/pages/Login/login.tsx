@@ -2,11 +2,12 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuthUser } from "../../hooks/useUser"
 import { Button } from "~/src/components/ui/Button/button";
 import { Input } from "~/src/components/ui/Input/input";
 import { Label } from "~/src/components/ui/Label/label";
 import { Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // Schema de validação com Zod
 const loginSchema = z.object({
@@ -17,8 +18,9 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export const Login = () => {
-    const { login, isLoading, error } = useAuth();
+    const { login, isLoading, error, clearError } = useAuthUser();
     const navigate = useNavigate();
+    
     const {
         register,
         handleSubmit,
@@ -28,15 +30,14 @@ export const Login = () => {
     });
 
     const onSubmit = async (data: LoginFormData) => {
+        clearError(); // Limpa erros anteriores
         try {
             await login(data);
-            // Só navega se não houver erro
             navigate('/profile');
         } catch (err) {
-          // O erro já é tratado pelo useAuth e exibido na interface
-          // Não precisa fazer nada adicional aqui
+            // O erro já é tratado pelo hook e exibido no estado
         }
-     };
+    };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -49,35 +50,25 @@ export const Login = () => {
                 <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
                     <div className="space-y-4">
                         <div>
-                            <Label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                E-mail
-                            </Label>
+                            <Label htmlFor="email">E-mail</Label>
                             <Input
                                 id="email"
                                 type="email"
                                 {...register("email")}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                 placeholder="seu@email.com"
+                                error={errors.email?.message}
                             />
-                            {errors.email && (
-                                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
-                            )}
                         </div>
 
                         <div>
-                            <Label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                                Senha
-                            </Label>
+                            <Label htmlFor="password">Senha</Label>
                             <Input
                                 id="password"
                                 type="password"
                                 {...register("password")}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                 placeholder="••••••••"
+                                error={errors.password?.message}
                             />
-                            {errors.password && (
-                                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
-                            )}
                         </div>
                     </div>
 
@@ -89,28 +80,26 @@ export const Login = () => {
                                 type="checkbox"
                                 className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                             />
-                            <Label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+                            <Label htmlFor="remember-me" className="ml-2">
                                 Lembrar de mim
                             </Label>
                         </div>
 
-                        <a
-                            href="#"
+                        <Link
+                            to="/forgot-password"
                             className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
                         >
                             Esqueceu sua senha?
-                        </a>
+                        </Link>
                     </div>
 
                     <div>
                         <Button
                             type="submit"
-                            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-zinc-950 hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:inset-ring-zinc-800"
+                            className="w-full"
                             disabled={isLoading}
                         >
-                            {isLoading ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : null}
+                            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Entrar
                         </Button>
                     </div>
@@ -123,12 +112,12 @@ export const Login = () => {
 
                     <div className="text-center text-sm text-gray-600">
                         Não tem uma conta?{" "}
-                        <a
-                            href="/register"
+                        <Link
+                            to="/register"
                             className="font-medium text-zinc-950 hover:text-zinc-900"
                         >
                             Registre-se
-                        </a>
+                        </Link>
                     </div>
                 </form>
             </div>

@@ -10,6 +10,8 @@ import {
 import type { Route } from "./+types/root";
 import { Provider } from 'react-redux'
 import { store } from './src/store/globalStore'
+import { Button } from "./src/components/imported/button";
+import { ArrowLeft } from "lucide-react";
 import Navbar from "./src/components/layout/Navbar/nav.bar";
 import Footer from "./src/components/layout/Footer/footer";
 import "./app.css";
@@ -72,30 +74,48 @@ export default function App() {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
-  let stack: string | undefined;
+  let statusCode = "404"
+  let message = "Page not found"
+  let details = "The page you are looking for doesn't exist or has been moved."
+  let stack: string | undefined
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
+    statusCode = error.status.toString()
+    message = error.status === 404 ? "Page not found" : "An error occurred"
     details =
       error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details;
+        ? "The page you are looking for doesn't exist or has been moved."
+        : error.statusText || details
   } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
+    message = "Development Error"
+    details = error.message
+    stack = error.stack
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
-  );
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
+      <div className="max-w-md w-full text-center">
+        <div className="mb-8">
+          <h1 className="text-9xl font-light tracking-tighter text-black mb-2">{statusCode}</h1>
+          <div className="h-px w-16 bg-black/20 mx-auto mb-8" />
+          <h2 className="text-xl font-light uppercase tracking-widest text-black mb-4">{message}</h2>
+          <p className="text-sm text-gray-500 mb-8 max-w-xs mx-auto">{details}</p>
+          <Button
+            variant="outline"
+            className="rounded-none border-black text-black hover:bg-black hover:text-white transition-colors duration-300"
+            onClick={() => window.history.back()}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Go Back
+          </Button>
+        </div>
+
+        {stack && (
+          <pre className="mt-8 p-4 bg-gray-50 border border-gray-200 text-left text-xs overflow-x-auto rounded-md">
+            <code className="text-gray-800">{stack}</code>
+          </pre>
+        )}
+      </div>
+    </div>
+  )
 }

@@ -7,6 +7,7 @@ import { Instagram, Facebook, Twitter, Youtube, ArrowRight } from "lucide-react"
 import { Button } from "~/src/components/ui/Button/button"
 import { Input } from "~/src/components/ui/Input/input"
 
+
 export default function Footer() {
     const [email, setEmail] = useState("")
 
@@ -149,12 +150,7 @@ export default function Footer() {
             {/* Payment Methods */}
             <div className="mt-12 pt-8 border-t">
             <div className="flex flex-wrap gap-4 justify-center">
-                <img src="/visa.svg" alt="Visa" className="h-6" />
-                <img src="/mastercard.svg" alt="Mastercard" className="h-6" />
-                <img src="/amex.svg" alt="American Express" className="h-6" />
-                <img src="/paypal.svg" alt="PayPal" className="h-6" />
-                <img src="/apple-pay.svg" alt="Apple Pay" className="h-6" />
-                <img src="/google-pay.svg" alt="Google Pay" className="h-6" />
+                <img src="../../../assets/cartoes.svg/bandeiras_catoes.png" alt="bandeiras" className="h-6" />
             </div>
             </div>
 

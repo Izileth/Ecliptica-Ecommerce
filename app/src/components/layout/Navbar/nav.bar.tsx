@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Search, ShoppingBag, User, Menu, X, ChevronDown } from "lucide-react";
-import { useAuthStore } from "~/src/store/authStore";
+import { useAuthUser } from "~/src/hooks/useUser";
 import { cn } from "~/src/lib/utils";
 import { Button } from "~/src/components/ui/Button/button";
 import { Input } from "~/src/components/ui/Input/input";
@@ -18,8 +18,9 @@ import {
   SheetTrigger,
   SheetClose,
 } from "~/src/components/ui/Sheet/sheet"
-import { Avatar, AvatarFallback, AvatarImage } from "~/src/components/imported/avatar";
+import { UserAvatar } from "~/src/components/ui/Avatar/avatar";
 import { toast } from "sonner";
+import { LogoutButton } from "~/src/components/ui/User/logout";
 
 export default function Navbar() {
   const location = useLocation();
@@ -27,21 +28,13 @@ export default function Navbar() {
   const {
     user,
     isLoading,
-    login,
-    logout,
-    error,
-    resetError
-  } = useAuthStore();
-  const isAuthenticated = useAuthStore(state => state.isAuthenticated());
+    isAuthenticated,
+    isAdmin,
+    logout
+  } = useAuthUser();
+  
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-
-  // Resetar erros ao desmontar o componente
-  useEffect(() => {
-    return () => {
-      if (error) resetError();
-    };
-  }, [error, resetError]);
 
   // Handle scroll effect
   useEffect(() => {
@@ -57,7 +50,7 @@ export default function Navbar() {
     { href: "/shop", label: "Coleções", hasSubmenu: true },
     { href: "/", label: "Lançamentos" },
     { href: "/products", label: "Produtos" },
-    ...(isAuthenticated ? [{ href: "/profile", label: "Perfil" }] : []),
+    ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
     { href: "/contact", label: "Contato" },
   ];
 
@@ -68,40 +61,24 @@ export default function Navbar() {
     { href: "/shop/shoes", label: "Calçados" },
   ];
 
-  const handleLogin = async () => {
-    try {
-      navigate("/login"); 
-    } catch (err) {
-      console.error("Login error:", err);
-    }
-  };
+  const handleLogin = () => navigate("/login");
+  const handleRegister = () => navigate("/register");
 
   const handleLogout = async () => {
     try {
       await logout();
       toast.success("Você foi desconectado com sucesso");
-      // Opcional: redirecionar para home após logout
-      navigate("/"); 
+      navigate("/");
     } catch (error) {
       toast.error("Erro ao fazer logout");
     }
-  };
-
-  const getInitials = (name?: string) => {
-    if (!name) return "US";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .substring(0, 2);
   };
 
   return (
     <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        isScrolled ? "bg-zinc-50 backdrop-blur-sm shadow-sm" : "bg-zinc-50"
+        isScrolled ? "bg-background/95 backdrop-blur-sm shadow-sm" : "bg-background"
       )}
     >
       <div className="container mx-auto px-4">
@@ -112,29 +89,26 @@ export default function Navbar() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden text-zinc-950"
+                className="md:hidden"
                 disabled={isLoading}
               >
-                <Menu className="h-5 w-5 text-zinc-950" />
-                <span className="sr-only text-zinc-950">Abrir menu</span>
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Abrir menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent
-              side="left"
-              className="w-[300px] sm:w-[350px] text-zinc-950 bg-zinc-50"
-            >
-              <div className="flex flex-col h-full bg-zinc-50 text-zinc-950">
-                <div className="py-6 border-b bg-zinc-50">
+            <SheetContent side="left" className="w-[300px] sm:w-[350px]">
+              <div className="flex flex-col h-full">
+                <div className="py-6 border-b">
                   <Link
                     to="/"
-                    className="font-serif text-xl font-medium tracking-wide text-zinc-950"
+                    className="font-serif text-xl font-medium tracking-wide"
                   >
                     STUDIO +
                   </Link>
                 </div>
 
-                <div className="flex-1 overflow-auto py-6 space-y-6 bg-zinc-50">
-                  <div className="space-y-3 bg-zinc-50">
+                <div className="flex-1 overflow-auto py-6 space-y-6">
+                  <div className="space-y-3">
                     {navLinks.map((link) => (
                       <div key={link.href} className="space-y-3">
                         <Link
@@ -142,15 +116,15 @@ export default function Navbar() {
                           className={cn(
                             "block py-2 text-base font-medium transition-colors",
                             location.pathname === link.href
-                              ? "text-zinc-950"
-                              : "text-muted-foreground hover:text-black"
+                              ? "text-foreground"
+                              : "text-muted-foreground hover:text-foreground"
                           )}
                         >
                           {link.label}
                         </Link>
 
                         {link.hasSubmenu && (
-                          <div className="pl-4 space-y-3 border-l text-zinc-950">
+                          <div className="pl-4 space-y-3 border-l">
                             {shopCategories.map((category) => (
                               <Link
                                 key={category.href}
@@ -158,8 +132,8 @@ export default function Navbar() {
                                 className={cn(
                                   "block py-1 text-sm transition-colors",
                                   location.pathname === category.href
-                                    ? "text-black"
-                                    : "text-muted-foreground hover:text-black"
+                                    ? "text-foreground"
+                                    : "text-muted-foreground hover:text-foreground"
                                 )}
                               >
                                 {category.label}
@@ -175,43 +149,31 @@ export default function Navbar() {
                 <div className="border-t py-6">
                   {isAuthenticated ? (
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={user?.image} />
-                          <AvatarFallback>
-                            {getInitials(user?.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <p className="font-medium">Olá, {user?.name || "Usuário"}</p>
-                      </div>
+                      <UserAvatar size="sm" showName />
                       <div className="space-y-2">
                         <Link
                           to="/profile"
-                          className="block text-sm text-muted-foreground hover:text-black"
+                          className="block text-sm text-muted-foreground hover:text-foreground"
                         >
                           Meu Perfil
                         </Link>
                         <Link
                           to="/orders"
-                          className="block text-sm text-muted-foreground hover:text-black"
+                          className="block text-sm text-muted-foreground hover:text-foreground"
                         >
                           Meus Pedidos
                         </Link>
                         <Link
                           to="/wishlist"
-                          className="block text-sm text-muted-foreground hover:text-black"
+                          className="block text-sm text-muted-foreground hover:text-foreground"
                         >
                           Favoritos
                         </Link>
                         <SheetClose asChild>
-                          <Button
-                            variant="outline"
+                          <LogoutButton 
+                            variant="button" 
                             className="w-full mt-2"
-                            onClick={handleLogout}
-                            disabled={isLoading}
-                          >
-                            {isLoading ? "Saindo..." : "Sair"}
-                          </Button>
+                          />
                         </SheetClose>
                       </div>
                     </div>
@@ -224,14 +186,19 @@ export default function Navbar() {
                           onClick={handleLogin}
                           disabled={isLoading}
                         >
-                          {isLoading ? "Carregando..." : "Entrar"}
+                          Entrar
                         </Button>
                       </SheetClose>
-                      <Link to="/register" className="w-full">
-                        <Button variant="outline" className="w-full" disabled={isLoading}>
+                      <SheetClose asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={handleRegister}
+                          disabled={isLoading}
+                        >
                           Criar Conta
                         </Button>
-                      </Link>
+                      </SheetClose>
                     </div>
                   )}
                 </div>
@@ -242,17 +209,17 @@ export default function Navbar() {
           {/* Logo */}
           <Link
             to="/"
-            className="font-serif text-xl md:text-2xl font-medium tracking-wider text-zinc-950"
+            className="font-serif text-xl md:text-2xl font-medium tracking-wider"
           >
             STUDIO +
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8 text-zinc-950">
+          <nav className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) =>
               link.hasSubmenu ? (
                 <DropdownMenu key={link.href}>
-                  <DropdownMenuTrigger className="bg-zinc-50 flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-black transition-colors outline-none">
+                  <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors outline-none">
                     {link.label}
                     <ChevronDown className="h-4 w-4" />
                   </DropdownMenuTrigger>
@@ -271,8 +238,8 @@ export default function Navbar() {
                   className={cn(
                     "text-sm font-medium transition-colors",
                     location.pathname === link.href
-                      ? "text-black"
-                      : "text-muted-foreground hover:text-black"
+                      ? "text-foreground"
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   {link.label}
@@ -282,7 +249,7 @@ export default function Navbar() {
           </nav>
 
           {/* Right Side Actions */}
-          <div className="flex items-center space-x-4 text-zinc-950">
+          <div className="flex items-center space-x-4">
             {/* Search */}
             <div className="relative">
               <Button
@@ -300,7 +267,7 @@ export default function Navbar() {
               </Button>
 
               {isSearchOpen && (
-                <div className="absolute right-0 top-full mt-2 w-[300px] bg-zinc-50 shadow-lg rounded-md p-4 border">
+                <div className="absolute right-0 top-full mt-2 w-[300px] bg-background shadow-lg rounded-md p-4 border">
                   <form className="flex items-center">
                     <Input
                       type="search"
@@ -319,74 +286,56 @@ export default function Navbar() {
 
             {/* User Account */}
             <div className="hidden md:block">
-              {isAuthenticated ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" disabled={isLoading}>
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={user?.image} />
-                        <AvatarFallback>
-                          {getInitials(user?.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="sr-only">Conta</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-[200px]">
-                    <div className="px-2 py-1.5 text-sm font-medium flex items-center gap-2">
-                      <Avatar className="h-6 w-6">
-                        <AvatarImage src={user?.image} />
-                        <AvatarFallback>
-                          {getInitials(user?.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      Olá, {user?.name || "Usuário"}
-                    </div>
-                    <DropdownMenuItem asChild>
-                      <Link to="/profile">Meu Perfil</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/orders">Meus Pedidos</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/wishlist">Favoritos</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={handleLogout}
-                      disabled={isLoading}
-                    >
-                      Sair
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" disabled={isLoading}>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" disabled={isLoading}>
+                    {isAuthenticated ? (
+                      <UserAvatar size="sm" />
+                    ) : (
                       <User className="h-5 w-5" />
-                      <span className="sr-only">Conta</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-[200px]">
-                    <DropdownMenuItem 
-                      onClick={handleLogin}
-                      disabled={isLoading}
-                    >
-                      Entrar
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/register">Criar Conta</Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
+                    )}
+                    <span className="sr-only">Conta</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[200px]">
+                  {isAuthenticated ? (
+                    <>
+                      <div className="px-2 py-1.5 text-sm font-medium flex items-center gap-2">
+                        <UserAvatar size="sm" />
+                        <span>Olá, {user?.name || "Usuário"}</span>
+                      </div>
+                      <DropdownMenuItem asChild>
+                        <Link to="/profile">Meu Perfil</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/orders">Meus Pedidos</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/wishlist">Favoritos</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={handleLogout}>
+                        Sair
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenuItem onSelect={handleLogin}>
+                        Entrar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={handleRegister}>
+                        Criar Conta
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             {/* Shopping Cart */}
             <Link to="/cart">
               <Button variant="ghost" size="icon" className="relative" disabled={isLoading}>
                 <ShoppingBag className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[10px] font-medium text-white">
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground">
                   {/* Aqui você pode adicionar a quantidade de itens no carrinho */}
                   0
                 </span>
