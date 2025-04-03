@@ -15,7 +15,6 @@ import { ArrowLeft } from "lucide-react";
 import Navbar from "./src/components/layout/Navbar/nav.bar";
 import Footer from "./src/components/layout/Footer/footer";
 import "./app.css";
-
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
@@ -25,7 +24,7 @@ export const links: Route.LinksFunction = () => [
   },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Cinzel:wght@400;700&display=swap",
   },
 ];
 
@@ -35,6 +34,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="Descubra a essência da moda com Ecliptica. Um universo onde sofisticação, mistério e autenticidade se encontram." />
+        <meta name="keywords" content="moda, sofisticação, estilo, ecliptica, exclusividade, elegância, tendência, moda masculina, moda feminina, streetwear, luxo" />
+        <meta property="og:title" content="Ecliptica - A Revolução da Moda Sofisticada" />
+        <meta property="og:description" content="Mergulhe na moda enigmática e exclusiva da Ecliptica. Uma experiência para quem busca mais do que roupas, mas identidade." />
+        <meta property="og:image" content="https://i.pinimg.com/736x/93/55/dd/9355dd0f9547309097693976b6114585.jpg" />
+        <meta property="og:url" content="https://www.ecliptica.com" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Ecliptica - Moda Atemporal e Misteriosa" />
+        <meta name="twitter:description" content="Descubra a essência da moda com Ecliptica. Um universo onde sofisticação, mistério e autenticidade se encontram." />
+        <meta name="twitter:image" content="/og-image.jpg" />
+        <link rel="icon" href="https://i.pinimg.com/736x/93/55/dd/9355dd0f9547309097693976b6114585.jpg" />
+        <link rel="icon" href="https://i.pinimg.com/736x/93/55/dd/9355dd0f9547309097693976b6114585.jpg" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="https://i.pinimg.com/736x/93/55/dd/9355dd0f9547309097693976b6114585.jpg" />
         <Meta />
         <Links />
       </head>

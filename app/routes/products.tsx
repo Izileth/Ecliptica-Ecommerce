@@ -3,7 +3,7 @@ import { Products } from "~/src/pages/Products/products";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Produtos | STUDIO +" },
+    { title: "Produtos | Ecliptica " },
     { name: "description", content: "Todos Os NossoS Produtos Em Um Só Lugar" },
   ];
 }

@@ -3,7 +3,7 @@ import Profile from "~/src/pages/Profile/profile";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Perfil | STUDIO +" },
+    { title: "Perfil | Ecliptica " },
     { name: "description", content: "Adicione, Edite e Delete Seus Dados" },
   ];
 }

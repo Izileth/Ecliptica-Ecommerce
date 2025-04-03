@@ -118,6 +118,22 @@ export const AuthUserService = {
     }
   },
 
+  requestPasswordReset: async (email: string): Promise<void> => {
+    try {
+      await api.post('/auth/forgot-password', { email });
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Erro ao solicitar redefinição de senha');
+    }
+  },
+
+  resetPassword: async (data: { token: string; newPassword: string }): Promise<void> => {
+    try {
+      await api.post('/auth/reset-password', data);
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Erro ao redefinir senha');
+    }
+  },
+
   /**
    * Admin-only
    */

@@ -11,6 +11,7 @@ import {
   clearCurrentProduct,
   resetProductError
 } from '../store/productStore';
+import type { ProductFilterApiParams } from '../services/type';
 import type { ProductFormValues } from '../services/type';
 import { ProductService } from '../services/produtcService';
 
@@ -46,10 +47,9 @@ export const useProducts = () => {
   } = useSelector((state: RootState) => state.products);
 
   // Ações
-  const getProducts = (page?: number, filters?: any) => {
+  const getProducts = (page?: number, filters?: ProductFilterApiParams) => {
     dispatch(fetchProducts({ page, filters }));
   };
-
   const getUserProducts = (page?: number) => {
     dispatch(fetchUserProducts({ page }));
   };

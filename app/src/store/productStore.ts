@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { ProductService } from '../services/produtcService';
-import type { PaginatedProducts } from '../services/type';
-import type { ProductFormValues } from '../services/type';
+import type { ProductFilterApiParams } from '../services/type';
 import type { Product } from '../services/type';
+
 
 interface ProductState {
   products: Product[];
@@ -35,11 +35,11 @@ const initialState: ProductState = {
 // Thunks para operações assíncronas
 export const fetchProducts = createAsyncThunk(
   'products/fetchAll',
-  async (params: { page?: number; filters?: any }, { rejectWithValue }) => {
+  async (params: { page?: number; filters?: ProductFilterApiParams }, { rejectWithValue }) => {
     try {
-      return await ProductService.getAll(params);
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || error.message);
+      return await ProductService.getAll(params.filters); // Verificar aqui
+    } catch (error) {
+      return rejectWithValue('Erro desconhecido ao buscar produtos');
     }
   }
 );

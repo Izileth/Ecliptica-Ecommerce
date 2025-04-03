@@ -3,7 +3,7 @@ import { Registers } from "~/src/pages/Resgister/resgister";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Resgistro | STUDIO +" },
+    { title: "Resgistro | Ecliptica " },
     { name: "description", content: "Começe a Publicar Ainda Hoje!" },
   ];
 }

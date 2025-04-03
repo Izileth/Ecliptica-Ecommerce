@@ -14,6 +14,11 @@ interface AuthState {
     register: (userData: { name: string; email: string; password: string }) => Promise<void>;
     logout: (options?: { silent?: boolean }) => Promise<void>;
     
+    //Recuperação de senha
+    requestPasswordReset: (email: string) => Promise<void>;
+    resetPassword: (data: { token: string; newPassword: string }) => Promise<void>;
+    
+    
     // Perfil
     fetchProfile: () => Promise<void>;
     updateProfile: (data: { name?: string; email?: string }) => Promise<User>;
@@ -147,6 +152,37 @@ export const useAuthStore = create<AuthState>()(
             await AuthUserService.updatePassword({ currentPassword, newPassword });
             set({ isLoading: false });
             toast.success('Senha atualizada com sucesso');
+            } catch (error: any) {
+            set({ 
+                error: error.message,
+                isLoading: false 
+            });
+            toast.error(error.message);
+            throw error;
+            }
+        },
+        requestPasswordReset: async (email) => {
+            set({ isLoading: true, error: null });
+            try {
+            await AuthUserService.requestPasswordReset(email);
+            set({ isLoading: false });
+            toast.success('E-mail de redefinição enviado com sucesso');
+            } catch (error: any) {
+            set({ 
+                error: error.message,
+                isLoading: false 
+            });
+            toast.error(error.message);
+            throw error;
+            }
+        },
+
+        resetPassword: async ({ token, newPassword }) => {
+            set({ isLoading: true, error: null });
+            try {
+            await AuthUserService.resetPassword({ token, newPassword });
+            set({ isLoading: false });
+            toast.success('Senha redefinida com sucesso');
             } catch (error: any) {
             set({ 
                 error: error.message,

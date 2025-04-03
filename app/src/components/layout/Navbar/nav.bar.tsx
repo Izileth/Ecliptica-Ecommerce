@@ -100,11 +100,11 @@ export default function Navbar() {
               <div className="flex flex-col h-full">
                 <div className="py-6 border-b">
                   <Link
-                    to="/"
-                    className="font-serif text-xl font-medium tracking-wide"
-                  >
-                    STUDIO +
-                  </Link>
+                  to="/"
+                  className="font-serif text-2xl md:text-3xl font-light tracking-[0.2em] uppercase text-gray-900 dark:text-gray-100 transition-colors relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[1px] after:bg-gray-400 after:dark:bg-gray-600 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
+                >
+                  Ecliptica
+                </Link>
                 </div>
 
                 <div className="flex-1 overflow-auto py-6 space-y-6">
@@ -209,9 +209,9 @@ export default function Navbar() {
           {/* Logo */}
           <Link
             to="/"
-            className="font-serif text-xl md:text-2xl font-medium tracking-wider"
+            className="font-serif text-2xl md:text-3xl font-light tracking-[0.2em] uppercase text-gray-900 dark:text-gray-100 transition-colors relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[1px] after:bg-gray-400 after:dark:bg-gray-600 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
           >
-            STUDIO +
+            Ecliptica
           </Link>
 
           {/* Desktop Navigation */}

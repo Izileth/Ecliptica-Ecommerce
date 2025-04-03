@@ -14,6 +14,8 @@ export const useAuthUser = () => {
     fetchProfile,
     updateProfile,
     updatePassword,
+    requestPasswordReset,
+    resetPassword,
     clearError
   } = useAuthStore();
 
@@ -29,6 +31,11 @@ export const useAuthUser = () => {
     login,
     register,
     logout,
+
+    //Redefiniçaõ de Senha
+
+    requestPasswordReset,
+    resetPassword,
     
     // Perfil
     fetchProfile,

@@ -1,9 +1,9 @@
 import type { Route } from "./+types/home";
-import Welcome from "~/src/pages/Welcome/welcome";
+import Welcome from "~/src/pages/Home/welcome";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "STUDIO +" },
+    { title: "Ecliptica " },
     { name: "description", content: "Welcome to React Router!" },
   ];
 }

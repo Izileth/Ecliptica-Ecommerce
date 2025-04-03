@@ -9,8 +9,7 @@ import { motion } from "framer-motion";
 import { LogoutButton } from '~/src/components/ui/User/logout';
 import { UserIcon } from 'lucide-react';
 import { ShieldIcon } from 'lucide-react';
-import { ShoppingBagIcon } from 'lucide-react';
-import { LogOutIcon } from 'lucide-react';
+import { ShoppingBagIcon, ArrowRight } from 'lucide-react';
 // Components from shadcn/ui
 
 import { Button } from '~/src/components/imported/button';
@@ -164,39 +163,61 @@ export default function Profile() {
 
   if (!user && !authLoading) {
     return (
-      <div className="flex justify-center items-center h-screen text-zinc-950 w-full">
-        {show && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className='border-0 w-full'
-          >
-            <Card className="max-w-full overflow-hidden border-none shadow-none">
-              <CardHeader className='border-0 mb-0 border-none'>
-                <CardTitle className="text-center text-6xl font-semibold tracking-wide border-0 mb-0">
-                  Acesso Restrito
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-center text-gray-700 text-sm">
-                  Para acessar esta página, é necessário estar logado.
-                </p>
-              </CardContent>
-              <CardFooter className="flex justify-center">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button
-                    className="bg-zinc-950 hover:bg-zinc-900 text-white px-6 py-2 rounded-none shadow-md"
-                    onClick={() => navigate("/login")}
-                  >
-                    Ir para Login
-                  </Button>
-                </motion.div>
-              </CardFooter>
-            </Card>
-          </motion.div>
-        )}
-      </div>
+      <div className="flex justify-center items-center min-h-screen bg-white px-4">
+      {show && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.7,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+          className="w-full max-w-md"
+        >
+          <Card className="overflow-hidden border-0 shadow-none">
+            <CardHeader className="pb-2 pt-10">
+              <div className="mx-auto h-px w-16 bg-black/10 mb-8" />
+              <CardTitle className="text-center text-4xl font-light tracking-tight text-black">
+                Acesso Restrito
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent className="px-8 pt-4">
+              <p className="text-center text-gray-500 text-sm font-light leading-relaxed max-w-xs mx-auto">
+                Para acessar esta página, é necessário estar autenticado com suas credenciais.
+              </p>
+            </CardContent>
+
+            <CardFooter className="flex flex-col items-center pb-10 pt-6">
+              <motion.div
+                whileHover={{
+                  scale: 1.02,
+                  transition: { duration: 0.2 },
+                }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  className="bg-black hover:bg-black/90 text-white px-8 py-6 h-10 rounded-none font-light tracking-wide text-sm transition-colors duration-300"
+                  onClick={() => navigate("/login")}
+                >
+                  Ir para Login
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </motion.div>
+
+              <motion.button
+                className="mt-6 text-xs text-gray-400 hover:text-gray-600 font-light underline-offset-4 hover:underline transition-colors"
+                onClick={() => navigate("/")}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+              >
+                Voltar para página inicial
+              </motion.button>
+            </CardFooter>
+          </Card>
+        </motion.div>
+      )}
+    </div>
     );
   }
 

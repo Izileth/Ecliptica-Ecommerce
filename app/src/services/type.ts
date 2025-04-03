@@ -14,8 +14,11 @@ export interface Product {
   name: string;
   description: string;
   price: number;
+  oldPrice?: number;
   image: string;
   category: string;
+  sizes: string[];
+  colors: string[];
   countInStock: number;
   createdAt: string;
   updatedAt: string;
@@ -36,9 +39,30 @@ export interface PaginatedProducts {
     limit: number;
     total: number;
     pages: number;
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
   };
+}
+
+export interface ProductQueryParams {
+  page?: number;
+  limit?: number;
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  inStock?: boolean;
+  sortBy?: 'price' | 'createdAt' | 'name';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface ApiError {
+  message: string;
+  statusCode: number;
+  errors?: Record<string, string>;
+}
+
+export interface ProductImage {
+  url: string;
+  alt?: string;
+  isPrimary?: boolean;
 }
 
 export interface CartItem {
@@ -64,6 +88,25 @@ export interface Order {
     country: string;
   };
   paymentMethod?: string;
+}
+export interface ProductFilterFormValues {
+  category?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  inStock?: boolean;
+  sortBy?: 'name' | 'price' | 'createdAt';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface ProductFilterApiParams {
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  inStock?: boolean;
+  sortBy?: 'name' | 'price' | 'createdAt';
+  sortOrder?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
 }
 
 // Tipo para formulário de produto

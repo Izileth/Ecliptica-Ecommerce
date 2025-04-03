@@ -1,15 +1,16 @@
 import api from './api';
 import type { Product, ProductFormValues } from './type';
-
+import type { ProductFilterApiParams } from './type';
 interface ProductFilters {
   category?: string;
-  name?: string;
+  minPrice?: number; // Agora como number
+  maxPrice?: number;
+  inStock?: boolean;
   sortBy?: 'name' | 'price' | 'createdAt';
   sortOrder?: 'asc' | 'desc';
   page?: number;
   limit?: number;
 }
-
 interface PaginatedResponse {
   data: Product[];
   pagination: {
@@ -22,7 +23,7 @@ interface PaginatedResponse {
 
 export const ProductService = {
   // Listar todos os produtos (com filtros e paginação)
-  getAll: async (filters?: ProductFilters): Promise<PaginatedResponse> => {
+  getAll: async (filters?: ProductFilterApiParams): Promise<PaginatedResponse> => {
     const response = await api.get<PaginatedResponse>('/products', { 
       params: filters 
     });
