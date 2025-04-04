@@ -40,6 +40,15 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter }) => {
         onFilter({});
     };
 
+    
+    const categories = [
+      'Camisetas',
+      'Calças',
+      'Vestidos',
+      'Casacos',
+      'Sapatos'
+    ]; // Substitua pelas suas categorias reais
+
   return (
     <form onSubmit={handleSubmit} className="mb-8 mt-10 p-4 bg-transparent rounded-lg">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -51,11 +60,12 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter }) => {
             onChange={handleChange}
             className="w-full p-2 border rounded"
           >
-            <option value="">Todas</option>
-            <option value="camisetas">Camisetas</option>
-            <option value="calcas">Calças</option>
-            <option value="vestidos">Vestidos</option>
-            <option value="casacos">Casacos</option>
+            <option value="">Todas categorias</option>
+            {categories.map(cat => (
+              <option key={cat} value={cat}>
+                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </option>
+            ))}
           </select>
         </div>
         

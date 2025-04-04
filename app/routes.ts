@@ -10,6 +10,7 @@ export default [
     route("products/new", "routes/products/new.tsx"),  // Criação de produto
     route("products/:id/edit", "routes/products/edit.tsx"),  // Edição de produto
     route("products/:id", "routes/products/[id].tsx"),  // Visualização individual
-    route("profile", "routes/profile.tsx")
+    route("profile", "routes/profile.tsx"),
+    route("cart", "routes/cart/cart.tsx")
 ] satisfies RouteConfig;
 

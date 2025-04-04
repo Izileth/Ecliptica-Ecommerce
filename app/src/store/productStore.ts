@@ -55,13 +55,15 @@ export const fetchUserProducts = createAsyncThunk(
   }
 );
 
+
 export const fetchProductById = createAsyncThunk(
   'products/fetchById',
   async (id: string, { rejectWithValue }) => {
     try {
-      return await ProductService.getById(id);
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || error.message);
+      const response = await ProductService.getById(id);
+      return response; // Aqui já deveria receber o objeto do produto diretamente
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Erro ao buscar produto');
     }
   }
 );

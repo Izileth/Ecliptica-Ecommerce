@@ -1,5 +1,5 @@
 import type { Route } from "./+types/home";
-import { Products } from "~/src/pages/Products/products";
+import { Products } from "~/src/pages/Products/products.grid";
 
 export function meta({}: Route.MetaArgs) {
   return [

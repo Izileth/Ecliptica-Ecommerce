@@ -41,9 +41,9 @@ export const ProductService = {
   // Buscar produto por ID
   getById: async (id: string): Promise<Product> => {
     try {
-      const response = await api.get<Product>(`/products/${id}`);
-      if (!response.data) throw new Error('Produto não encontrado');
-      return response.data;
+      const response = await api.get(`/products/${id}`);
+      if (!response.data || !response.data.data) throw new Error('Produto não encontrado');
+      return response.data.data; // Acessa o objeto produto dentro da propriedade data
     } catch (error) {
       console.error('Error fetching product:', error);
       throw new Error('Failed to fetch product');

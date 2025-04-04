@@ -14,6 +14,7 @@ import {
 import type { ProductFilterApiParams } from '../services/type';
 import type { ProductFormValues } from '../services/type';
 import { ProductService } from '../services/produtcService';
+import { useCallback } from 'react';
 
 export const useProducts = () => {
   // Verificação para SSR (Next.js/Gatsby)
@@ -28,9 +29,9 @@ export const useProducts = () => {
       getProducts: () => {},
       getUserProducts: () => {},
       getProductById: () => {},
-      addProduct: async () => {},
-      editProduct: async () => {},
-      removeProduct: async () => {},
+      addProduct: async () => ({}),
+      editProduct: async () => ({}),
+      removeProduct: async () => ({}),
       clearProduct: () => {},
       clearError: () => {},
     };
@@ -46,39 +47,59 @@ export const useProducts = () => {
     pagination
   } = useSelector((state: RootState) => state.products);
 
-  // Ações
-  const getProducts = (page?: number, filters?: ProductFilterApiParams) => {
-    dispatch(fetchProducts({ page, filters }));
-  };
-  const getUserProducts = (page?: number) => {
-    dispatch(fetchUserProducts({ page }));
-  };
+  // Busca de produtos com memoização para evitar re-renders desnecessários
+  const getProducts = useCallback((page?: number, filters?: ProductFilterApiParams) => {
+    return dispatch(fetchProducts({ page, filters }));
+  }, [dispatch]);
+  
+  const getUserProducts = useCallback((page?: number) => {
+    return dispatch(fetchUserProducts({ page }));
+  }, [dispatch]);
 
-  const getProductById = (id: string) => {
-    dispatch(fetchProductById(id));
-  };
+  const getProductById = useCallback((id: string) => {
+    try {
+      return dispatch(fetchProductById(id));
+    } catch (error) {
+      console.error("Erro ao buscar produto:", error);
+    }
+  }, [dispatch]);
 
-  const addProduct = async (values: ProductFormValues) => {
-    const formData = ProductService.toFormData(values);
-    return dispatch(createProduct(formData)).unwrap();
-  };
+  const addProduct = useCallback(async (values: ProductFormValues) => {
+    try {
+      const formData = ProductService.toFormData(values);
+      return await dispatch(createProduct(formData)).unwrap();
+    } catch (error) {
+      console.error("Erro ao adicionar produto:", error);
+      throw error;
+    }
+  }, [dispatch]);
 
-  const editProduct = async (id: string, values: ProductFormValues) => {
-    const formData = ProductService.toFormData(values);
-    return dispatch(updateProduct({ id, formData })).unwrap();
-  };
+  const editProduct = useCallback(async (id: string, values: ProductFormValues) => {
+    try {
+      const formData = ProductService.toFormData(values);
+      return await dispatch(updateProduct({ id, formData })).unwrap();
+    } catch (error) {
+      console.error("Erro ao editar produto:", error);
+      throw error;
+    }
+  }, [dispatch]);
 
-  const removeProduct = async (id: string) => {
-    return dispatch(deleteProduct(id)).unwrap();
-  };
+  const removeProduct = useCallback(async (id: string) => {
+    try {
+      return await dispatch(deleteProduct(id)).unwrap();
+    } catch (error) {
+      console.error("Erro ao remover produto:", error);
+      throw error;
+    }
+  }, [dispatch]);
 
-  const clearProduct = () => {
+  const clearProduct = useCallback(() => {
     dispatch(clearCurrentProduct());
-  };
+  }, [dispatch]);
 
-  const clearError = () => {
+  const clearError = useCallback(() => {
     dispatch(resetProductError());
-  };
+  }, [dispatch]);
 
   return {
     products,

@@ -63,13 +63,31 @@ export interface ProductImage {
   url: string;
   alt?: string;
   isPrimary?: boolean;
+  
 }
 
 export interface CartItem {
   id: string;
   productId: string;
   quantity: number;
-  product?: Product;
+  product?: Product; // Produto expandido
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Cart {
+  id: string;
+  userId: string;
+  items: CartItem[];
+  total: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// Tipo para adicionar/atualizar itens
+export interface CartItemRequest {
+  productId: string;
+  quantity: number;
 }
 
 export interface Order {

@@ -1,5 +1,5 @@
 import type { Route } from "../+types/home";
-import { Registers } from "~/src/pages/Resgister/resgister";
+import { Registers } from "~/src/pages/Auth/resgister";
 
 export function meta({}: Route.MetaArgs) {
   return [

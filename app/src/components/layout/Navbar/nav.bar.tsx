@@ -1,16 +1,18 @@
-// src/components/Navbar.tsx
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Search, ShoppingBag, User, Menu, X, ChevronDown } from "lucide-react";
+import { Search, ShoppingBag, User, Menu, X, ChevronDown, ChevronRight } from "lucide-react"
 import { useAuthUser } from "~/src/hooks/useUser";
+import { useCart } from "~/src/hooks/useCart"; // Importando o hook useCart
 import { cn } from "~/src/lib/utils";
 import { Button } from "~/src/components/ui/Button/button";
 import { Input } from "~/src/components/ui/Input/input";
+import { motion, AnimatePresence } from "framer-motion"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "~/src/components/imported/dropdown-menu";
 import {
   Sheet,
@@ -23,65 +25,94 @@ import { toast } from "sonner";
 import { LogoutButton } from "~/src/components/ui/User/logout";
 
 export default function Navbar() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const {
-    user,
-    isLoading,
-    isAuthenticated,
-    isAdmin,
-    logout
-  } = useAuthUser();
+  const location = useLocation()
+  const navigate = useNavigate()
+  const { user, isLoading, isAuthenticated, isAdmin, logout } = useAuthUser()
+  const { itemCount, getCart } = useCart(); // Utilizando o hook useCart
   
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
 
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
+      setIsScrolled(window.scrollY > 10)
+    }
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  // Carregar o carrinho quando o componente montar ou o usuário autenticar
+  useEffect(() => {
+    getCart();
+  }, [getCart, isAuthenticated]);
+
+  // Close search when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const searchContainer = document.getElementById("search-container")
+      if (isSearchOpen && searchContainer && !searchContainer.contains(event.target as Node)) {
+        setIsSearchOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [isSearchOpen])
+
+  // Close search when navigating
+  useEffect(() => {
+    setIsSearchOpen(false)
+  }, [location])
 
   const navLinks = [
     { href: "/shop", label: "Coleções", hasSubmenu: true },
-    { href: "/", label: "Lançamentos" },
+    { href: "/new", label: "Lançamentos" },
     { href: "/products", label: "Produtos" },
     ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
     { href: "/contact", label: "Contato" },
-  ];
+  ]
 
   const shopCategories = [
     { href: "/shop/women", label: "Feminina" },
     { href: "/shop/men", label: "Masculina" },
     { href: "/shop/accessories", label: "Acessórios" },
     { href: "/shop/shoes", label: "Calçados" },
-  ];
+  ]
 
-  const handleLogin = () => navigate("/login");
-  const handleRegister = () => navigate("/register");
+  const handleLogin = () => navigate("/login")
+  const handleRegister = () => navigate("/register")
 
   const handleLogout = async () => {
     try {
-      await logout();
-      toast.success("Você foi desconectado com sucesso");
-      navigate("/");
+      await logout()
+      toast.success("Você foi desconectado com sucesso")
+      navigate("/")
     } catch (error) {
-      toast.error("Erro ao fazer logout");
+      toast.error("Erro ao fazer logout")
     }
-  };
+  }
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+      setIsSearchOpen(false)
+      setSearchQuery("")
+    }
+  }
 
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        isScrolled ? "bg-background/95 backdrop-blur-sm shadow-sm" : "bg-background"
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
+        isScrolled ? "bg-white/95 backdrop-blur-sm border-b border-gray-100" : "bg-white",
       )}
     >
-      <div className="container mx-auto px-4">
+      <div className="container max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex h-16 md:h-20 items-center justify-between">
           {/* Mobile Menu Trigger */}
           <Sheet>
@@ -89,51 +120,45 @@ export default function Navbar() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden"
+                className="md:hidden text-gray-700 hover:text-black hover:bg-transparent"
                 disabled={isLoading}
               >
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Abrir menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[300px] sm:w-[350px]">
+            <SheetContent side="left" className="w-[300px] sm:w-[350px] p-0 border-r border-gray-100">
               <div className="flex flex-col h-full">
-                <div className="py-6 border-b">
-                  <Link
-                  to="/"
-                  className="font-serif text-2xl md:text-3xl font-light tracking-[0.2em] uppercase text-gray-900 dark:text-gray-100 transition-colors relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[1px] after:bg-gray-400 after:dark:bg-gray-600 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
-                >
-                  Ecliptica
-                </Link>
+                <div className="py-8 px-6 border-b border-gray-100">
+                  <Link to="/" className="font-light text-2xl tracking-widest uppercase text-gray-900">
+                    Ecliptica
+                  </Link>
                 </div>
 
-                <div className="flex-1 overflow-auto py-6 space-y-6">
-                  <div className="space-y-3">
+                <div className="flex-1 overflow-auto py-6 px-6">
+                  <nav className="space-y-6">
                     {navLinks.map((link) => (
-                      <div key={link.href} className="space-y-3">
+                      <div key={link.href} className="space-y-4">
                         <Link
                           to={link.href}
                           className={cn(
-                            "block py-2 text-base font-medium transition-colors",
-                            location.pathname === link.href
-                              ? "text-foreground"
-                              : "text-muted-foreground hover:text-foreground"
+                            "flex items-center justify-between text-sm font-light tracking-wide transition-colors",
+                            location.pathname === link.href ? "text-black" : "text-gray-500 hover:text-black",
                           )}
                         >
-                          {link.label}
+                          <span>{link.label}</span>
+                          {link.hasSubmenu && <ChevronRight className="h-4 w-4 opacity-50" />}
                         </Link>
 
                         {link.hasSubmenu && (
-                          <div className="pl-4 space-y-3 border-l">
+                          <div className="pl-4 space-y-3 border-l border-gray-100">
                             {shopCategories.map((category) => (
                               <Link
                                 key={category.href}
                                 to={category.href}
                                 className={cn(
-                                  "block py-1 text-sm transition-colors",
-                                  location.pathname === category.href
-                                    ? "text-foreground"
-                                    : "text-muted-foreground hover:text-foreground"
+                                  "block py-1 text-xs font-light tracking-wide transition-colors",
+                                  location.pathname === category.href ? "text-black" : "text-gray-500 hover:text-black",
                                 )}
                               >
                                 {category.label}
@@ -143,46 +168,52 @@ export default function Navbar() {
                         )}
                       </div>
                     ))}
-                  </div>
+                  </nav>
                 </div>
 
-                <div className="border-t py-6">
+                <div className="border-t border-gray-100 py-6 px-6">
                   {isAuthenticated ? (
-                    <div className="space-y-3">
-                      <UserAvatar size="sm" showName />
-                      <div className="space-y-2">
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-3">
+                        <UserAvatar size="sm" />
+                        <div className="flex flex-col">
+                          <span className="text-sm font-light">{user?.name || "Usuário"}</span>
+                          <span className="text-xs text-gray-500 font-light">{user?.email}</span>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
                         <Link
                           to="/profile"
-                          className="block text-sm text-muted-foreground hover:text-foreground"
+                          className="block text-xs font-light tracking-wide text-gray-500 hover:text-black transition-colors"
                         >
                           Meu Perfil
                         </Link>
                         <Link
                           to="/orders"
-                          className="block text-sm text-muted-foreground hover:text-foreground"
+                          className="block text-xs font-light tracking-wide text-gray-500 hover:text-black transition-colors"
                         >
                           Meus Pedidos
                         </Link>
                         <Link
                           to="/wishlist"
-                          className="block text-sm text-muted-foreground hover:text-foreground"
+                          className="block text-xs font-light tracking-wide text-gray-500 hover:text-black transition-colors"
                         >
                           Favoritos
                         </Link>
                         <SheetClose asChild>
-                          <LogoutButton 
-                            variant="button" 
-                            className="w-full mt-2"
+                          <LogoutButton
+                            variant="button"
+                            className="w-full justify-start p-0 h-auto text-xs font-light tracking-wide text-gray-500 hover:text-red-500 hover:bg-transparent transition-colors"
                           />
                         </SheetClose>
                       </div>
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-3">
                       <SheetClose asChild>
                         <Button
                           variant="default"
-                          className="w-full"
+                          className="w-full bg-black hover:bg-black/90 text-white rounded-none font-light tracking-wide text-xs h-10 transition-colors duration-300"
                           onClick={handleLogin}
                           disabled={isLoading}
                         >
@@ -192,7 +223,7 @@ export default function Navbar() {
                       <SheetClose asChild>
                         <Button
                           variant="outline"
-                          className="w-full"
+                          className="w-full border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 rounded-none font-light tracking-wide text-xs h-10 transition-colors"
                           onClick={handleRegister}
                           disabled={isLoading}
                         >
@@ -207,25 +238,32 @@ export default function Navbar() {
           </Sheet>
 
           {/* Logo */}
-          <Link
-            to="/"
-            className="font-serif text-2xl md:text-3xl font-light tracking-[0.2em] uppercase text-gray-900 dark:text-gray-100 transition-colors relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[1px] after:bg-gray-400 after:dark:bg-gray-600 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
-          >
-            Ecliptica
-          </Link>
+          <div className="flex-1 md:flex-none flex justify-center md:justify-start">
+            <Link
+              to="/"
+              className="font-light text-2xl md:text-2xl tracking-widest uppercase text-gray-900 transition-colors hover:text-black relative group"
+            >
+              Ecliptica
+              <span className="absolute -bottom-1 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"></span>
+            </Link>
+          </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center justify-center flex-1 space-x-8">
             {navLinks.map((link) =>
               link.hasSubmenu ? (
                 <DropdownMenu key={link.href}>
-                  <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors outline-none">
+                  <DropdownMenuTrigger className="flex items-center gap-1 text-xs font-light tracking-wide text-gray-700 hover:text-black transition-colors outline-none">
                     {link.label}
-                    <ChevronDown className="h-4 w-4" />
+                    <ChevronDown className="h-3 w-3 opacity-50" />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="center" className="w-[180px]">
+                  <DropdownMenuContent align="center" className="w-[180px] rounded-none border-gray-100 p-2">
                     {shopCategories.map((category) => (
-                      <DropdownMenuItem key={category.href} asChild>
+                      <DropdownMenuItem
+                        key={category.href}
+                        asChild
+                        className="text-xs font-light tracking-wide text-gray-700 hover:text-black focus:text-black rounded-none focus:bg-gray-50"
+                      >
                         <Link to={category.href}>{category.label}</Link>
                       </DropdownMenuItem>
                     ))}
@@ -236,93 +274,132 @@ export default function Navbar() {
                   key={link.href}
                   to={link.href}
                   className={cn(
-                    "text-sm font-medium transition-colors",
-                    location.pathname === link.href
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
+                    "text-xs font-light tracking-wide transition-colors relative group",
+                    location.pathname === link.href ? "text-black" : "text-gray-700 hover:text-black",
                   )}
                 >
                   {link.label}
+                  <span
+                    className={cn(
+                      "absolute -bottom-1 left-0 h-px bg-black transition-all duration-300",
+                      location.pathname === link.href ? "w-full" : "w-0 group-hover:w-full",
+                    )}
+                  ></span>
                 </Link>
-              )
+              ),
             )}
           </nav>
 
           {/* Right Side Actions */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-1 md:space-x-2">
             {/* Search */}
-            <div className="relative">
+            <div id="search-container" className="relative">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
                 aria-label="Search"
                 disabled={isLoading}
+                className="text-gray-700 hover:text-black hover:bg-transparent"
               >
-                {isSearchOpen ? (
-                  <X className="h-5 w-5" />
-                ) : (
-                  <Search className="h-5 w-5" />
-                )}
+                {isSearchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
               </Button>
 
-              {isSearchOpen && (
-                <div className="absolute right-0 top-full mt-2 w-[300px] bg-background shadow-lg rounded-md p-4 border">
-                  <form className="flex items-center">
-                    <Input
-                      type="search"
-                      placeholder="Buscar produtos..."
-                      className="flex-1"
-                      autoFocus
-                    />
-                    <Button type="submit" size="icon" variant="ghost">
-                      <Search className="h-4 w-4" />
-                      <span className="sr-only">Buscar</span>
-                    </Button>
-                  </form>
-                </div>
-              )}
+              <AnimatePresence>
+                {isSearchOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 top-full mt-1 w-[280px] md:w-[320px] bg-white shadow-md border border-gray-100 z-50"
+                  >
+                    <form onSubmit={handleSearch} className="flex items-center p-2">
+                      <Input
+                        type="search"
+                        placeholder="Buscar produtos..."
+                        className="flex-1 border-gray-200 focus:border-gray-300 focus:ring-0 h-9 text-sm font-light rounded-none"
+                        autoFocus
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                      <Button
+                        type="submit"
+                        size="icon"
+                        variant="ghost"
+                        className="h-9 w-9 text-gray-700 hover:text-black hover:bg-transparent"
+                      >
+                        <Search className="h-4 w-4" />
+                        <span className="sr-only">Buscar</span>
+                      </Button>
+                    </form>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* User Account */}
             <div className="hidden md:block">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" disabled={isLoading}>
-                    {isAuthenticated ? (
-                      <UserAvatar size="sm" />
-                    ) : (
-                      <User className="h-5 w-5" />
-                    )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    disabled={isLoading}
+                    className="text-gray-700 hover:text-black hover:bg-transparent"
+                  >
+                    {isAuthenticated ? <UserAvatar size="sm" /> : <User className="h-4 w-4" />}
                     <span className="sr-only">Conta</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[200px]">
+                <DropdownMenuContent align="end" className="w-[220px] rounded-none border-gray-100 p-2">
                   {isAuthenticated ? (
                     <>
-                      <div className="px-2 py-1.5 text-sm font-medium flex items-center gap-2">
+                      <div className="px-2 py-2 text-xs font-light flex items-center gap-2 border-b border-gray-50 mb-1">
                         <UserAvatar size="sm" />
-                        <span>Olá, {user?.name || "Usuário"}</span>
+                        <div className="flex flex-col">
+                          <span className="font-normal text-gray-900">{user?.name || "Usuário"}</span>
+                          <span className="text-gray-500">{user?.email}</span>
+                        </div>
                       </div>
-                      <DropdownMenuItem asChild>
+                      <DropdownMenuItem
+                        asChild
+                        className="text-xs font-light tracking-wide text-gray-700 hover:text-black focus:text-black rounded-none focus:bg-gray-50"
+                      >
                         <Link to="/profile">Meu Perfil</Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
+                      <DropdownMenuItem
+                        asChild
+                        className="text-xs font-light tracking-wide text-gray-700 hover:text-black focus:text-black rounded-none focus:bg-gray-50"
+                      >
                         <Link to="/orders">Meus Pedidos</Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
+                      <DropdownMenuItem
+                        asChild
+                        className="text-xs font-light tracking-wide text-gray-700 hover:text-black focus:text-black rounded-none focus:bg-gray-50"
+                      >
                         <Link to="/wishlist">Favoritos</Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={handleLogout}>
+                      <DropdownMenuSeparator className="bg-gray-100" />
+                      <DropdownMenuItem
+                        onSelect={handleLogout}
+                        className="text-xs font-light tracking-wide text-red-500 hover:text-red-600 focus:text-red-600 rounded-none focus:bg-red-50"
+                      >
                         Sair
                       </DropdownMenuItem>
                     </>
                   ) : (
                     <>
-                      <DropdownMenuItem onSelect={handleLogin}>
+                      <DropdownMenuItem
+                        onSelect={handleLogin}
+                        className="text-xs font-light tracking-wide text-gray-700 hover:text-black focus:text-black rounded-none focus:bg-gray-50"
+                      >
                         Entrar
                       </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={handleRegister}>
+                      <DropdownMenuItem
+                        onSelect={handleRegister}
+                        className="text-xs font-light tracking-wide text-gray-700 hover:text-black focus:text-black rounded-none focus:bg-gray-50"
+                      >
                         Criar Conta
                       </DropdownMenuItem>
                     </>
@@ -333,12 +410,18 @@ export default function Navbar() {
 
             {/* Shopping Cart */}
             <Link to="/cart">
-              <Button variant="ghost" size="icon" className="relative" disabled={isLoading}>
-                <ShoppingBag className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground">
-                  {/* Aqui você pode adicionar a quantidade de itens no carrinho */}
-                  0
-                </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative text-gray-700 hover:text-black hover:bg-transparent"
+                disabled={isLoading}
+              >
+                <ShoppingBag className="h-4 w-4" />
+                {itemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[10px] font-light text-white">
+                    {itemCount > 99 ? '99+' : itemCount}
+                  </span>
+                )}
                 <span className="sr-only">Carrinho</span>
               </Button>
             </Link>
@@ -346,5 +429,5 @@ export default function Navbar() {
         </div>
       </div>
     </header>
-  );
+  )
 }

@@ -1,6 +1,5 @@
-
 import type { Route } from "./+types/login";
-import { Login } from "~/src/pages/Login/login";
+import { Login } from "~/src/pages/Auth/login";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -10,5 +9,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function SignIn() {
-  return <Login/> ;
+  return <Login />;
 }

@@ -1,10 +1,10 @@
 
 import type { Route } from "./+types/new";
-import NewProductPage from "~/src/pages/Products/_new_product/new.product";
+import NewProductPage from "~/src/pages/Products/product.new";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Novo Produto | Seu E-commerce" },
+    { title: "Novo Produto | Ecliptica" },
     { name: "description", content: "Crie e Lançe Um Novo Produto Hoje" },
   ];
 }
