@@ -2,12 +2,13 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useAuthUser } from "../../hooks/useUser"
+import { useAuthUser } from "../../hooks/useUser";
 import { Button } from "~/src/components/ui/Button/button";
 import { Input } from "~/src/components/ui/Input/input";
 import { Label } from "~/src/components/ui/Label/label";
 import { Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 // Schema de validação com Zod
 const loginSchema = z.object({
@@ -17,9 +18,15 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
+// Constantes para limitar tentativas automáticas
+const MAX_AUTO_LOGIN_ATTEMPTS = 2;
+const LOGIN_ATTEMPT_INTERVAL = 5000; // 5 segundos
+
 export const Login = () => {
-    const { login, isLoading, error, clearError } = useAuthUser();
+    const { login, isLoading, error, clearError, isAuthenticated, logout } = useAuthUser();
     const navigate = useNavigate();
+    const [autoLoginAttempts, setAutoLoginAttempts] = useState(0);
+    const [manualLoginRequired, setManualLoginRequired] = useState(false);
     
     const {
         register,
@@ -29,10 +36,39 @@ export const Login = () => {
         resolver: zodResolver(loginSchema),
     });
 
+    // Verifica se há tentativas automáticas de login em excesso
+    useEffect(() => {
+        // Armazena a última tentativa para evitar loop
+        const lastLoginAttempt = localStorage.getItem('lastLoginAttempt');
+        const currentTime = Date.now();
+        
+        if (lastLoginAttempt && (currentTime - parseInt(lastLoginAttempt)) < LOGIN_ATTEMPT_INTERVAL) {
+            setAutoLoginAttempts(prev => prev + 1);
+        } else {
+            setAutoLoginAttempts(1);
+        }
+        
+        localStorage.setItem('lastLoginAttempt', currentTime.toString());
+        
+        // Se exceder o limite de tentativas, requer login manual
+        if (autoLoginAttempts >= MAX_AUTO_LOGIN_ATTEMPTS) {
+            setManualLoginRequired(true);
+            // Limpa qualquer estado de autenticação que possa estar causando loops
+            logout();
+            localStorage.removeItem('authToken');
+            sessionStorage.removeItem('authToken');
+        }
+    }, []);
+
+    // Função para tratar o envio do formulário
     const onSubmit = async (data: LoginFormData) => {
         clearError(); // Limpa erros anteriores
         try {
             await login(data);
+            // Reseta contadores de tentativas após login bem-sucedido
+            setAutoLoginAttempts(0);
+            setManualLoginRequired(false);
+            localStorage.removeItem('lastLoginAttempt');
             navigate('/profile');
         } catch (err) {
             // O erro já é tratado pelo hook e exibido no estado
@@ -46,6 +82,12 @@ export const Login = () => {
                     <h1 className="text-3xl font-bold text-gray-900">Bem-vindo de volta</h1>
                     <p className="mt-2 text-gray-600">Entre na sua conta para continuar</p>
                 </div>
+
+                {manualLoginRequired && (
+                    <div className="p-3 bg-yellow-50 rounded-md text-yellow-700 text-sm">
+                        Detectamos várias tentativas automáticas de login. Por favor, faça login manualmente para continuar.
+                    </div>
+                )}
 
                 <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
                     <div className="space-y-4">

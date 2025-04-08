@@ -10,6 +10,12 @@ export default [
     route("products/new", "routes/products/new.tsx"),  // Criação de produto
     route("products/:id/edit", "routes/products/edit.tsx"),  // Edição de produto
     route("products/:id", "routes/products/[id].tsx"),  // Visualização individual
+
+    route("shirts", "routes/categorys/shirts.tsx"), //
+    route("pants", "routes/categorys/pants.tsx"),
+    route("dress", "routes/categorys/dress.tsx"),
+    route("accessories", "routes/categorys/accessories.tsx"),
+    
     route("profile", "routes/profile.tsx"),
     route("cart", "routes/cart/cart.tsx")
 ] satisfies RouteConfig;

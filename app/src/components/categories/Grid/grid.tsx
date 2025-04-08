@@ -1,31 +1,16 @@
-
-
 import type React from "react"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useMediaQuery } from "react-responsive"
 import { motion } from "framer-motion"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import "slick-carousel/slick/slick.css"
-import "slick-carousel/slick/slick-theme.css"
 
-// Types for API
-export interface ApiCategory {
-  id: string
-  nome: string
-  imagem: string
-  slug: string
-  descricao?: string
-  novo?: boolean
-  quantidade_produtos?: number
-}
-
-// Types for component
+// Atualizei os tipos para melhor alinhamento com seu sistema
 export interface Category {
   id: string
   name: string
   imageUrl: string
-  slug: string
+  slug: string // Este será usado para a navegação
   description?: string
   isNew?: boolean
   productCount?: number
@@ -56,12 +41,49 @@ const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   const [error, setError] = useState<string | null>(null)
   const [currentSlide, setCurrentSlide] = useState(0)
 
+  // Definindo as categorias padrão caso não sejam fornecidas
+  const defaultCategories: Category[] = [
+    {
+      id: '1',
+      name: 'Camisetas',
+      imageUrl: 'https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/dcea2898-a19f-4e97-81b1-86c20a4e36a2/Leonardo_Kino_XL_Modern_unisex_Tshirt_with_a_straight_fit_and_2.jpg',
+      slug: 'shirts',
+      description: 'Confira nossa coleção de camisetas',
+      productCount: 42
+    },
+    {
+      id: '2',
+      name: 'Calças',
+      imageUrl: 'https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/3fc8f78c-1797-4181-abb3-d19bd1971ed7/Leonardo_Kino_XL_Pants_with_a_straight_or_slim_cut_denim_or_tw_3.jpg',
+      slug: 'pants',
+      description: 'Calças para todos os estilos',
+      productCount: 36
+    },
+    {
+      id: '3',
+      name: 'Vestidos',
+      imageUrl: 'https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/4555e17c-a49a-49a3-88a5-77b1667f9345/Leonardo_Kino_XL_Elegant_feminine_dress_with_fluid_fit_light_f_0.jpg',
+      slug: 'dress',
+      description: 'Elegância e conforto',
+      isNew: true,
+      productCount: 28
+    },
+    {
+      id: '4',
+      name: 'Casacos',
+      imageUrl: 'https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/5ba6118e-84f3-48d8-a1f9-463372d5f1a2/Leonardo_Kino_XL_Long_sophisticated_overcoat_in_fullbodied_fab_0.jpg',
+      slug: 'accessories',
+      description: 'Proteção contra o frio',
+      productCount: 19
+    }
+  ]
+
   // Carousel settings
   const slidesToShow = isMobile ? 1.2 : isTablet ? 2.2 : 3
   const totalSlides = categories.length
   const maxSlideIndex = Math.max(0, Math.ceil(totalSlides / slidesToShow) - 1)
 
-  // Fetch data from API
+  // Fetch data from API ou usa as categorias padrão
   useEffect(() => {
     if (apiUrl && !initialCategories) {
       const fetchCategories = async () => {
@@ -73,21 +95,11 @@ const CategoriesGrid: React.FC<CategoriesGridProps> = ({
             throw new Error(`Error ${response.status}: ${response.statusText}`)
           }
 
-          const data: ApiCategory[] = await response.json()
-
-          // Transform API data to component format
-          const formattedData = data.map((cat) => ({
-            id: cat.id,
-            name: cat.nome,
-            imageUrl: cat.imagem,
-            slug: cat.slug,
-            description: cat.descricao,
-            isNew: cat.novo,
-            productCount: cat.quantidade_produtos,
-          }))
-
-          setCategories(formattedData)
+          const data = await response.json()
+          setCategories(data)
         } catch (err) {
+          // Em caso de erro, usa as categorias padrão
+          setCategories(defaultCategories)
           setError(err instanceof Error ? err.message : "Unknown error")
           console.error("Error fetching categories:", err)
         } finally {
@@ -96,6 +108,10 @@ const CategoriesGrid: React.FC<CategoriesGridProps> = ({
       }
 
       fetchCategories()
+    } else if (!initialCategories) {
+      // Se nenhuma categoria for fornecida e nenhuma API URL, usa as padrão
+      setCategories(defaultCategories)
+      setLoading(false)
     }
   }, [apiUrl, initialCategories])
 
@@ -114,6 +130,19 @@ const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
   const prevSlide = () => {
     setCurrentSlide((prev) => Math.max(prev - 1, 0))
+  }
+
+  // Função de navegação atualizada para usar o slug
+  const handleCategoryClick = (slug: string) => {
+    // Verifica se a rota existe nas rotas definidas
+    const validRoutes = ['shirts', 'pants', 'dress', 'accessories', 'coats']
+    
+    if (validRoutes.includes(slug)) {
+      navigate(`/${slug}`)
+    } else {
+      // Fallback para rota genérica caso a categoria não tenha página específica
+      navigate(`/category/${slug}`)
+    }
   }
 
   // Loading state
@@ -170,7 +199,11 @@ const CategoriesGrid: React.FC<CategoriesGridProps> = ({
             >
               {categories.map((category) => (
                 <div key={category.id} className="flex-none px-3" style={{ width: `${100 / slidesToShow}%` }}>
-                  <CategoryItem category={category} variant={variant} navigate={navigate} />
+                  <CategoryItem 
+                    category={category} 
+                    variant={variant} 
+                    onClick={() => handleCategoryClick(category.slug)} 
+                  />
                 </div>
               ))}
             </motion.div>
@@ -213,29 +246,34 @@ const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
       <div className={`grid ${gridColumns[columns as keyof typeof gridColumns]} gap-6 md:gap-8`}>
         {categories.map((category) => (
-          <CategoryItem key={category.id} category={category} variant={variant} navigate={navigate} />
+          <CategoryItem 
+            key={category.id} 
+            category={category} 
+            variant={variant} 
+            onClick={() => handleCategoryClick(category.slug)} 
+          />
         ))}
       </div>
     </div>
   )
 }
 
-// Category item component
+// Atualizei o CategoryItem para usar onClick em vez de navigate
 const CategoryItem: React.FC<{
   category: Category
   variant: "default" | "compact" | "featured"
-  navigate: ReturnType<typeof useNavigate>
-}> = ({ category, variant, navigate }) => {
+  onClick: () => void
+}> = ({ category, variant, onClick }) => {
   return (
     <motion.div
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
       className="group cursor-pointer"
-      onClick={() => navigate(`/category/${category.slug}`)}
+      onClick={onClick}
       role="button"
       tabIndex={0}
       aria-label={`Ver categoria ${category.name}`}
-      onKeyDown={(e) => e.key === "Enter" && navigate(`/category/${category.slug}`)}
+      onKeyDown={(e) => e.key === "Enter" && onClick()}
     >
       <div className="relative overflow-hidden bg-gray-50">
         <div
@@ -276,4 +314,3 @@ const CategoryItem: React.FC<{
 }
 
 export default CategoriesGrid
-

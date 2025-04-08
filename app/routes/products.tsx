@@ -1,4 +1,4 @@
-import type { Route } from "./+types/home";
+import type { Route } from "./products/+types/edit";
 import { Products } from "~/src/pages/Products/products.grid";
 
 export function meta({}: Route.MetaArgs) {

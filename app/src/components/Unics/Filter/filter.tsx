@@ -46,7 +46,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter }) => {
       'Calças',
       'Vestidos',
       'Casacos',
-      'Sapatos'
+      'Sobretudos'
     ]; // Substitua pelas suas categorias reais
 
   return (
