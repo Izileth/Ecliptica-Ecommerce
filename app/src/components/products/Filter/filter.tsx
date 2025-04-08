@@ -45,9 +45,8 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter }) => {
       'Camisetas',
       'Calças',
       'Vestidos',
-      'Casacos',
-      'Sobretudos'
-    ]; // Substitua pelas suas categorias reais
+      'Acessórios',
+    ]; 
 
   return (
     <form onSubmit={handleSubmit} className="mb-8 mt-10 p-4 bg-transparent rounded-lg">

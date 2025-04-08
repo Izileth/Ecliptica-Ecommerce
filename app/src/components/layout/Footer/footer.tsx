@@ -150,7 +150,7 @@ export default function Footer() {
             {/* Payment Methods */}
             <div className="mt-12 pt-8 border-t">
             <div className="flex flex-wrap gap-4 justify-center">
-                <img src="../../../assets/cartoes.svg/bandeiras_catoes.png" alt="bandeiras" className="h-6" />
+                <img src="https://www.creditoparatodos.org/wp-content/uploads/2020/04/bandeiras-de-cartao-mundipagg-e1585858099678.png" alt="bandeiras" className="h-12 w-56" />
             </div>
             </div>
 

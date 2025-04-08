@@ -1,50 +1,56 @@
-import type React from "react"
-import { useEffect, useState } from "react"
-import { useParams, useNavigate } from "react-router-dom"
-import { useProducts } from "~/src/hooks/useStorage"
-import { useCart } from "~/src/hooks/useCart"
-import { formatPrice } from "~/src/utils/format"
-import { Button } from "~/src/components/imported/button"
-import { ArrowLeft, Minus, Plus, Check, X, ShoppingBag } from "lucide-react"
-import { motion } from "framer-motion"
+import type React from "react";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useProducts } from "~/src/hooks/useProducts";
+import { useCart } from "~/src/hooks/useCart";
+import { formatPrice } from "~/src/utils/format";
+import { Button } from "~/src/components/imported/button";
+import { ArrowLeft, Minus, Plus, Check, X, ShoppingBag } from "lucide-react";
+import { motion } from "framer-motion";
 
 const ProductDetails: React.FC = () => {
-  const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
-  const { currentProduct: product, getProductById, loading, error, clearProduct } = useProducts()
-  const { addItem } = useCart()
-  const [quantity, setQuantity] = useState(1)
-  const [selectedImage, setSelectedImage] = useState<string | null>(null)
-  const [addingToCart, setAddingToCart] = useState(false)
-  const [addedToCart, setAddedToCart] = useState(false)
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const {
+    currentProduct: product,
+    getProductById,
+    loading,
+    error,
+    clearProduct,
+  } = useProducts();
+  const { addItem } = useCart();
+  const [quantity, setQuantity] = useState(1);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [addedToCart, setAddedToCart] = useState(false);
 
   useEffect(() => {
     if (id) {
-      getProductById(id)
+      getProductById(id);
     }
 
     return () => {
-      clearProduct()
-    }
-  }, [id, getProductById, clearProduct])
+      clearProduct();
+    };
+  }, [id, getProductById, clearProduct]);
 
   useEffect(() => {
     if (product?.image) {
-      setSelectedImage(product.image)
+      setSelectedImage(product.image);
     }
-  }, [product])
+  }, [product]);
 
   if (error) {
-    console.error("Erro ao carregar detalhes do produto:", error)
-    navigate("/404")
+    console.error("Erro ao carregar detalhes do produto:", error);
+    navigate("/404");
   }
 
   const handleQuantityChange = (delta: number) => {
-    const newQuantity = quantity + delta
+    const newQuantity = quantity + delta;
     if (newQuantity >= 1 && product && newQuantity <= product.countInStock) {
-      setQuantity(newQuantity)
+      setQuantity(newQuantity);
     }
-  }
+  };
 
   const formatDate = (dateString: string) => {
     try {
@@ -52,41 +58,43 @@ const ProductDetails: React.FC = () => {
         year: "numeric",
         month: "long",
         day: "numeric",
-      }
-      return new Date(dateString).toLocaleDateString("pt-BR", options)
+      };
+      return new Date(dateString).toLocaleDateString("pt-BR", options);
     } catch (error) {
-      return dateString
+      return dateString;
     }
-  }
+  };
 
   const handleAddToCart = async () => {
-    if (!product?.id) return
+    if (!product?.id) return;
 
-    setAddingToCart(true)
+    setAddingToCart(true);
     try {
-      await addItem(product.id, quantity)
-      setAddedToCart(true)
-      
+      await addItem(product.id, quantity);
+      setAddedToCart(true);
+
       // Reset the button state after 2 seconds
       setTimeout(() => {
-        setAddedToCart(false)
-      }, 2000)
+        setAddedToCart(false);
+      }, 2000);
     } catch (error) {
-      console.error("Erro ao adicionar ao carrinho:", error)
+      console.error("Erro ao adicionar ao carrinho:", error);
     } finally {
-      setAddingToCart(false)
+      setAddingToCart(false);
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="min-h-[70vh] flex justify-center items-center">
         <div className="flex flex-col items-center">
           <div className="w-8 h-8 border-t-2 border-b-2 border-black rounded-full animate-spin mb-4"></div>
-          <p className="text-sm font-light tracking-wide text-gray-500">Carregando produto</p>
+          <p className="text-sm font-light tracking-wide text-gray-500">
+            Carregando produto
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -98,7 +106,9 @@ const ProductDetails: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="bg-gray-50 p-8 rounded-none border border-gray-200"
         >
-          <h2 className="text-xl font-light tracking-wide text-gray-900 mb-3">Produto não encontrado</h2>
+          <h2 className="text-xl font-light tracking-wide text-gray-900 mb-3">
+            Produto não encontrado
+          </h2>
           <p className="text-gray-500 font-light mb-6">
             O produto que você está procurando não está disponível no momento.
           </p>
@@ -110,17 +120,24 @@ const ProductDetails: React.FC = () => {
           </Button>
         </motion.div>
       </div>
-    )
+    );
   }
 
   if (!product) {
     return (
       <div className="container max-w-6xl mx-auto px-6 py-16 text-center">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <div className="mx-auto h-px w-16 bg-black/10 mb-8" />
-          <h2 className="text-2xl font-light tracking-wide mb-4">Produto não encontrado</h2>
+          <h2 className="text-2xl font-light tracking-wide mb-4">
+            Produto não encontrado
+          </h2>
           <p className="mb-8 text-gray-500 font-light max-w-md mx-auto">
-            O produto que você está procurando não está disponível ou foi removido.
+            O produto que você está procurando não está disponível ou foi
+            removido.
           </p>
           <Button
             className="bg-black hover:bg-black/90 text-white rounded-none font-light tracking-wide text-sm px-6 h-10 transition-colors duration-300"
@@ -130,15 +147,16 @@ const ProductDetails: React.FC = () => {
           </Button>
         </motion.div>
       </div>
-    )
+    );
   }
 
   // Verifica se o produto está em promoção
-  const isOnPromo = product.promoPrice !== undefined && product.promoPrice < product.price
-  const displayPrice = isOnPromo ? product.promoPrice : product.price
+  const isOnPromo =
+    product.promoPrice !== undefined && product.promoPrice < product.price;
+  const displayPrice = isOnPromo ? product.promoPrice : product.price;
 
   // Imagens do produto (assumindo que pode haver múltiplas no futuro)
-  const productImages = product.image ? [product.image] : []
+  const productImages = product.image ? [product.image] : [];
 
   return (
     <div className="container max-w-6xl mx-auto px-4 sm:px-6 py-12">
@@ -155,7 +173,11 @@ const ProductDetails: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
         {/* Coluna da Imagem */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <div className="sticky top-8">
             {selectedImage ? (
               <div className="overflow-hidden bg-gray-50">
@@ -167,7 +189,9 @@ const ProductDetails: React.FC = () => {
               </div>
             ) : (
               <div className="bg-gray-50 aspect-square flex items-center justify-center">
-                <span className="text-gray-400 font-light">Imagem não disponível</span>
+                <span className="text-gray-400 font-light">
+                  Imagem não disponível
+                </span>
               </div>
             )}
 
@@ -178,7 +202,9 @@ const ProductDetails: React.FC = () => {
                     key={index}
                     onClick={() => setSelectedImage(img)}
                     className={`border overflow-hidden transition-all ${
-                      selectedImage === img ? "border-black" : "border-gray-200 hover:border-gray-400"
+                      selectedImage === img
+                        ? "border-black"
+                        : "border-gray-200 hover:border-gray-400"
                     }`}
                   >
                     <img
@@ -207,24 +233,37 @@ const ProductDetails: React.FC = () => {
             )}
             {isOnPromo && (
               <span className="bg-black text-white text-xs font-light px-3 py-1">
-                {Math.round((1 - (product.promoPrice || 0) / product.price) * 100)}% OFF
+                {Math.round(
+                  (1 - (product.promoPrice || 0) / product.price) * 100
+                )}
+                % OFF
               </span>
             )}
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-light tracking-tight text-gray-900 mb-6">{product.name}</h1>
+          <h1 className="text-3xl sm:text-4xl font-light tracking-tight text-gray-900 mb-6">
+            {product.name}
+          </h1>
 
           <div className="flex items-baseline space-x-4 mb-8">
-            <span className={`text-2xl font-light ${isOnPromo ? "text-black" : "text-black"}`}>
+            <span
+              className={`text-2xl font-light ${
+                isOnPromo ? "text-black" : "text-black"
+              }`}
+            >
               {formatPrice(displayPrice)}
             </span>
             {isOnPromo && (
-              <span className="text-gray-400 line-through text-lg font-light">{formatPrice(product.price)}</span>
+              <span className="text-gray-400 line-through text-lg font-light">
+                {formatPrice(product.price)}
+              </span>
             )}
           </div>
 
           <div className="mb-8">
-            <p className="text-gray-600 font-light leading-relaxed">{product.description}</p>
+            <p className="text-gray-600 font-light leading-relaxed">
+              {product.description}
+            </p>
           </div>
 
           <div className="mb-10">
@@ -273,7 +312,9 @@ const ProductDetails: React.FC = () => {
             {product.countInStock > 0 ? (
               <div className="space-y-6">
                 <div className="flex items-center">
-                  <span className="text-sm font-light text-gray-500 w-24">Quantidade</span>
+                  <span className="text-sm font-light text-gray-500 w-24">
+                    Quantidade
+                  </span>
                   <div className="flex border border-gray-200">
                     <button
                       className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
@@ -282,7 +323,9 @@ const ProductDetails: React.FC = () => {
                     >
                       <Minus className="h-3 w-3" />
                     </button>
-                    <div className="w-12 h-10 flex items-center justify-center font-light">{quantity}</div>
+                    <div className="w-12 h-10 flex items-center justify-center font-light">
+                      {quantity}
+                    </div>
                     <button
                       className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
                       onClick={() => handleQuantityChange(1)}
@@ -293,12 +336,17 @@ const ProductDetails: React.FC = () => {
                   </div>
                 </div>
 
-                <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                <motion.div
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                >
                   <Button
                     className={`w-full text-white rounded-none font-light tracking-wide text-sm h-12 transition-colors duration-300 flex items-center justify-center ${
-                      addingToCart ? "bg-gray-400" : 
-                      addedToCart ? "bg-green-600 hover:bg-green-700" : 
-                      "bg-black hover:bg-black/90"
+                      addingToCart
+                        ? "bg-gray-400"
+                        : addedToCart
+                        ? "bg-green-600 hover:bg-green-700"
+                        : "bg-black hover:bg-black/90"
                     }`}
                     onClick={handleAddToCart}
                     disabled={addingToCart}
@@ -332,13 +380,14 @@ const ProductDetails: React.FC = () => {
             )}
 
             <p className="text-xs text-gray-400 mt-4 font-light italic">
-              * Os preços e a disponibilidade do produto podem variar sem aviso prévio.
+              * Os preços e a disponibilidade do produto podem variar sem aviso
+              prévio.
             </p>
           </div>
         </motion.div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ProductDetails
+export default ProductDetails;

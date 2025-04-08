@@ -16,6 +16,7 @@ export interface Product {
   price: number;
   oldPrice?: number;
   image: string;
+  images: ProductImage[];
   category: string;
   sizes: string[];
   colors: string[];
@@ -23,6 +24,7 @@ export interface Product {
   createdAt: string;
   updatedAt: string;
   userId: string;
+  sales?: number; // Quantidade de vendas do produto
   createdBy?: {
     id: string;
     name: string;
@@ -121,6 +123,7 @@ export interface ProductFilterApiParams {
   minPrice?: number;
   maxPrice?: number;
   inStock?: boolean;
+  sort?: 'price-asc' | 'price-desc' | 'popular' | 'newest';
   sortBy?: 'name' | 'price' | 'createdAt';
   sortOrder?: 'asc' | 'desc';
   page?: number;

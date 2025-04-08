@@ -11,6 +11,9 @@ export default [
     route("products/:id/edit", "routes/products/edit.tsx"),  // Edição de produto
     route("products/:id", "routes/products/[id].tsx"),  // Visualização individual
 
+    route("releases", "routes/releases.tsx"),
+    route("contact", "routes/contact.tsx"),
+
     route("shirts", "routes/categorys/shirts.tsx"), //
     route("pants", "routes/categorys/pants.tsx"),
     route("dress", "routes/categorys/dress.tsx"),

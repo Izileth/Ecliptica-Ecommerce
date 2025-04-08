@@ -70,7 +70,7 @@ export default function Navbar() {
 
   const navLinks = [
     { href: "/shop", label: "Coleções", hasSubmenu: true },
-    { href: "/new", label: "Lançamentos" },
+    { href: "/releases", label: "Lançamentos" },
     { href: "/products", label: "Produtos" },
     ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
     { href: "/contact", label: "Contato" },

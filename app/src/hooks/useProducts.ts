@@ -14,6 +14,7 @@ import {
 import type { ProductFilterApiParams } from '../services/type';
 import type { ProductFormValues } from '../services/type';
 import { ProductService } from '../services/produtcService';
+import type { Product } from '../services/type';
 import { useCallback } from 'react';
 
 export const useProducts = () => {
@@ -51,7 +52,31 @@ export const useProducts = () => {
   const getProducts = useCallback((page?: number, filters?: ProductFilterApiParams) => {
     return dispatch(fetchProducts({ page, filters }));
   }, [dispatch]);
-  
+
+  const getFeaturedProducts = useCallback((count: number = 4): Product[] => {
+    // Garante que o count esteja entre 4 e 8
+    const productCount = Math.min(Math.max(count, 4), 8);
+    
+    // Verificação rigorosa de products
+    if (!Array.isArray(products)) return [];
+    if (products.length === 0) return [];
+    
+    // Cria uma cópia segura do array
+    const productsCopy = [...products];
+    
+    // Se tiver menos ou igual ao número solicitado, retorna todos
+    if (productsCopy.length <= productCount) return productsCopy;
+    
+    // Seleção aleatória com Fisher-Yates shuffle
+    for (let i = productsCopy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [productsCopy[i], productsCopy[j]] = [productsCopy[j], productsCopy[i]];
+    }
+    
+    return productsCopy.slice(0, productCount);
+  }, [products]);
+
+
   const getUserProducts = useCallback((page?: number) => {
     return dispatch(fetchUserProducts({ page }));
   }, [dispatch]);
@@ -109,6 +134,7 @@ export const useProducts = () => {
     error,
     pagination,
     getProducts,
+    getFeaturedProducts,
     getUserProducts,
     getProductById,
     addProduct,
