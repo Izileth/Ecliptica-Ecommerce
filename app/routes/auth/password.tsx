@@ -1,4 +1,4 @@
-import type { Route } from "../+types/home";
+import type { Route } from "./+types/password";
 import { ForgotPassword } from "~/src/pages/Auth/password";
 export function meta({}: Route.MetaArgs) {
   return [

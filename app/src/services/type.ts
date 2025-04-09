@@ -92,6 +92,23 @@ export interface CartItemRequest {
   quantity: number;
 }
 
+export interface CheckoutItem {
+  productId: string;
+  quantity: number;
+}
+
+export interface CheckoutSessionRequest {
+  items: CheckoutItem[];
+  userId: string;
+  // endereço pode ser incluído se necessário
+  addressId?: string;
+}
+
+export interface CheckoutSessionResponse {
+  sessionId: string;
+  url: string;
+}
+
 export interface Order {
   id: string;
   userId: string;
