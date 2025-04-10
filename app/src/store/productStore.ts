@@ -17,6 +17,7 @@ interface ProductState {
     total: number;
     pages: number;
   };
+  filters: ProductFilterApiParams; // Adicionar para manter estado dos filtros
 }
 const initialState: ProductState = {
   products: [],
@@ -30,6 +31,11 @@ const initialState: ProductState = {
     total: 0,
     pages: 1,
   },
+  filters: {
+    page: 1,
+    limit: 10
+  }
+  
 };
 
 // Thunks para operações assíncronas
@@ -111,6 +117,9 @@ const productSlice = createSlice({
     },
     resetProductError(state) {
       state.error = null;
+    },
+    setFilters(state, action: PayloadAction<ProductFilterApiParams>) {
+      state.filters = { ...state.filters, ...action.payload };
     },
   },
   extraReducers: (builder) => {
@@ -213,5 +222,5 @@ const productSlice = createSlice({
   },
 });
 
-export const { clearCurrentProduct, resetProductError } = productSlice.actions;
+export const { clearCurrentProduct, resetProductError, setFilters  } = productSlice.actions;
 export default productSlice.reducer;

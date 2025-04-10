@@ -18,8 +18,6 @@ export interface Product {
   image: string;
   images: ProductImage[];
   category: string;
-  sizes: string[];
-  colors: string[];
   countInStock: number;
   createdAt: string;
   updatedAt: string;
@@ -32,8 +30,28 @@ export interface Product {
   // Para produtos em promoção
   promoPrice?: number;
   promoEnd?: string;
+
+  salePrice: number | null;
+  collection?: string | null;
+  features: string[];
+  sizes: ProductSize[];
+  colors: ProductColor[];
+}
+export interface ProductSize {
+  id?: string;
+  size: string;
+  stock: number;
+  productId?: string;
 }
 
+export interface ProductColor {
+  id?: string;
+  colorName: string;
+  colorCode: string;  // código hexadecimal
+  imageUrl?: string | null;
+  stock: number;
+  productId?: string;
+}
 export interface PaginatedProducts {
   data: Product[];
   pagination: {
@@ -145,6 +163,9 @@ export interface ProductFilterApiParams {
   sortOrder?: 'asc' | 'desc';
   page?: number;
   limit?: number;
+
+  collection?: string;
+  hasDiscount?: boolean | string;
 }
 
 // Tipo para formulário de produto
@@ -152,10 +173,25 @@ export interface ProductFormValues {
   id?: string;
   name: string;
   description: string;
-  price: string;
+  price: number | string; // Aceita ambos os tipos
   category: string;
-  countInStock: string;
+  countInStock: number | string;
   image: File | null; // Remova a opção 'string' se não for usada
+  
+  // Novas Funções
+
+  additionalImages?: string[]; // URLs para pré-visualização
+  additionalImagesFiles?: File[]; // Arquivos para upload
+  removedImages?: string[];
+  salePrice?: number | string | null;
+  collection?: string | null;
+  features?: string[];
+  sizes?: ProductSize[];
+  colors?: ProductColor[];
+
+  // Validação
+  isFeatured?: boolean;
+  isNewArrival?: boolean;
 }
 
 export interface ProfileFormData {

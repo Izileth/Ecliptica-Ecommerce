@@ -9,47 +9,56 @@ let lastRedirectTime = 0;
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3232/api',
-  timeout: 10000, // 10 segundos
+  timeout: 10000,
   withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  }
+  
+  // Adicione esta configuração para prevenir transformação automática
+  transformRequest: [
+    function (data, headers) {
+      // Se for FormData, não transforme e deixe o axios lidar com os headers
+      if (data instanceof FormData) {
+        return data;
+      }
+      
+      // Para outros tipos de dados, transforme em JSON
+      if (typeof data === 'object') {
+        headers['Content-Type'] = 'application/json';
+        return JSON.stringify(data);
+      }
+      
+      return data;
+    }
+  ]
 });
-
+  
 // Interceptor para adicionar o token de autorização, se disponível
-api.interceptors.request.use(
-  config => {
-    // Verifica se não estamos no processo de login/registro (que não precisa de token)
-    const isAuthEndpoint = config.url?.includes('/auth/login') || 
-                          config.url?.includes('/auth/register');
-    
-    if (!isAuthEndpoint) {
-      // Recupera o token do storage (pode ser adaptado para sua estrutura)
-      const authData = localStorage.getItem('auth-storage');
-      if (authData) {
-        try {
-          const { state } = JSON.parse(authData);
-          if (state.tokenData?.token) {
-            // Verifica se o token está expirado
-            if (state.tokenData.expiresAt && Date.now() < state.tokenData.expiresAt) {
-              config.headers.Authorization = `Bearer ${state.tokenData.token}`;
-            } else {
-              // Se o token estiver expirado, podemos limpar o storage aqui
-              // mas sem redirecionar para evitar loops durante requests paralelos
-              console.warn('Token expirado detectado no interceptor de requisição');
-            }
-          }
-        } catch (error) {
-          console.error('Erro ao processar token:', error);
+api.interceptors.request.use(config => {
+  // Não mexa nos headers para FormData
+  if (!(config.data instanceof FormData)) {
+    config.headers['Content-Type'] = 'application/json';
+  }
+
+  // Seu código de autenticação existente...
+  const isAuthEndpoint = config.url?.includes('/auth/login') || 
+                        config.url?.includes('/auth/register');
+  
+  if (!isAuthEndpoint) {
+    const authData = localStorage.getItem('auth-storage');
+    if (authData) {
+      try {
+        const { state } = JSON.parse(authData);
+        if (state.tokenData?.token && 
+            (!state.tokenData.expiresAt || Date.now() < state.tokenData.expiresAt)) {
+          config.headers.Authorization = `Bearer ${state.tokenData.token}`;
         }
+      } catch (error) {
+        console.error('Erro ao processar token:', error);
       }
     }
-    
-    return config;
-  },
-  error => Promise.reject(error)
-);
+  }
+  
+  return config;
+});
 
 // Interceptor de resposta para tratamento de erros
 api.interceptors.response.use(

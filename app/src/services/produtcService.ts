@@ -12,22 +12,23 @@ interface ProductFilters {
   limit?: number;
 }
 interface PaginatedResponse {
+  status: string; // 'success' ou 'error'
   data: Product[];
   pagination: {
     page: number;
     limit: number;
     total: number;
     pages: number;
+    hasNextPage: boolean; // Adicionado
+    hasPrevPage: boolean; // Adicionado
   };
 }
-
 export const ProductService = {
   // Listar todos os produtos (com filtros e paginação)
+
   getAll: async (filters?: ProductFilterApiParams): Promise<PaginatedResponse> => {
-    const response = await api.get<PaginatedResponse>('/products', { 
-      params: filters 
-    });
-    return response.data;
+    const response = await api.get('/products', { params: filters });
+    return response.data; // Retorna o objeto completo com status, data e pagination
   },
 
   // Obter produtos do usuário logado
@@ -52,18 +53,27 @@ export const ProductService = {
 
   // Criar novo produto (com upload de imagem)
   create: async (formData: FormData) => {
-    const response = await api.post('/products', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-      withCredentials: true // Importante para requisições protegidas
-    });
-    return response.data;
+    try {
+      console.log('Antes da requisição - FormData:', formData);
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+      
+      const response = await api.post('/products', formData);
+      return response.data;
+    } catch (error: any) {
+      console.error('Erro completo:', {
+        request: error.request,
+        response: error.response,
+        config: error.config
+      });
+      throw error;
+    }
   },
 
   // Atualizar produto (com possibilidade de nova imagem)
   update: async (id: string, formData: FormData): Promise<Product> => {
-    const response = await api.put<Product>(`/products/${id}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const response = await api.put<Product>(`/products/${id}`, formData);
     return response.data;
   },
 
@@ -83,19 +93,76 @@ export const ProductService = {
   // Método auxiliar para converter FormValues para FormData
   toFormData: (values: ProductFormValues): FormData => {
     const formData = new FormData();
-      
-    // Adiciona campos básicos
+    
+    // Campos básicos
     formData.append('name', values.name);
     formData.append('description', values.description);
-    formData.append('price', values.price);
+    formData.append('price', values.price.toString());
     formData.append('category', values.category);
-    formData.append('countInStock', values.countInStock);
+    formData.append('countInStock', values.countInStock.toString());
     
-    // Adiciona a imagem apenas se existir
-    if (values.image instanceof File) {
-      formData.append('image', values.image);
+    // Novos campos
+    if (values.salePrice) {
+      formData.append('salePrice', values.salePrice.toString());
+    }
+    
+    if (values.collection) {
+      formData.append('collection', values.collection);
+    }
+    
+    // Array de features
+    if (values.features && values.features.length > 0) {
+      values.features.forEach((feature, index) => {
+        formData.append(`features[${index}]`, feature);
+      });
+    }
+    
+    // Tamanhos
+    
+    if (values.sizes && values.sizes.length > 0) {
+      values.sizes.forEach((size, index) => {
+        formData.append(`sizes[${index}][size]`, size.size);
+        formData.append(`sizes[${index}][stock]`, size.stock.toString());
+      });
+    }
+    
+    
+    // Cores
+    if (values.colors && values.colors.length > 0) {
+      values.colors.forEach((color, index) => {
+        formData.append(`colors[${index}][colorName]`, color.colorName);
+        formData.append(`colors[${index}][colorCode]`, color.colorCode);
+        formData.append(`colors[${index}][stock]`, color.stock.toString());
+        if (color.imageUrl) {
+          formData.append(`colors[${index}][imageUrl]`, color.imageUrl);
+        }
+      });
+    }
+    // Imagem Principal
+    if (values.image) {
+      if (values.image instanceof File) {
+        formData.append('image', values.image); // Nome exato que o backend espera
+      } else {
+        // Se for edição e já tiver URL, não precisa enviar novamente
+        // Ou implemente lógica para reupload se necessário
+      }
+    }
+
+    // Imagens adicionais   
+    if (values.additionalImagesFiles) { // Adicione este campo ao seu tipo
+      values.additionalImagesFiles.forEach(file => {
+        formData.append('additionalImages', file); // Nome exato e plural
+      });
     }
   
+
+    // URLs de imagens a serem removidas
+    if (values.removedImages && values.removedImages.length > 0) {
+      values.removedImages.forEach(url => {
+        formData.append('removedImages', url);
+      });
+    }
+    
     return formData;
-  }
+  }  
 };
