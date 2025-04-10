@@ -103,9 +103,9 @@ export const ProductService = {
     
     // Novos campos
     if (values.salePrice) {
-      formData.append('salePrice', values.salePrice.toString());
+      formData.append('salePrice', parseFloat(values.salePrice).toString());
     }
-    
+  
     if (values.collection) {
       formData.append('collection', values.collection);
     }

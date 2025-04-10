@@ -170,30 +170,22 @@ export interface ProductFilterApiParams {
 
 // Tipo para formulário de produto
 export interface ProductFormValues {
-  id?: string;
+  id?: string; // Opcional para criação
   name: string;
   description: string;
-  price: number | string; // Aceita ambos os tipos
+  price: string; // String para facilitar o input
   category: string;
-  countInStock: number | string;
-  image: File | null; // Remova a opção 'string' se não for usada
-  
-  // Novas Funções
-
+  countInStock: string; // String para facilitar o input
+  image: File | string | null; // Pode ser File (novo upload), string (URL existente) ou null
   additionalImages?: string[]; // URLs para pré-visualização
   additionalImagesFiles?: File[]; // Arquivos para upload
-  removedImages?: string[];
-  salePrice?: number | string | null;
+  removedImages?: string[]; // URLs de imagens removidas
+  salePrice?: string | null; // String ou null
   collection?: string | null;
-  features?: string[];
-  sizes?: ProductSize[];
-  colors?: ProductColor[];
-
-  // Validação
-  isFeatured?: boolean;
-  isNewArrival?: boolean;
+  features: string[]; // Array sempre definido (pode ser vazio)
+  sizes: ProductSize[]; // Array sempre definido (pode ser vazio)
+  colors: ProductColor[]; // Array sempre definido (pode ser vazio)
 }
-
 export interface ProfileFormData {
   name: string
   email: string

@@ -24,6 +24,8 @@ import { motion, AnimatePresence } from "framer-motion"
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp"]
 
+
+
 export default function NewProductPage() {
   const navigate = useNavigate()
   const { addProduct } = useProducts()
@@ -184,28 +186,24 @@ export default function NewProductPage() {
       setFormErrors((prev) => ({ ...prev, image: "" }))
     }
   }
-
   useEffect(() => {
-    // Limpeza das URLs criadas para pré-visualização quando o componente for desmontado
     return () => {
-      if (formValues.additionalImages && formValues.additionalImages.length > 0) {
-        formValues.additionalImages.forEach(url => {
-          if (url.startsWith('blob:')) {
-            URL.revokeObjectURL(url);
-          }
-        });
-      }
+      // Revoga URLs de imagens adicionais
+      formValues.additionalImages?.forEach(url => {
+        if (url.startsWith('blob:')) URL.revokeObjectURL(url);
+      });
       
-      // Limpar também a URL da imagem principal se existir
+      // Revoga URL da imagem principal se for File
       if (formValues.image instanceof File) {
         URL.revokeObjectURL(URL.createObjectURL(formValues.image));
       }
     };
-  }, []);
+  }, [formValues.additionalImages, formValues.image]);
 
   const handleAdditionalImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
+      const MAX_ADDITIONAL_IMAGES = 5;
       
       // Valida os arquivos antes de criar URLs
       const validFiles = files.filter(file => {
@@ -223,6 +221,11 @@ export default function NewProductPage() {
       });
       
       if (validFiles.length === 0) return;
+
+      if (validFiles.length + (formValues.additionalImages?.length || 0) > MAX_ADDITIONAL_IMAGES) {
+        toast.error(`Máximo de ${MAX_ADDITIONAL_IMAGES} imagens adicionais permitidas`);
+        return;
+      }
       
       // Armazena os Files para upload
       setFormValues(prev => ({
@@ -350,10 +353,10 @@ export default function NewProductPage() {
     })
   }
   const logFormData = (formData: FormData) => {
-    console.log('=== Conteúdo do FormData ===');
+    console.log('=== FormData Contents ===');
     for (const [key, value] of formData.entries()) {
       if (value instanceof File) {
-        console.log(key, `File: ${value.name} (${value.size} bytes)`);
+        console.log(key, `File: ${value.name} (${(value.size / 1024 / 1024).toFixed(2)}MB)`);
       } else {
         console.log(key, value);
       }
