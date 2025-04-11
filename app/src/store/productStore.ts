@@ -3,7 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { ProductService } from '../services/produtcService';
 import type { ProductFilterApiParams } from '../services/type';
 import type { Product } from '../services/type';
-
+import type { Pagination } from '../services/type';
 
 interface ProductState {
   products: Product[];
@@ -44,26 +44,16 @@ const initialState: ProductState = {
 
 // Thunks para operações assíncronas
 
-export const fetchProducts = createAsyncThunk(
-  'products/fetchAll',
-  async (params: { page?: number; filters?: ProductFilterApiParams }, { rejectWithValue }) => {
-    try {
-      const response = await ProductService.getAll(params.filters);
-      return {
-        data: response.data,
-        pagination: {
-          ...response.pagination,
-          hasNextPage: response.pagination.page < response.pagination.pages,
-          hasPrevPage: response.pagination.page > 1
-        }
-      };
-    } catch (error) {
-      return rejectWithValue('Erro ao buscar produtos');
-    }
-  }
-);
-
-
+export const fetchProducts = createAsyncThunk<
+  { data: Product[]; pagination: Pagination }, // Tipo de retorno
+  { page?: number; filters?: ProductFilterApiParams } // Tipo do parâmetro
+>('products/fetchAll', async (params) => {
+  const response = await ProductService.getAll(params.filters || {});
+  return {
+    data: response.data,
+    pagination: response.pagination
+  };
+});
 
 export const fetchUserProducts = createAsyncThunk(
   'products/fetchUserProducts',
@@ -172,17 +162,11 @@ const productSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
+
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
         state.products = action.payload.data;
-        state.pagination = {
-          page: action.payload.pagination.page,
-          limit: action.payload.pagination.limit,
-          total: action.payload.pagination.total,
-          pages: action.payload.pagination.pages,
-          hasNextPage: action.payload.pagination.page < action.payload.pagination.pages,
-          hasPrevPage: action.payload.pagination.page > 1
-        };
+        state.pagination = action.payload.pagination;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;

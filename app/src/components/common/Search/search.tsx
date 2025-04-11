@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Loader2, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from "framer-motion";
-import { useProducts } from "~/src/hooks/useProducts"; // Ajuste o caminho conforme necessário
+import { useProductSearch } from "~/src/hooks/useSearch";
 import {
-  Command,
   CommandDialog,
   CommandEmpty,
   CommandGroup,
@@ -28,34 +27,83 @@ export default function SearchComponent() {
     const [query, setQuery] = useState("");
     const navigate = useNavigate();
     
-    // Use o hook de produtos
-    const { products, loading, getProducts } = useProducts();
+    // Referências para controle de estado e comportamento
+    const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const dialogRef = useRef<HTMLDivElement>(null);
+    const lastOpenState = useRef(false);
     
-    // Efeito para escutar o atalho de teclado (Ctrl+K ou ⌘+K)
+    // Hook de busca
+    const { searchResults, searchProducts, isSearching } = useProductSearch();
+    
+    // Função para executar busca com debounce
+    const debouncedSearch = useCallback((searchTerm: string) => {
+        // Limpa o timeout anterior se existir
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current);
+        }
+        
+        // Cria um novo timeout
+        searchTimeoutRef.current = setTimeout(() => {
+            if (searchTerm.trim()) {
+                searchProducts(searchTerm);
+            }
+        }, 300);
+    }, [searchProducts]);
+    
+    // Efeito para buscar quando a query muda (com debounce aprimorado)
     useEffect(() => {
-        const down = (e: KeyboardEvent) => {
-            if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || e.key === "/") {
-                e.preventDefault();
-                setOpen((open) => !open);
+        if (open) {
+            debouncedSearch(query);
+        }
+        
+        // Cleanup quando o componente é desmontado
+        return () => {
+            if (searchTimeoutRef.current) {
+                clearTimeout(searchTimeoutRef.current);
             }
         };
-
-        document.addEventListener("keydown", down);
-        return () => document.removeEventListener("keydown", down);
-    }, []);
-
-    // Busca produtos quando a query muda
-    useEffect(() => {
-        if (open && query.trim()) {
-            getProducts({ name: query, page: 1, limit: 5 });
-        }
-    }, [query, open, getProducts]);
-
+    }, [query, open, debouncedSearch]);
     
-
-    // Transforma os produtos em resultados de busca
+    // Efeito para gerenciar events de teclado (atalho Cmd+K)
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                setOpen(prevOpen => !prevOpen);
+            }
+        };
+        
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+    
+    // Efeito para persistir o foco no diálogo
+    useEffect(() => {
+        if (open && !lastOpenState.current) {
+            // Se acabou de abrir, foque no input após uma pequena pausa
+            const timer = setTimeout(() => {
+                const input = document.querySelector('[cmdk-input]') as HTMLInputElement;
+                if (input) input.focus();
+            }, 50);
+            return () => clearTimeout(timer);
+        }
+        lastOpenState.current = open;
+    }, [open]);
+    
+    // Efeito para limpar a busca quando o modal fecha
+    useEffect(() => {
+        if (!open) {
+            // Não limpe instantaneamente, aguarde a animação de fechamento
+            const timer = setTimeout(() => {
+                if (!open) setQuery("");
+            }, 300);
+            return () => clearTimeout(timer);
+        }
+    }, [open]);
+    
+    // Transforma os resultados de busca
     const results = useMemo<SearchResult[]>(() => {
-        return products.map(product => ({
+        return searchResults.map(product => ({
             id: product.id,
             title: product.name,
             category: product.category,
@@ -64,14 +112,30 @@ export default function SearchComponent() {
             price: product.price,
             salePrice: product.salePrice
         }));
-    }, [products]);
+    }, [searchResults]);
 
-    // Função para navegar até a rota selecionada
-    const handleSelect = (result: SearchResult) => {
+    // Função para navegar até a rota selecionada (com melhor gerenciamento de eventos)
+    const handleSelect = useCallback((result: SearchResult) => {
         navigate(result.path);
         setOpen(false);
-        setQuery("");
-    };
+    }, [navigate]);
+
+    // Função para gerenciar mudança de valor no input
+    const handleValueChange = useCallback((newValue: string) => {
+        setQuery(newValue);
+    }, []);
+
+    // Função para gerenciar a mudança de estado do modal
+    const handleOpenChange = useCallback((newOpenState: boolean) => {
+        setOpen(newOpenState);
+    }, []);
+
+    // Seções populares fixas
+    const popularSections = useMemo(() => [
+        { title: "Novidades", path: "releases" },
+        { title: "Promoções", path: "colections/mens" },
+        { title: "Mais Vendidos", path: "products" },
+    ], []);
 
     return (
         <>
@@ -88,19 +152,22 @@ export default function SearchComponent() {
                 </kbd>
             </motion.button>
 
-            <CommandDialog open={open} onOpenChange={setOpen}>
+            <CommandDialog 
+                open={open} 
+                onOpenChange={handleOpenChange}
+            >
                 <div className="border-b border-neutral-100">
                     <CommandInput
                         placeholder="Busque por produtos, categorias..."
                         value={query}
-                        onValueChange={setQuery}
+                        onValueChange={handleValueChange}
                         className="py-4 text-base focus:outline-none"
                     />
                 </div>
                 <CommandList className="py-2 max-h-[70vh]">
                     <CommandEmpty>
                         <AnimatePresence mode="wait">
-                            {loading ? (
+                            {isSearching ? (
                                 <motion.div
                                     key="loading"
                                     initial={{ opacity: 0 }}
@@ -146,6 +213,7 @@ export default function SearchComponent() {
                                             transition={{ duration: 0.2 }}
                                         >
                                             <CommandItem
+                                                value={`result-${result.id}`} // Valor único para cada item
                                                 onSelect={() => handleSelect(result)}
                                                 className="flex items-center gap-3 py-3 px-2 cursor-pointer rounded-lg hover:bg-neutral-50 transition-colors"
                                             >
@@ -154,6 +222,7 @@ export default function SearchComponent() {
                                                         src={result.imageUrl || "/placeholder.svg"}
                                                         alt={result.title}
                                                         className="w-full h-full object-cover"
+                                                        loading="lazy"
                                                     />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
@@ -191,13 +260,10 @@ export default function SearchComponent() {
 
                     <CommandGroup heading="Seções Populares" className="px-2 mt-2">
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            {[
-                                { title: "Novidades", path: "/novidades" },
-                                { title: "Promoções", path: "/promocoes" },
-                                { title: "Mais Vendidos", path: "/mais-vendidos" },
-                            ].map((section) => (
+                            {popularSections.map((section) => (
                                 <CommandItem
                                     key={section.path}
+                                    value={`section-${section.path}`} // Valor único para cada seção
                                     onSelect={() => {
                                         navigate(section.path);
                                         setOpen(false);

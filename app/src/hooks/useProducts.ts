@@ -29,7 +29,10 @@ interface UseProductsReturn {
   filters: ProductFilterApiParams;
   
   // Ações
-  getProducts: (page?: number, filters?: ProductFilterApiParams) => void;
+  getProducts: (
+    page?: number, 
+    filters?: ProductFilterApiParams
+  ) => Promise<{ data: Product[]; pagination: Pagination }>;
   getFeaturedProducts: (count?: number) => Product[];
   getUserProducts: (page?: number) => void;
   getProductById: (id: string) => void;
@@ -62,7 +65,17 @@ export const useProducts = (): UseProductsReturn => {
         hasPrevPage: false 
       },
       filters: { page: 1, limit: 10 },
-      getProducts: () => Promise.resolve(),
+      getProducts: () => Promise.resolve({ 
+        data: [], 
+        pagination: {
+          page: 1,
+          limit: 10,
+          total: 0,
+          pages: 1,
+          hasNextPage: false,
+          hasPrevPage: false
+        }
+      }),
       getUserProducts: () => Promise.resolve(),
       getProductById: () => Promise.resolve(),
       getFeaturedProducts: () => [],
@@ -83,16 +96,22 @@ export const useProducts = (): UseProductsReturn => {
   const state = useSelector((state: RootState) => state.products);
 
   // Busca de produtos com memoização
-  const getProducts = useCallback((page?: number, filters?: ProductFilterApiParams) => {
+  const getProducts = useCallback(async (page?: number, filters?: ProductFilterApiParams): Promise<{
+    data: Product[];
+    pagination: Pagination;
+  }> => {
     const params = {
       page: page || 1,
       filters: filters || {}
     };
-    return dispatch(fetchProducts(params));
-  }, [dispatch]);
-
+    
+    // 1. Opção com type assertion
+    const result = await dispatch(fetchProducts(params));
+    return result.payload as { data: Product[]; pagination: Pagination };
   
-
+    // OU 2. Opção com unwrap() e type assertion
+    // return await dispatch(fetchProducts(params)).unwrap() as { data: Product[]; pagination: Pagination };
+  }, [dispatch]);
 
   const getFeaturedProducts = useCallback((count: number = 4): Product[] => {
     const productCount = Math.min(Math.max(count, 4), 8);
@@ -188,13 +207,13 @@ export const useProducts = (): UseProductsReturn => {
   const updateFilters = useCallback((newFilters: Partial<ProductFilterApiParams>) => {
     const updatedFilters = { ...state.filters, ...newFilters };
     dispatch(setFilters(updatedFilters));
-    dispatch(fetchProducts({ filters: updatedFilters }));
+    dispatch(fetchProducts(updatedFilters)); // Chamada direta com os filtros
   }, [dispatch, state.filters]);
 
   const resetFilters = useCallback(() => {
     const defaultFilters = { page: 1, limit: 10 };
     dispatch(setFilters(defaultFilters));
-    dispatch(fetchProducts({ filters: defaultFilters }));
+    dispatch(fetchProducts(defaultFilters)); // Chamada direta com os filtros
   }, [dispatch]);
 
   // Memoiza valores computados
