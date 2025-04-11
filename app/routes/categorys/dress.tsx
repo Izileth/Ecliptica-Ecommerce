@@ -1,5 +1,5 @@
 import type { Route } from "./+types/dress";
-import VestidosGrid from "~/src/pages/Categories/categories.dress";
+import VestidosGrid from "~/src/pages/Categories/categoriesDressPage";
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "Vestidos | Ecliptica " },

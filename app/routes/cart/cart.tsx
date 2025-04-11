@@ -1,5 +1,5 @@
 import type { Route } from "./+types/cart";
-import { CartPage } from "~/src/pages/Cart/cart";
+import { CartPage } from "~/src/pages/Cart/cartPage";
 export function meta({}: Route.MetaArgs) {
     return [
         { title: "Visualização do Carrinho | Ecliptica" },

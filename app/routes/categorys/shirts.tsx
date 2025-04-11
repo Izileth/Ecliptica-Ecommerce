@@ -1,5 +1,5 @@
 import type { Route } from "./+types/shirts";
-import CamisetasGrid from "~/src/pages/Categories/categories.shirts";
+import CamisetasGrid from "~/src/pages/Categories/categoriesShirtsPage";
 export function meta({}: Route.MetaArgs) {
     return [
         { title: "Camisas | Ecliptica " },
