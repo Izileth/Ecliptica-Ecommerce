@@ -28,15 +28,14 @@ const ProductImagePreview = ({ src, onRemove, isNew }: {
   onRemove?: () => void;
   isNew?: boolean;
 }) => {
-  const [loaded, setLoaded] = useState(false);
-
   return (
     <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 group">
       <img
-        src={src}
-        alt="Preview"
-        className={`w-full h-full object-cover ${loaded ? 'opacity-100' : 'opacity-0'}`}
-        onLoad={() => setLoaded(true)}
+        src={src || 'https://via.placeholder.com/300x300?text=Sem+Imagem'}
+        className="w-full h-full object-cover"
+        onError={(e) => {
+          e.currentTarget.src = 'https://via.placeholder.com/300x300?text=Imagem+Removida';
+        }}
       />
       {onRemove && (
         <button
@@ -80,17 +79,20 @@ export default function EditProductPage() {
   });
 
   // Estado das imagens
+
   const [images, setImages] = useState({
     main: {
       current: "", // URL da imagem atual
-      new: null as File | null // Nova imagem (se houver upload)
+      new: null as File | null, // Nova imagem
+      newUrl: "" // URL da nova imagem
     },
     additional: {
       current: [] as string[], // URLs das imagens atuais
-      new: [] as File[], // Novas imagens adicionadas
+      new: [] as { file: File; url: string }[], // Novas imagens com suas URLs
       removed: [] as string[] // URLs das imagens removidas
     }
   });
+  
 
   // Estados para novos itens
   const [newFeature, setNewFeature] = useState("");
@@ -129,7 +131,8 @@ export default function EditProductPage() {
       setImages({
         main: {
           current: product.image,
-          new: null
+          new: null,
+          newUrl: product.image,
         },
         additional: {
           current: product.images?.map(img => img.url) || [],
@@ -155,14 +158,17 @@ export default function EditProductPage() {
   // Limpeza de URLs temporárias
   useEffect(() => {
     return () => {
-      if (images.main.new) {
-        URL.revokeObjectURL(URL.createObjectURL(images.main.new));
+      // Limpar URL da imagem principal
+      if (images.main.newUrl) {
+        URL.revokeObjectURL(images.main.newUrl);
       }
-      images.additional.new.forEach(file => {
-        URL.revokeObjectURL(URL.createObjectURL(file));
+      
+      // Limpar URLs das imagens adicionais
+      images.additional.new.forEach(item => {
+        URL.revokeObjectURL(item.url);
       });
     };
-  }, [images]);
+  }, []);  // Dependência vazia para executar apenas na desmontagem
 
   // Validação do formulário
   const validateForm = useCallback((): boolean => {
@@ -228,10 +234,21 @@ export default function EditProductPage() {
         setFormErrors(prev => ({ ...prev, image: "Arquivo muito grande (máx. 5MB)" }));
         return;
       }
-
+  
+      // Revogar URL anterior se existir
+      if (images.main.newUrl) {
+        URL.revokeObjectURL(images.main.newUrl);
+      }
+  
+      const newUrl = URL.createObjectURL(file);
+      
       setImages(prev => ({
         ...prev,
-        main: { ...prev.main, new: file }
+        main: { 
+          ...prev.main, 
+          new: file,
+          newUrl: newUrl
+        }
       }));
       setFormErrors(prev => ({ ...prev, image: "" }));
     }
@@ -239,7 +256,7 @@ export default function EditProductPage() {
 
   const handleAdditionalImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const files = Array.from(e.target.files).filter(file => {
+      const filesArray = Array.from(e.target.files).filter(file => {
         const isValidType = ALLOWED_FILE_TYPES.includes(file.type);
         const isValidSize = file.size <= MAX_FILE_SIZE;
         
@@ -252,12 +269,17 @@ export default function EditProductPage() {
         
         return isValidType && isValidSize;
       });
-
+  
+      const newFilesWithUrls = filesArray.map(file => ({
+        file,
+        url: URL.createObjectURL(file)
+      }));
+  
       setImages(prev => ({
         ...prev,
         additional: {
           ...prev.additional,
-          new: [...prev.additional.new, ...files]
+          new: [...prev.additional.new, ...newFilesWithUrls]
         }
       }));
     }
@@ -265,22 +287,38 @@ export default function EditProductPage() {
 
   const removeAdditionalImage = (index: number) => {
     setImages(prev => {
-      const isCurrentImage = index < prev.additional.current.length;
-      
-      return {
-        ...prev,
-        additional: {
-          current: isCurrentImage 
-            ? prev.additional.current.filter((_, i) => i !== index)
-            : prev.additional.current,
-          new: isCurrentImage
-            ? prev.additional.new
-            : prev.additional.new.filter((_, i) => i !== (index - prev.additional.current.length)),
-          removed: isCurrentImage
-            ? [...prev.additional.removed, prev.additional.current[index]]
-            : prev.additional.removed
+      if (index < prev.additional.current.length) {
+        // Imagem existente
+        const imageToRemove = prev.additional.current[index];
+        return {
+          ...prev,
+          additional: {
+            current: prev.additional.current.filter((_, i) => i !== index),
+            new: prev.additional.new,
+            removed: [...prev.additional.removed, imageToRemove]
+          }
+        };
+      } else {
+        // Imagem nova
+        const newIndex = index - prev.additional.current.length;
+        
+        // Verificar se o índice é válido
+        if (newIndex >= 0 && newIndex < prev.additional.new.length) {
+          // Revogar URL do objeto antes de removê-lo
+          URL.revokeObjectURL(prev.additional.new[newIndex].url);
+          
+          return {
+            ...prev,
+            additional: {
+              current: prev.additional.current,
+              new: prev.additional.new.filter((_, i) => i !== newIndex),
+              removed: prev.additional.removed
+            }
+          };
         }
-      };
+        
+        return prev; // Retorna o estado inalterado se o índice for inválido
+      }
     });
   };
 
@@ -359,7 +397,7 @@ export default function EditProductPage() {
       colors: prev.colors.filter((_, i) => i !== index)
     }));
   };
-
+  
   // Envio do formulário
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -383,8 +421,8 @@ export default function EditProductPage() {
         formData.append("image", images.main.new);
       }
 
-      images.additional.new.forEach(file => {
-        formData.append("additionalImages", file);
+      images.additional.new.forEach(item => {
+        formData.append("additionalImages", item.file);
       });
 
       images.additional.removed.forEach(url => {
@@ -418,6 +456,7 @@ export default function EditProductPage() {
       setLoading(prev => ({ ...prev, submit: false }));
     }
   };
+
 
   // Verificação de mudanças
   const hasChanges = useMemo(() => {
@@ -705,7 +744,7 @@ export default function EditProductPage() {
                                 className="h-full"
                               >
                                 <ProductImagePreview
-                                  src={URL.createObjectURL(images.main.new)}
+                                  src={images.main.newUrl}
                                   isNew
                                 />
                               </motion.div>
@@ -762,7 +801,7 @@ export default function EditProductPage() {
                           {/* Imagens existentes */}
                           {images.additional.current.map((img, index) => (
                             <motion.div
-                              key={`current-${index}`}
+                              key={`current-${img}-${index}`} // Use a URL da imagem na chave
                               initial={{ opacity: 0, scale: 0.9 }}
                               animate={{ opacity: 1, scale: 1 }}
                               exit={{ opacity: 0, scale: 0.9 }}
@@ -775,20 +814,21 @@ export default function EditProductPage() {
                             </motion.div>
                           ))}
 
+
                           {/* Novas imagens */}
-                          {images.additional.new.map((file, index) => (
+                          {images.additional.new.map((item, index) => (
                             <motion.div
-                              key={`new-${index}`}
+                              key={`new-${item.file.name}-${index}`} // Use o nome do arquivo na chave
                               initial={{ opacity: 0, scale: 0.9 }}
                               animate={{ opacity: 1, scale: 1 }}
                               exit={{ opacity: 0, scale: 0.9 }}
                               transition={{ duration: 0.2 }}
                             >
-                              <ProductImagePreview
-                                src={URL.createObjectURL(file)}
-                                onRemove={() => removeAdditionalImage(images.additional.current.length + index)}
-                                isNew
-                              />
+                                <ProductImagePreview
+                                  src={item.url}  // Use a URL pré-gerada
+                                  onRemove={() => removeAdditionalImage(images.additional.current.length + index)}
+                                  isNew
+                                />
                             </motion.div>
                           ))}
                         </AnimatePresence>

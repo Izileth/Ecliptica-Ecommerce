@@ -94,12 +94,14 @@ export const ProductService = {
   toFormData: (values: ProductFormValues): FormData => {
     const formData = new FormData();
     
+    
     // Campos básicos
     formData.append('name', values.name);
     formData.append('description', values.description);
     formData.append('price', values.price.toString());
     formData.append('category', values.category);
     formData.append('countInStock', values.countInStock.toString());
+    
     
     // Novos campos
     if (values.salePrice) {
@@ -154,14 +156,18 @@ export const ProductService = {
         formData.append('additionalImages', file); // Nome exato e plural
       });
     }
-  
+   
 
-    // URLs de imagens a serem removidas
-    if (values.removedImages && values.removedImages.length > 0) {
-      values.removedImages.forEach(url => {
-        formData.append('removedImages', url);
-      });
+    // Substitua o trecho de removedImages por:
+    if (values.removedImages && Array.isArray(values.removedImages) && values.removedImages.length > 0) {
+      // Envia como JSON stringify para garantir o formato
+      formData.append('removedImages', JSON.stringify(values.removedImages));
+    } else {
+      // Envia array vazio explícito para evitar undefined
+      formData.append('removedImages', '[]');
     }
+
+    
     
     return formData;
   }  
