@@ -1,5 +1,6 @@
 import api from './api';
 import type { Product, ProductFormValues } from './type';
+import type { PaginatedResponse } from './type';
 import type { ProductFilterApiParams } from './type';
 interface ProductFilters {
   category?: string;
@@ -11,24 +12,21 @@ interface ProductFilters {
   page?: number;
   limit?: number;
 }
-interface PaginatedResponse {
-  status: string; // 'success' ou 'error'
-  data: Product[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    pages: number;
-    hasNextPage: boolean; // Adicionado
-    hasPrevPage: boolean; // Adicionado
-  };
-}
+
+
 export const ProductService = {
   // Listar todos os produtos (com filtros e paginação)
-
   getAll: async (filters?: ProductFilterApiParams): Promise<PaginatedResponse> => {
     const response = await api.get('/products', { params: filters });
-    return response.data; // Retorna o objeto completo com status, data e pagination
+    return {
+      status: 'success', // Adicione explicitamente
+      data: response.data.data,
+      pagination: {
+        ...response.data.pagination,
+        hasNextPage: response.data.pagination.page < response.data.pagination.pages,
+        hasPrevPage: response.data.pagination.page > 1
+      }
+    };
   },
 
   // Obter produtos do usuário logado
@@ -156,7 +154,6 @@ export const ProductService = {
         formData.append('additionalImages', file); // Nome exato e plural
       });
     }
-   
 
     // Substitua o trecho de removedImages por:
     if (values.removedImages && Array.isArray(values.removedImages) && values.removedImages.length > 0) {

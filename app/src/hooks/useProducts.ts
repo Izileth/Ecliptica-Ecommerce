@@ -12,11 +12,11 @@ import {
   resetProductError,
   setFilters
 } from '../store/productStore';
-import type { ProductFilterApiParams } from '../services/type';
-import type { ProductFormValues } from '../services/type';
+import type { ProductFilterApiParams, Pagination } from '../services/type';
+import type { ProductFormValues, Product } from '../services/type';
 import { ProductService } from '../services/produtcService';
-import type { Product } from '../services/type';
 import { useCallback, useMemo } from 'react';
+
 interface UseProductsReturn {
   // Estado
   products: Product[];
@@ -24,12 +24,7 @@ interface UseProductsReturn {
   currentProduct: Product | null;
   loading: boolean;
   error: string | null;
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    pages: number;
-  };
+  pagination: Pagination; // Usando a interface Pagination unificada
   filters: ProductFilterApiParams;
   
   // Ações
@@ -55,7 +50,14 @@ export const useProducts = (): UseProductsReturn => {
       currentProduct: null,
       loading: false,
       error: null,
-      pagination: { page: 1, limit: 10, total: 0, pages: 1 },
+      pagination: { 
+        page: 1, 
+        limit: 10, 
+        total: 0, 
+        pages: 1,
+        hasNextPage: false,
+        hasPrevPage: false 
+      },
       filters: { page: 1, limit: 10 },
       getProducts: () => {},
       getUserProducts: () => {},
@@ -72,15 +74,7 @@ export const useProducts = (): UseProductsReturn => {
   }
 
   const dispatch = useDispatch<AppDispatch>();
-  const {
-    products,
-    userProducts,
-    currentProduct,
-    loading,
-    error,
-    pagination,
-    filters
-  } = useSelector((state: RootState) => state.products);
+  const state = useSelector((state: RootState) => state.products);
 
   // Busca de produtos com memoização
   const getProducts = useCallback((page?: number, filters?: ProductFilterApiParams) => {
@@ -91,30 +85,24 @@ export const useProducts = (): UseProductsReturn => {
     return dispatch(fetchProducts(params));
   }, [dispatch]);
 
-
   const getFeaturedProducts = useCallback((count: number = 4): Product[] => {
-    // Garante que o count esteja entre 4 e 8
     const productCount = Math.min(Math.max(count, 4), 8);
     
-    // Verificação rigorosa de products
-    if (!Array.isArray(products)) return [];
-    if (products.length === 0) return [];
+    if (!Array.isArray(state.products)) return [];
+    if (state.products.length === 0) return [];
     
-    // Cria uma cópia segura do array
-    const productsCopy = [...products];
+    const productsCopy = [...state.products];
     
-    // Se tiver menos ou igual ao número solicitado, retorna todos
     if (productsCopy.length <= productCount) return productsCopy;
     
-    // Seleção aleatória com Fisher-Yates shuffle
+    // Fisher-Yates shuffle
     for (let i = productsCopy.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [productsCopy[i], productsCopy[j]] = [productsCopy[j], productsCopy[i]];
     }
     
     return productsCopy.slice(0, productCount);
-  }, [products]);
-
+  }, [state.products]);
 
   // Produtos do usuário
   const getUserProducts = useCallback((page?: number) => {
@@ -175,10 +163,10 @@ export const useProducts = (): UseProductsReturn => {
 
   // Manipulação de filtros
   const updateFilters = useCallback((newFilters: Partial<ProductFilterApiParams>) => {
-    dispatch(setFilters({ ...filters, ...newFilters }));
-    // Atualiza os produtos automaticamente quando os filtros mudam
-    dispatch(fetchProducts({ filters: { ...filters, ...newFilters } }));
-  }, [dispatch, filters]);
+    const updatedFilters = { ...state.filters, ...newFilters };
+    dispatch(setFilters(updatedFilters));
+    dispatch(fetchProducts({ filters: updatedFilters }));
+  }, [dispatch, state.filters]);
 
   const resetFilters = useCallback(() => {
     const defaultFilters = { page: 1, limit: 10 };
@@ -188,14 +176,22 @@ export const useProducts = (): UseProductsReturn => {
 
   // Memoiza valores computados
   const memoizedValues = useMemo(() => ({
-    products,
-    userProducts,
-    currentProduct,
-    loading,
-    error,
-    pagination,
-    filters
-  }), [products, userProducts, currentProduct, loading, error, pagination, filters]);
+    products: state.products,
+    userProducts: state.userProducts,
+    currentProduct: state.currentProduct,
+    loading: state.loading,
+    error: state.error,
+    pagination: state.pagination,
+    filters: state.filters
+  }), [
+    state.products, 
+    state.userProducts, 
+    state.currentProduct, 
+    state.loading, 
+    state.error, 
+    state.pagination, 
+    state.filters
+  ]);
 
   return {
     ...memoizedValues,

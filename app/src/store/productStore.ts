@@ -12,10 +12,12 @@ interface ProductState {
   loading: boolean;
   error: string | null;
   pagination: {
-    page: number;
+    page: number;  // Remova os valores padrão aqui (só na inicialização)
     limit: number;
     total: number;
     pages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
   };
   filters: ProductFilterApiParams; // Adicionar para manter estado dos filtros
 }
@@ -30,6 +32,8 @@ const initialState: ProductState = {
     limit: 10,
     total: 0,
     pages: 1,
+    hasNextPage: false,
+    hasPrevPage: false
   },
   filters: {
     page: 1,
@@ -39,28 +43,43 @@ const initialState: ProductState = {
 };
 
 // Thunks para operações assíncronas
+
 export const fetchProducts = createAsyncThunk(
   'products/fetchAll',
   async (params: { page?: number; filters?: ProductFilterApiParams }, { rejectWithValue }) => {
     try {
-      return await ProductService.getAll(params.filters); // Verificar aqui
+      const response = await ProductService.getAll(params.filters);
+      return {
+        data: response.data,
+        pagination: {
+          ...response.pagination,
+          hasNextPage: response.pagination.page < response.pagination.pages,
+          hasPrevPage: response.pagination.page > 1
+        }
+      };
     } catch (error) {
-      return rejectWithValue('Erro desconhecido ao buscar produtos');
+      return rejectWithValue('Erro ao buscar produtos');
     }
   }
 );
-
 export const fetchUserProducts = createAsyncThunk(
   'products/fetchUserProducts',
   async (params: { page?: number }, { rejectWithValue }) => {
     try {
-      return await ProductService.getUserProducts(params);
+      const response = await ProductService.getUserProducts(params);
+      return {
+        data: response.data,
+        pagination: {
+          ...response.pagination,
+          hasNextPage: response.pagination.page < response.pagination.pages,
+          hasPrevPage: response.pagination.page > 1
+        }
+      };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
-
 
 export const fetchProductById = createAsyncThunk(
   'products/fetchById',
@@ -132,7 +151,14 @@ const productSlice = createSlice({
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
         state.products = action.payload.data;
-        state.pagination = action.payload.pagination;
+        state.pagination = {
+          page: action.payload.pagination.page,
+          limit: action.payload.pagination.limit,
+          total: action.payload.pagination.total,
+          pages: action.payload.pagination.pages,
+          hasNextPage: action.payload.pagination.page < action.payload.pagination.pages,
+          hasPrevPage: action.payload.pagination.page > 1
+        };
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
@@ -146,7 +172,11 @@ const productSlice = createSlice({
       .addCase(fetchUserProducts.fulfilled, (state, action) => {
         state.loading = false;
         state.userProducts = action.payload.data;
-        state.pagination = action.payload.pagination;
+        state.pagination = {
+          ...action.payload.pagination,
+          hasNextPage: action.payload.pagination.page < action.payload.pagination.pages,
+          hasPrevPage: action.payload.pagination.page > 1
+        };
       })
       .addCase(fetchUserProducts.rejected, (state, action) => {
         state.loading = false;

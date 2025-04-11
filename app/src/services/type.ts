@@ -34,8 +34,8 @@ export interface Product {
   salePrice: number | null;
   collection?: string | null;
   features: string[];
+  colors: ProductColor[]; // Remover o ?
   sizes: ProductSize[];
-  colors: ProductColor[];
 }
 export interface ProductSize {
   id?: string;
@@ -52,16 +52,26 @@ export interface ProductColor {
   stock: number;
   productId?: string;
 }
-export interface PaginatedProducts {
-  data: Product[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    pages: number;
-  };
+
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
 }
 
+export interface PaginatedProducts {
+  data: Product[];
+  pagination: Pagination; // Use a interface unificada
+}
+
+export interface PaginatedResponse {
+  status: string;
+  data: Product[];
+  pagination: Pagination; // Use a mesma interface
+}
 export interface ProductQueryParams {
   page?: number;
   limit?: number;

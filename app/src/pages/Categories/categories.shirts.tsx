@@ -3,8 +3,7 @@ import Container from '~/src/components/common/Container/container';
 import CategoryGrid from './categories.grid';
 import { CategoryBanner } from '~/src/components/categories/Banner/banner';
 import { Button } from '~/src/components/imported/button';
-
-    const CamisetasGrid = () => {
+const CamisetasGrid = () => {
     return (
         <Container maxWidth="full" padding="sm" className='mt-20' >
             <CategoryBanner 
