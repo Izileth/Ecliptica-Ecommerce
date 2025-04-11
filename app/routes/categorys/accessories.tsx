@@ -1,5 +1,5 @@
 import type { Route } from "./+types/accessories";
-import AcessoriosGrid from "~/src/pages/Categories/categoritesAcessories";
+import AcessoriosGrid from "~/src/pages/Categories/categoritesAcessoriesPage";
 export function meta({}: Route.MetaArgs) {
     return [
         { title: "Acessórios| Ecliptica " },

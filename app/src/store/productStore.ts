@@ -62,6 +62,8 @@ export const fetchProducts = createAsyncThunk(
     }
   }
 );
+
+
 export const fetchUserProducts = createAsyncThunk(
   'products/fetchUserProducts',
   async (params: { page?: number }, { rejectWithValue }) => {
@@ -80,7 +82,28 @@ export const fetchUserProducts = createAsyncThunk(
     }
   }
 );
-
+export const fetchProductsByCollection = createAsyncThunk(
+  'products/fetchByCollection',
+  async (params: { 
+    collection: string;
+    page?: number;
+    limit?: number;
+  }, { rejectWithValue }) => {
+    try {
+      const response = await ProductService.getByCollection(
+        params.collection,
+        params.page,
+        params.limit
+      );
+      return {
+        data: response.data,
+        pagination: response.pagination
+      };
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Erro ao buscar produtos por coleção');
+    }
+  }
+);
 export const fetchProductById = createAsyncThunk(
   'products/fetchById',
   async (id: string, { rejectWithValue }) => {
@@ -196,7 +219,22 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      
+
+      // Adicione um caso no extraReducers
+      .addCase(fetchProductsByCollection.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProductsByCollection.fulfilled, (state, action) => {
+        state.loading = false;
+        state.products = action.payload.data;
+        state.pagination = action.payload.pagination;
+      })
+      .addCase(fetchProductsByCollection.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+            
       // Create Product
       .addCase(createProduct.pending, (state) => {
         state.loading = true;

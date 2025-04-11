@@ -102,7 +102,7 @@ export default function NewProductPage() {
     if (formValues.sizes && formValues.sizes.length > 0) {
       formValues.sizes.forEach((size, index) => {
         if (!size.size) errors[`sizes-${index}`] = "Tamanho é obrigatório"
-        if (size.stock < 0) errors[`sizes-stock-${index}`] = "Estoque não pode ser negativo"
+        if (size.stock === 0) errors[`sizes-stock-${index}`] = "Estoque não pode ser negativo"
       })
     }
 
@@ -110,7 +110,7 @@ export default function NewProductPage() {
     if (formValues.colors && formValues.colors.length > 0) {
       formValues.colors.forEach((color, index) => {
         if (!color.colorName) errors[`colors-${index}`] = "Nome da cor é obrigatório"
-        if (color.stock < 0) errors[`colors-stock-${index}`] = "Estoque não pode ser negativo"
+        if (color.stock === 0) errors[`colors-stock-${index}`] = "Estoque não pode ser negativo"
       })
     }
 
@@ -190,7 +190,9 @@ export default function NewProductPage() {
     return () => {
       // Revoga URLs de imagens adicionais
       formValues.additionalImages?.forEach(url => {
-        if (url.startsWith('blob:')) URL.revokeObjectURL(url);
+        if (typeof url === 'string' && url.startsWith('blob:')){
+          console.log('Imagem Revogada')
+        }
       });
       
       // Revoga URL da imagem principal se for File
@@ -676,7 +678,7 @@ export default function NewProductPage() {
                                     transition={{ duration: 0.2 }}
                                   >
                                     <img
-                                      src={img}
+                                      src={formValues.image instanceof File ? URL.createObjectURL(formValues.image) : formValues.image || ''}
                                       alt={`Imagem adicional ${index + 1}`}
                                       className="h-full w-full object-cover"
                                     />
@@ -685,7 +687,7 @@ export default function NewProductPage() {
                                         type="button"
                                         onClick={() => {
                                           // Revoke object URL when removing to prevent memory leaks
-                                          if (img.startsWith('blob:')) {
+                                          if (typeof img === 'string' && img.startsWith('blob:')) {
                                             URL.revokeObjectURL(img);
                                           }
                                           removeAdditionalImage(index);

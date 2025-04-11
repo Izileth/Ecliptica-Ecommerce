@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Search, ShoppingBag, User, Menu, X, ChevronDown, ChevronRight } from "lucide-react"
 import { useAuthUser } from "~/src/hooks/useUser";
-import { useCart } from "~/src/hooks/useCart"; // Importando o hook useCart
+import { useCart } from "~/src/hooks/useCart";
 import { cn } from "~/src/lib/utils";
 import { Button } from "~/src/components/ui/Button/button";
 import { Input } from "~/src/components/ui/Input/input";
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion";
+import SearchComponent from "~/src/components/common/Search/search"; // Importando o componente de busca
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,12 +29,12 @@ export default function Navbar() {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, isLoading, isAuthenticated, isAdmin, logout } = useAuthUser()
-  const { itemCount, getCart } = useCart(); // Utilizando o hook useCart
+  const { itemCount, getCart } = useCart();
   
-
   const [isScrolled, setIsScrolled] = useState(false)
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
+  // Remova esta linha, pois não vamos mais precisar - o componente SearchComponent gerencia seu próprio estado
+  // const [isSearchOpen, setIsSearchOpen] = useState(false)
+  // const [searchQuery, setSearchQuery] = useState("")
 
   // Handle scroll effect
   useEffect(() => {
@@ -50,23 +51,22 @@ export default function Navbar() {
     getCart();
   }, [getCart, isAuthenticated]);
 
-  // Close search when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const searchContainer = document.getElementById("search-container")
-      if (isSearchOpen && searchContainer && !searchContainer.contains(event.target as Node)) {
-        setIsSearchOpen(false)
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [isSearchOpen])
-
-  // Close search when navigating
-  useEffect(() => {
-    setIsSearchOpen(false)
-  }, [location])
+  // Remova estes efeitos relacionados à busca antiga
+  // useEffect(() => {
+  //   const handleClickOutside = (event: MouseEvent) => {
+  //     const searchContainer = document.getElementById("search-container")
+  //     if (isSearchOpen && searchContainer && !searchContainer.contains(event.target as Node)) {
+  //       setIsSearchOpen(false)
+  //     }
+  //   }
+  //
+  //   document.addEventListener("mousedown", handleClickOutside)
+  //   return () => document.removeEventListener("mousedown", handleClickOutside)
+  // }, [isSearchOpen])
+  //
+  // useEffect(() => {
+  //   setIsSearchOpen(false)
+  // }, [location])
 
   const navLinks = [
     { href: "/shop", label: "Coleções", hasSubmenu: true },
@@ -77,10 +77,10 @@ export default function Navbar() {
   ]
 
   const shopCategories = [
-    { href: "/shop/women", label: "Feminina" },
-    { href: "/shop/men", label: "Masculina" },
-    { href: "/shop/accessories", label: "Acessórios" },
-    { href: "/shop/shoes", label: "Calçados" },
+    { href: "colections/womans", label: "Feminina" },
+    { href: "colections/mens", label: "Masculina" },
+    { href: "colections/summer", label: "Verão" },
+    { href: "coletions/winter", label: "Inverno" },
   ]
 
   const handleLogin = () => navigate("/login")
@@ -96,14 +96,15 @@ export default function Navbar() {
     }
   }
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
-      setIsSearchOpen(false)
-      setSearchQuery("")
-    }
-  }
+  // Remova esta função que não será mais necessária
+  // const handleSearch = (e: React.FormEvent) => {
+  //   e.preventDefault()
+  //   if (searchQuery.trim()) {
+  //     navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+  //     setIsSearchOpen(false)
+  //     setSearchQuery("")
+  //   }
+  // }
 
   return (
     <header
@@ -292,50 +293,10 @@ export default function Navbar() {
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-1 md:space-x-2">
-            {/* Search */}
+            {/* Substitua o bloco de busca pelo novo componente */}
             <div id="search-container" className="relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
-                aria-label="Search"
-                disabled={isLoading}
-                className="text-gray-700 hover:text-black hover:bg-transparent"
-              >
-                {isSearchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
-              </Button>
-
-              <AnimatePresence>
-                {isSearchOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute right-0 top-full mt-1 w-[280px] md:w-[320px] bg-white shadow-md border border-gray-100 z-50"
-                  >
-                    <form onSubmit={handleSearch} className="flex items-center p-2">
-                      <Input
-                        type="search"
-                        placeholder="Buscar produtos..."
-                        className="flex-1 border-gray-200 focus:border-gray-300 focus:ring-0 h-9 text-sm font-light rounded-none"
-                        autoFocus
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                      <Button
-                        type="submit"
-                        size="icon"
-                        variant="ghost"
-                        className="h-9 w-9 text-gray-700 hover:text-black hover:bg-transparent"
-                      >
-                        <Search className="h-4 w-4" />
-                        <span className="sr-only">Buscar</span>
-                      </Button>
-                    </form>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {/* Novo componente de busca */}
+              <SearchComponent />
             </div>
 
             {/* User Account */}

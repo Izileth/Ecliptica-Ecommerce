@@ -112,7 +112,7 @@ const ProductDetails: React.FC = () => {
     if (typeof image === 'string' || image === null) {
         setSelectedImage(image);
       } else {
-        setSelectedImage(image.url); // Ou qualquer outra propriedade que seja a URL
+        setSelectedImage(image); // Ou qualquer outra propriedade que seja a URL
     }
 
     if (mainImageRef.current) {
@@ -262,7 +262,7 @@ const ProductDetails: React.FC = () => {
             {allImages.length > 1 && (
               <div className="grid grid-cols-5 sm:grid-cols-6 gap-3">
                 {allImages.map((img, index) => {
-                  const imageUrl = typeof img === 'string' ? img : img?.url;
+                  const imageUrl = typeof img === 'string' ? img : img;
                   
                   return (
                     <button

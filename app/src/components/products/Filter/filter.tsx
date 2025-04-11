@@ -30,7 +30,27 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
   const [isExpanded, setIsExpanded] = useState(false)
   const [activeFiltersCount, setActiveFiltersCount] = useState(0)
   const [hasChanges, setHasChanges] = useState(false)
+  const [isMounted, setIsMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
+  
+  useEffect(() => {
+    setIsMounted(true);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    if (typeof window !== 'undefined') {
+      handleResize();
+      window.addEventListener('resize', handleResize);
+    }
+    
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, []);
   // Available categories
   const categories = ["Camisetas", "Calças", "Vestidos", "Acessórios"]
 
@@ -95,6 +115,10 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
     if (window.innerWidth < 768) {
       setIsExpanded(false)
     }
+    if (isMounted && isMobile) {
+      setIsExpanded(false);
+    }
+    
   }
 
   // Reset all filters
@@ -146,8 +170,8 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
       </div>
 
       {/* Filter form */}
-      <AnimatePresence>
-        {(isExpanded || window.innerWidth >= 768) && (
+      <AnimatePresence  mode="wait">
+      {(isExpanded || (isMounted && !isMobile)) && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
@@ -254,7 +278,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
               </div>
 
               {/* Active filters */}
-              <AnimatePresence>
+              <AnimatePresence  mode="wait">
                 {activeFiltersCount > 0 && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
@@ -329,8 +353,9 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
       </AnimatePresence>
 
       {/* Mobile filter applied indicator */}
-      <AnimatePresence>
-        {!isExpanded && activeFiltersCount > 0 && window.innerWidth < 768 && (
+      
+      <AnimatePresence  mode="wait">
+      {(isExpanded || (isMounted && !isMobile)) && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

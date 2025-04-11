@@ -7,22 +7,55 @@ import { Button } from "~/src/components/imported/button";
 
 const ProductGrid = () => {
   const { 
-    products, 
+    products = [], 
     loading, 
     error, 
-    pagination, 
+    pagination = { 
+      page: 1, 
+      pages: 1, 
+      hasNextPage: false, 
+      hasPrevPage: false, 
+      total: 0,
+      limit: 10
+    }, 
     getProducts,
     filters 
   } = useProducts();
 
+  // Carrega os produtos inicialmente
   React.useEffect(() => {
     getProducts(1, filters);
-  }, []);
+  }, [getProducts]);
+
+  // Debug: monitora mudanças na paginação
+  React.useEffect(() => {
+    console.log('Paginação atualizada:', pagination);
+  }, [pagination]);
 
   const handlePageChange = (page: number) => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
     getProducts(page, filters);
   };
+
+  React.useEffect(() => {
+    console.log('Produtos recebidos:', products);
+    
+    // Verificar duplicidade de IDs
+    const ids = products.map(p => p.id);
+    const uniqueIds = new Set(ids);
+    if (ids.length !== uniqueIds.size) {
+      console.error('ALERTA: IDs duplicados encontrados!', 
+        ids.filter((id, index) => ids.indexOf(id) !== index));
+    }
+    
+    // Verificar IDs vazios
+    const emptyIds = ids.filter(id => !id);
+    if (emptyIds.length > 0) {
+      console.error('ALERTA: IDs vazios ou nulos encontrados!');
+    }
+  }, [products]);
 
   const renderPagination = () => {
     const { page, pages, hasNextPage, hasPrevPage } = pagination;
@@ -69,35 +102,40 @@ const ProductGrid = () => {
               onClick={() => handlePageChange(1)}
               disabled={loading}
               className="px-3.5"
+              key="page-btn-1"
             >
               1
             </Button>
-            {startPage > 2 && <PaginationEllipsis />}
+            {startPage > 2 && <PaginationEllipsis key="ellipsis-start" />}
           </>
         )}
 
-        {Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map((p) => (
-          <Button
-            key={p}
-            variant={page === p ? "default" : "outline"}
-            size="sm"
-            onClick={() => handlePageChange(p)}
-            disabled={loading}
-            className="px-3.5"
-          >
-            {p}
-          </Button>
-        ))}
+        {Array.from({ length: endPage - startPage + 1 }, (_, i) => {
+          const pageNum = startPage + i;
+          return (
+            <Button
+              key={`page-btn-${pageNum}`}
+              variant={page === pageNum ? "default" : "outline"}
+              size="sm"
+              onClick={() => handlePageChange(pageNum)}
+              disabled={loading}
+              className="px-3.5"
+            >
+              {pageNum}
+            </Button>
+          );
+        })}
 
         {endPage < pages && (
           <>
-            {endPage < pages - 1 && <PaginationEllipsis />}
+            {endPage < pages - 1 && <PaginationEllipsis key="ellipsis-end" />}
             <Button
               variant={page === pages ? "default" : "outline"}
               size="sm"
               onClick={() => handlePageChange(pages)}
               disabled={loading}
               className="px-3.5"
+              key={`page-btn-${pages}`}
             >
               {pages}
             </Button>
@@ -118,7 +156,7 @@ const ProductGrid = () => {
     );
   };
 
-  const PaginationEllipsis = () => (
+  const PaginationEllipsis = ({ key }: { key: string }) => (
     <Button variant="outline" size="sm" className="px-2.5" disabled>
       <MoreHorizontal className="h-4 w-4" />
     </Button>
@@ -140,7 +178,10 @@ const ProductGrid = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard 
+            key={`product-${product.id}`}
+            product={product}
+          />
         ))}
       </div>
 
@@ -148,17 +189,20 @@ const ProductGrid = () => {
 
       <div className="text-center text-sm text-gray-500 mt-4">
         Mostrando {products.length} de {pagination.total} produtos
+        {pagination.total > pagination.limit && (
+          <span> (Página {pagination.page} de {pagination.pages})</span>
+        )}
       </div>
     </div>
   );
 };
 
-// Componentes auxiliares
+// Componentes auxiliares (mantidos iguais)
 const LoadingSkeleton = () => (
   <div className="container mx-auto px-4 py-12">
     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {[...Array(8)].map((_, i) => (
-        <div key={i} className="bg-gray-100 rounded-lg aspect-square animate-pulse" />
+        <div key={`skeleton-${i}`} className="bg-gray-100 rounded-lg aspect-square animate-pulse" />
       ))}
     </div>
   </div>

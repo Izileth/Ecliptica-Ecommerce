@@ -1,4 +1,5 @@
 import type { Route } from "./+types/mens";
+import MensPage from "~/src/pages/Colections/colectionsMensPage";
 export function meta({}: Route.MetaArgs) {
     return [
         { title: "Moda Masculina | Ecliptica " },
@@ -7,5 +8,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Mens() {
-  return ;
+  return (
+    <MensPage/>
+  );
 }

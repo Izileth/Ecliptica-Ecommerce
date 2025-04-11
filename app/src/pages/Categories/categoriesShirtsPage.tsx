@@ -1,5 +1,5 @@
 // CamisetasGrid.tsx
-import Container from "~/src/components/common/Container/container";
+import Container from "~/src/components/layout/Container/container";
 import CategoryGrid from "./categoriesGridPage";
 import { CategoryBanner } from "~/src/components/categories/Banner/banner";
 import { Button } from "~/src/components/imported/button";

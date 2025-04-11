@@ -8,34 +8,30 @@ export interface User {
   createdAt?: string;
   updatedAt?: string;
 }
-
 export interface Product {
   id: string;
   name: string;
   description: string;
   price: number;
-  oldPrice?: number;
   image: string;
-  images: ProductImage[];
+  images: string[]; // Alterado de ProductImage[] para string[]
   category: string;
   countInStock: number;
   createdAt: string;
   updatedAt: string;
   userId: string;
-  sales?: number; // Quantidade de vendas do produto
-  createdBy?: {
+  user?: { // Adicionado para refletir a relação com usuário
     id: string;
     name: string;
+    email: string;
   };
-  // Para produtos em promoção
-  promoPrice?: number;
-  promoEnd?: string;
-
   salePrice: number | null;
   collection?: string | null;
   features: string[];
-  colors: ProductColor[]; // Remover o ?
   sizes: ProductSize[];
+  colors: ProductColor[];
+  // Campos removidos que não existem no backend:
+  // oldPrice?, promoPrice?, promoEnd?, sales?
 }
 export interface ProductSize {
   id?: string;
@@ -162,39 +158,47 @@ export interface ProductFilterFormValues {
   sortBy?: 'name' | 'price' | 'createdAt';
   sortOrder?: 'asc' | 'desc';
 }
-
 export interface ProductFilterApiParams {
+  page?: number;
+  limit?: number;
   category?: string;
+  name?: string; // Adicionado para busca por nome
   minPrice?: number;
   maxPrice?: number;
   inStock?: boolean;
-  sort?: 'price-asc' | 'price-desc' | 'popular' | 'newest';
-  sortBy?: 'name' | 'price' | 'createdAt';
+  sortBy?: 'name' | 'price' | 'createdAt' | 'salePrice';
   sortOrder?: 'asc' | 'desc';
-  page?: number;
-  limit?: number;
-
   collection?: string;
-  hasDiscount?: boolean | string;
+  hasDiscount?: boolean;
 }
 
 // Tipo para formulário de produto
 export interface ProductFormValues {
-  id?: string; // Opcional para criação
+  id?: string;
   name: string;
   description: string;
-  price: string; // String para facilitar o input
+  price: string;
   category: string;
-  countInStock: string; // String para facilitar o input
-  image: File | string | null; // Pode ser File (novo upload), string (URL existente) ou null
-  additionalImages?: string[]; // URLs para pré-visualização
-  additionalImagesFiles?: File[]; // Arquivos para upload
-  removedImages?: string[]; // URLs de imagens removidas
-  salePrice?: string | null; // String ou null
+  countInStock: string;
+  image: File | string | null;
+  additionalImages?: (File | string)[];
+  additionalImagesFiles?: File[]; // Adicione esta linha
+  removedImages?: string[];
+  salePrice?: string | null;
   collection?: string | null;
-  features: string[]; // Array sempre definido (pode ser vazio)
-  sizes: ProductSize[]; // Array sempre definido (pode ser vazio)
-  colors: ProductColor[]; // Array sempre definido (pode ser vazio)
+  features: string[];
+  sizes: Array<{
+    size: string;
+    stock: string | number;
+    id?: string; // Para edição
+  }>;
+  colors: Array<{
+    colorName: string;
+    colorCode: string;
+    stock: string | number;
+    imageUrl?: string | null;
+    id?: string; // Para edição
+  }>;
 }
 export interface ProfileFormData {
   name: string

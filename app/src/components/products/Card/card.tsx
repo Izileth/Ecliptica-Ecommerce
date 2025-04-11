@@ -27,6 +27,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
   const displayPrice = hasDiscount ? product.salePrice! : product.price
   const discountPercentage = hasDiscount ? Math.round((1 - product.salePrice! / product.price) * 100) : 0
 
+  
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation()
     setLoading(true)
@@ -66,7 +67,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
         <div className="flex gap-1">
           {product.colors.slice(0, 4).map((color, index) => (
             <motion.span
-              key={index}
+              key={`color-${product.id}-${color.colorCode || index}`}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: index * 0.05 }}
@@ -98,7 +99,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
         <div className="flex gap-1">
           {availableSizes.slice(0, 4).map((size, index) => (
             <motion.span
-              key={index}
+              key={`size-${product.id}-${size.size || index}`}
               initial={{ y: 5, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: index * 0.05 }}
@@ -124,9 +125,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
     return (
       <div className="flex items-center gap-1 mt-1">
         <div className="flex">
-          {[1, 2, 3, 4, 5].map((star) => (
+          {[1, 2, 3, 4, 5].map((star, index) => (
             <Star
-              key={star}
+              key={`star-${product.id}-${star || index}`}
               className={cn(
                 "h-3 w-3",
                 star <= Math.floor(rating)

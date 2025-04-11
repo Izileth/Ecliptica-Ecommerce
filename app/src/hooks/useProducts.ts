@@ -4,6 +4,7 @@ import type { AppDispatch } from '../store/globalStore';
 import { 
   fetchProducts, 
   fetchUserProducts, 
+  fetchProductsByCollection,
   fetchProductById, 
   createProduct, 
   updateProduct, 
@@ -39,12 +40,14 @@ interface UseProductsReturn {
   clearError: () => void;
   updateFilters: (filters: Partial<ProductFilterApiParams>) => void;
   resetFilters: () => void;
+  getCollectionProducts: (collection: string, page?: number, limit?: number) => void;
+  prefetchCollection: (collection: string) => void;
 }
 
 export const useProducts = (): UseProductsReturn => {
-  // Verificação para SSR (Next.js/Gatsby)
+ // Verificação para SSR (Next.js/Gatsby)
   if (typeof window === 'undefined') {
-    return {
+    const ssrFallback: UseProductsReturn = {
       products: [],
       userProducts: [],
       currentProduct: null,
@@ -59,18 +62,21 @@ export const useProducts = (): UseProductsReturn => {
         hasPrevPage: false 
       },
       filters: { page: 1, limit: 10 },
-      getProducts: () => {},
-      getUserProducts: () => {},
-      getProductById: () => {},
+      getProducts: () => Promise.resolve(),
+      getUserProducts: () => Promise.resolve(),
+      getProductById: () => Promise.resolve(),
       getFeaturedProducts: () => [],
+      getCollectionProducts: () => Promise.resolve(), // Tipagem mais precisa
+      prefetchCollection: () => {},                 // Mantém void
       addProduct: async () => ({} as Product),
       editProduct: async () => ({} as Product),
-      removeProduct: async () => {},
+      removeProduct: async () => Promise.resolve(),
       clearProduct: () => {},
       clearError: () => {},
       updateFilters: () => {},
       resetFilters: () => {},
     };
+    return ssrFallback;
   }
 
   const dispatch = useDispatch<AppDispatch>();
@@ -103,6 +109,20 @@ export const useProducts = (): UseProductsReturn => {
     
     return productsCopy.slice(0, productCount);
   }, [state.products]);
+
+  const getCollectionProducts = useCallback((collection: string, page?: number, limit?: number) => {
+    dispatch(fetchProductsByCollection({ 
+      collection, 
+      page: page || 1,
+      limit: limit || state.filters.limit
+    }));
+  }, [dispatch, state.filters.limit]);
+
+  // Método para pré-carregar (opcional)
+  const prefetchCollection = useCallback((collection: string) => {
+    dispatch(fetchProductsByCollection({ collection, page: 1 }));
+  }, [dispatch]);
+
 
   // Produtos do usuário
   const getUserProducts = useCallback((page?: number) => {
@@ -195,6 +215,8 @@ export const useProducts = (): UseProductsReturn => {
 
   return {
     ...memoizedValues,
+    getCollectionProducts, // Adicionado
+    prefetchCollection, 
     getProducts,
     getFeaturedProducts,
     getUserProducts,

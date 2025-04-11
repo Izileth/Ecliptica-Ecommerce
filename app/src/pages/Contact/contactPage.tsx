@@ -25,7 +25,7 @@ interface ContactInfo {
 
 // Componente para o mapa que será carregado apenas no cliente
 const MapComponent = React.lazy(() =>
-  import('~/src/components/contact/map').then((module) => ({
+  import('~/src/components/contact/Map/map').then((module) => ({
     default: module.default as React.ComponentType<{
       coordinates: [number, number]
       companyName: string

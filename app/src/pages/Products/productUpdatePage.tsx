@@ -135,7 +135,7 @@ export default function EditProductPage() {
           newUrl: product.image,
         },
         additional: {
-          current: product.images?.map(img => img.url) || [],
+          current: product.images?.map(img => img) || [],
           new: [],
           removed: []
         }

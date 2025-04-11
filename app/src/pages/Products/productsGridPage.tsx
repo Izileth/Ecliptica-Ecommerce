@@ -1,5 +1,5 @@
 import Carousel from "~/src/components/common/Carousel/carousel";
-import Container from "~/src/components/common/Container/container";
+import Container from "~/src/components/layout/Container/container";
 import ProductGrid from "~/src/components/products/Grid/grid";
 import ProductFilter from "~/src/components/products/Filter/filter";
 import { useProducts } from "~/src/hooks/useProducts";

@@ -1,4 +1,5 @@
 import type { Route } from "./+types/girls";
+import WomanPage from "~/src/pages/Colections/colectionsWomenPage";
 export function meta({}: Route.MetaArgs) {
     return [
         { title: "Moda Feminina | Ecliptica " },
@@ -6,6 +7,8 @@ export function meta({}: Route.MetaArgs) {
     ];
 }
 
-export default function Girls() {
-  return ;
+export default function Woman() {
+  return (
+    <WomanPage/>
+  )
 }

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React, { useMemo, useEffect } from "react"
 import { useFeaturedProducts } from "~/src/hooks/useSortBy"
 import ProductCard from "../Card/card"
 import { Button } from "~/src/components/imported/button"
@@ -11,32 +11,53 @@ interface FeaturedProductsProps {
 }
 
 export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
+  title = "Produtos Em Destaque",
+  subtitle = "Os produtos mais vendidos em um só lugar"
 }) => {
   const { featuredProducts, loading, error, refreshFeaturedProducts } = useFeaturedProducts()
 
-  // Ensure products have the 'image' property defined to avoid errors
+  // Verificar IDs vazios ou duplicados (para debug)
+  useEffect(() => {
+    if (featuredProducts.length > 0) {
+      // Verificar IDs vazios
+      const emptyIds = featuredProducts.filter(p => !p.id);
+      if (emptyIds.length > 0) {
+        console.error('ALERTA: Produtos com IDs vazios encontrados!', emptyIds);
+      }
+      
+      // Verificar IDs duplicados
+      const ids = featuredProducts.map(p => p.id);
+      const uniqueIds = new Set(ids);
+      if (ids.length !== uniqueIds.size) {
+        console.error('ALERTA: IDs duplicados encontrados!', 
+          ids.filter((id, index) => ids.indexOf(id) !== index));
+      }
+    }
+  }, [featuredProducts]);
+
+  // Ensure products have the 'image' property and valid ID defined
   const safeProducts = useMemo(() => {
-    return featuredProducts.map((product) => {
-      if (!product.image) {
+    return featuredProducts
+      .filter(product => !!product.id) // Filtra produtos sem ID
+      .map((product) => {
         return {
           ...product,
-          image: "/placeholder-image.jpg",
+          image: product.image || "/placeholder-image.jpg",
+          id: product.id || `temp-${Math.random().toString(36).substr(2, 9)}` // Garante um ID temporário se necessário
         }
-      }
-      return product
-    })
-  }, [featuredProducts])
+      })
+  }, [featuredProducts]);
 
   if (loading) {
     return (
-      <section className="bg-neutral-50 py-16 sm:py-24">
+      <section className="bg-neutral-50 py-10 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-          <Title title="Produtos Em Destaque" subtitle="Os produtos mais vendidos em um só lugar" color="dark" />
+            <Title title={title} subtitle={subtitle} color="dark" />
           </div>
-          <div className="mt-16 grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 md:gap-x-6 lg:grid-cols-4 lg:gap-x-8">
             {[...Array(4)].map((_, index) => (
-              <div key={index} className="flex flex-col space-y-3">
+              <div key={`skeleton-${index}`} className="flex flex-col space-y-3">
                 <div className="aspect-[3/4] w-full animate-pulse rounded-sm bg-neutral-200"></div>
                 <div className="h-4 w-2/3 animate-pulse rounded-sm bg-neutral-200"></div>
                 <div className="h-3 w-1/2 animate-pulse rounded-sm bg-neutral-200"></div>
@@ -51,10 +72,10 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
 
   if (error) {
     return (
-      <section className="bg-neutral-50 py-16 sm:py-24">
+      <section className="bg-neutral-50 py-10 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-          <Title title="Produtos Em Destaque" subtitle="Os produtos mais vendidos em um só lugar" color="dark" />
+            <Title title={title} subtitle={subtitle} color="dark" />
             <p className="mx-auto mt-3 max-w-2xl text-sm font-light text-red-400 sm:mt-4">
               Não foi possível carregar os produtos em destaque
             </p>
@@ -76,17 +97,20 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   }
 
   return (
-    <section className=" py-16 sm:py-24">
+    <section className="py-10 sm:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-        <Title title="Produtos Em Destaque" subtitle="Os produtos mais vendidos em um só lugar" color="dark" />
+          <Title title={title} subtitle={subtitle} color="dark" />
         </div>
-        <div className="mt-16 grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 md:gap-x-6 lg:grid-cols-4 lg:gap-x-8">
           {safeProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard 
+              key={`featured-${product.id}`} 
+              product={product} 
+            />
           ))}
         </div>
-        <div className="mt-16 text-center">
+        <div className="mt-12 text-center">
           <Button
             onClick={refreshFeaturedProducts}
             variant="outline"

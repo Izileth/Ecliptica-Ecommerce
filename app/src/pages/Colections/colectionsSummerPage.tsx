@@ -2,12 +2,12 @@ import Container from "~/src/components/layout/Container/container";
 import { CollectionGrid } from "~/src/components/collections/Grid/grid";
 import { CollectionBanner } from "~/src/components/collections/Banner/banner";
 import { Button } from "~/src/components/imported/button";
-const WomanPage = () => {
+const SummerPage = () => {
   return (
     <Container maxWidth="full" padding="lg" className="mt-20">
       <CollectionBanner
-        collection="Feminina"
-        title="Coleção Essencial 2023"
+        collection="Verão"
+        title="Coleção Essencial 2025"
         description="Peças atemporais para compor seu guarda-roupa perfeito"
         imageUrl="/essential-collection-bg.jpg"
         season="Primavera"
@@ -20,9 +20,9 @@ const WomanPage = () => {
           Explorar Coleção
         </Button>
       </CollectionBanner>
-      <CollectionGrid collection="Feminina" />
+      <CollectionGrid collection="Verão" />
     </Container>
   );
 };
 
-export default WomanPage;
+export default SummerPage;

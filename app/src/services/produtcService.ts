@@ -1,171 +1,231 @@
+// src/services/productService.ts
 import api from './api';
-import type { Product, ProductFormValues } from './type';
-import type { PaginatedResponse } from './type';
-import type { ProductFilterApiParams } from './type';
-interface ProductFilters {
-  category?: string;
-  minPrice?: number; // Agora como number
-  maxPrice?: number;
-  inStock?: boolean;
-  sortBy?: 'name' | 'price' | 'createdAt';
-  sortOrder?: 'asc' | 'desc';
-  page?: number;
-  limit?: number;
-}
-
+import type {
+  Product,
+  ProductFormValues,
+  ProductFilterApiParams,
+  PaginatedResponse
+} from './type';
 
 export const ProductService = {
-  // Listar todos os produtos (com filtros e paginação)
+  /**
+   * Busca todos os produtos com filtros
+   */
   getAll: async (filters?: ProductFilterApiParams): Promise<PaginatedResponse> => {
-    const response = await api.get('/products', { params: filters });
-    return {
-      status: 'success', // Adicione explicitamente
-      data: response.data.data,
-      pagination: {
-        ...response.data.pagination,
-        hasNextPage: response.data.pagination.page < response.data.pagination.pages,
-        hasPrevPage: response.data.pagination.page > 1
-      }
-    };
+    try {
+      // Normaliza parâmetros booleanos para strings 'true'/'false'
+      const normalizedFilters = filters ? {
+        ...filters,
+        inStock: filters.inStock ? 'true' : undefined,
+        hasDiscount: filters.hasDiscount ? 'true' : undefined
+      } : undefined;
+
+      const response = await api.get('/products', { 
+        params: normalizedFilters,
+        paramsSerializer: { indexes: null } // Para arrays formatados corretamente
+      });
+
+      return {
+        status: response.data.status || 'success',
+        data: response.data.data,
+        pagination: response.data.pagination
+      };
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      throw error;
+    }
   },
 
-  // Obter produtos do usuário logado
-  getUserProducts: async (filters?: Omit<ProductFilters, 'sortBy' | 'sortOrder'>): Promise<PaginatedResponse> => {
-    const response = await api.get<PaginatedResponse>('/products/user/products', { 
+  /**
+   * Busca produtos do usuário logado
+   */
+  getUserProducts: async (filters?: Omit<ProductFilterApiParams, 'hasDiscount' | 'collection'>): Promise<PaginatedResponse> => {
+    const response = await api.get('/products/user/products', { 
       params: filters 
     });
     return response.data;
   },
 
-  // Buscar produto por ID
+  /**
+   * Busca produto por ID
+   */
   getById: async (id: string): Promise<Product> => {
-    try {
-      const response = await api.get(`/products/${id}`);
-      if (!response.data || !response.data.data) throw new Error('Produto não encontrado');
-      return response.data.data; // Acessa o objeto produto dentro da propriedade data
-    } catch (error) {
-      console.error('Error fetching product:', error);
-      throw new Error('Failed to fetch product');
-    }
+    const response = await api.get(`/products/${id}`);
+    return response.data.data;
   },
 
-  // Criar novo produto (com upload de imagem)
-  create: async (formData: FormData) => {
-    try {
-      console.log('Antes da requisição - FormData:', formData);
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
+  /**
+   * Cria novo produto
+   */
+  create: async (formData: FormData): Promise<Product> => {
+    const response = await api.post('/products', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
       }
-      
-      const response = await api.post('/products', formData);
-      return response.data;
-    } catch (error: any) {
-      console.error('Erro completo:', {
-        request: error.request,
-        response: error.response,
-        config: error.config
-      });
-      throw error;
-    }
+    });
+    return response.data.data;
   },
 
-  // Atualizar produto (com possibilidade de nova imagem)
+  /**
+   * Atualiza produto existente
+   */
   update: async (id: string, formData: FormData): Promise<Product> => {
-    const response = await api.put<Product>(`/products/${id}`, formData);
-    return response.data;
+    const response = await api.put(`/products/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data.data;
   },
 
-  // Deletar produto
+  /**
+   * Remove produto
+   */
   delete: async (id: string): Promise<void> => {
     await api.delete(`/products/${id}`);
   },
 
-  // Listar por categoria (com paginação)
-  getByCategory: async (category: string, page?: number, limit?: number): Promise<PaginatedResponse> => {
-    const response = await api.get<PaginatedResponse>(`/products/category/${category}`, {
-      params: { page, limit }
+  /**
+   * Busca produtos por categoria
+   */
+  getByCategory: async (
+    category: string, 
+    filters?: Pick<ProductFilterApiParams, 'page' | 'limit' | 'sortBy' | 'sortOrder'>
+  ): Promise<PaginatedResponse> => {
+    const response = await api.get(`/products/category/${category}`, { 
+      params: filters 
     });
     return response.data;
   },
 
-  // Método auxiliar para converter FormValues para FormData
+   /**
+   * Busca produtos por Coleção
+   */
+  getByCollection: async (
+    collection: string, 
+    page?: number, 
+    limit?: number
+  ): Promise<PaginatedResponse> => {
+    const response = await api.get<PaginatedResponse>(
+      `/products/collection/${encodeURIComponent(collection)}`, 
+      {
+        params: { 
+          page, 
+          limit,
+          // Inclua outros parâmetros de filtro se necessário
+        }
+      }
+    );
+    return response.data;
+  },
+  
+  // Opcional: Método para listar todas as coleções disponíveis
+  getAllCollections: async (): Promise<string[]> => {
+    const response = await api.get<string[]>('/products/collections/all');
+    return response.data;
+  },
+
+  /**
+   * Converte ProductFormValues para FormData
+   */
   toFormData: (values: ProductFormValues): FormData => {
     const formData = new FormData();
-    
-    
+
     // Campos básicos
     formData.append('name', values.name);
     formData.append('description', values.description);
-    formData.append('price', values.price.toString());
+    formData.append('price', values.price);
     formData.append('category', values.category);
-    formData.append('countInStock', values.countInStock.toString());
-    
-    
-    // Novos campos
-    if (values.salePrice) {
-      formData.append('salePrice', parseFloat(values.salePrice).toString());
+    formData.append('countInStock', values.countInStock);
+
+    // Campos opcionais
+    if (values.salePrice !== undefined) {
+      formData.append('salePrice', values.salePrice || '');
     }
-  
+    
     if (values.collection) {
       formData.append('collection', values.collection);
     }
-    
-    // Array de features
-    if (values.features && values.features.length > 0) {
-      values.features.forEach((feature, index) => {
-        formData.append(`features[${index}]`, feature);
-      });
+
+    // Imagem principal
+    if (values.image instanceof File) {
+      formData.append('image', values.image);
+    } else if (typeof values.image === 'string' && values.image) {
+      // Se for string (URL existente), não precisa enviar novamente
     }
-    
-    // Tamanhos
-    
-    if (values.sizes && values.sizes.length > 0) {
-      values.sizes.forEach((size, index) => {
-        formData.append(`sizes[${index}][size]`, size.size);
-        formData.append(`sizes[${index}][stock]`, size.stock.toString());
-      });
-    }
-    
-    
-    // Cores
-    if (values.colors && values.colors.length > 0) {
-      values.colors.forEach((color, index) => {
-        formData.append(`colors[${index}][colorName]`, color.colorName);
-        formData.append(`colors[${index}][colorCode]`, color.colorCode);
-        formData.append(`colors[${index}][stock]`, color.stock.toString());
-        if (color.imageUrl) {
-          formData.append(`colors[${index}][imageUrl]`, color.imageUrl);
+
+    // Imagens adicionais
+    if (values.additionalImages) {
+      values.additionalImages.forEach((img, index) => {
+        if (img instanceof File) {
+          formData.append('additionalImages', img);
         }
-      });
-    }
-    // Imagem Principal
-    if (values.image) {
-      if (values.image instanceof File) {
-        formData.append('image', values.image); // Nome exato que o backend espera
-      } else {
-        // Se for edição e já tiver URL, não precisa enviar novamente
-        // Ou implemente lógica para reupload se necessário
-      }
-    }
-
-    // Imagens adicionais   
-    if (values.additionalImagesFiles) { // Adicione este campo ao seu tipo
-      values.additionalImagesFiles.forEach(file => {
-        formData.append('additionalImages', file); // Nome exato e plural
+        // URLs existentes são tratadas no backend
       });
     }
 
-    // Substitua o trecho de removedImages por:
-    if (values.removedImages && Array.isArray(values.removedImages) && values.removedImages.length > 0) {
-      // Envia como JSON stringify para garantir o formato
+    // Imagens removidas
+    if (values.removedImages && values.removedImages.length > 0) {
       formData.append('removedImages', JSON.stringify(values.removedImages));
-    } else {
-      // Envia array vazio explícito para evitar undefined
-      formData.append('removedImages', '[]');
     }
 
-    
-    
+    // Features
+    values.features.forEach((feature, index) => {
+      formData.append(`features[${index}]`, feature);
+    });
+
+    // Tamanhos
+    values.sizes.forEach((size, index) => {
+      formData.append(`sizes[${index}][size]`, size.size);
+      formData.append(`sizes[${index}][stock]`, String(size.stock));
+      if (size.id) {
+        formData.append(`sizes[${index}][id]`, size.id);
+      }
+    });
+
+    // Cores
+    values.colors.forEach((color, index) => {
+      formData.append(`colors[${index}][colorName]`, color.colorName);
+      formData.append(`colors[${index}][colorCode]`, color.colorCode);
+      formData.append(`colors[${index}][stock]`, String(color.stock));
+      if (color.imageUrl) {
+        formData.append(`colors[${index}][imageUrl]`, color.imageUrl);
+      }
+      if (color.id) {
+        formData.append(`colors[${index}][id]`, color.id);
+      }
+    });
+
     return formData;
-  }  
+  },
+
+  /**
+   * Prepara dados iniciais para o formulário
+   */
+  getInitialFormValues: (product?: Product): ProductFormValues => ({
+    id: product?.id,
+    name: product?.name || '',
+    description: product?.description || '',
+    price: product?.price.toString() || '0',
+    category: product?.category || '',
+    countInStock: product?.countInStock.toString() || '0',
+    image: product?.image || null,
+    additionalImages: product?.images || [],
+    salePrice: product?.salePrice?.toString() || null,
+    collection: product?.collection || null,
+    features: product?.features || [],
+    sizes: product?.sizes?.map(size => ({
+      size: size.size,
+      stock: size.stock,
+      id: size.id
+    })) || [],
+    colors: product?.colors?.map(color => ({
+      colorName: color.colorName,
+      colorCode: color.colorCode,
+      stock: color.stock,
+      imageUrl: color.imageUrl || null,
+      id: color.id
+    })) || [],
+    removedImages: []
+  })
 };
