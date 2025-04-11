@@ -91,6 +91,9 @@ export const useProducts = (): UseProductsReturn => {
     return dispatch(fetchProducts(params));
   }, [dispatch]);
 
+  
+
+
   const getFeaturedProducts = useCallback((count: number = 4): Product[] => {
     const productCount = Math.min(Math.max(count, 4), 8);
     

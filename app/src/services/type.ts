@@ -170,6 +170,7 @@ export interface ProductFilterApiParams {
   sortOrder?: 'asc' | 'desc';
   collection?: string;
   hasDiscount?: boolean;
+  searchTerm?: string; // Termo geral de busca
 }
 
 // Tipo para formulário de produto
@@ -209,4 +210,13 @@ export interface PasswordFormData {
   currentPassword: string
   newPassword: string
   confirmPassword: string
+}
+
+
+export interface ProductSearchHook {
+  searchProducts: (term: string, filters?: Partial<ProductFilterApiParams>) => Promise<void>;
+  searchResults: Product[];
+  isSearching: boolean;
+  error: string | null;
+  clearSearch: () => void;
 }

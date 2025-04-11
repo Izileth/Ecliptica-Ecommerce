@@ -135,13 +135,13 @@ const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   // Função de navegação atualizada para usar o slug
   const handleCategoryClick = (slug: string) => {
     // Verifica se a rota existe nas rotas definidas
-    const validRoutes = ['shirts', 'pants', 'dress', 'accessories', 'coats']
+    const validRoutes = ['categorys/shirts', 'categorys/pants', 'categorys/dress', 'categorys/accessories', 'coats']
     
     if (validRoutes.includes(slug)) {
       navigate(`/${slug}`)
     } else {
       // Fallback para rota genérica caso a categoria não tenha página específica
-      navigate(`/category/${slug}`)
+      navigate(`/categorys/${slug}`)
     }
   }
 

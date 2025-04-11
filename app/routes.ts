@@ -13,22 +13,22 @@ export default [
     route("products/:id/edit", "routes/products/edit.tsx"),  // Edição de produto
     route("products/:id", "routes/products/[id].tsx"),  // Visualização individual
 
-
     route("colections/mens", "routes/colections/mens.tsx"),
     route("colections/womans", "routes/colections/girls.tsx"),
     route("colections/summer", "routes/colections/unisex.tsx"),
     route("coletions/winter", "routes/colections/season.tsx"),
 
+    route("categorys/shirts", "routes/categorys/shirts.tsx"), //
+    route("categorys/pants", "routes/categorys/pants.tsx"),
+    route("categorys/dress", "routes/categorys/dress.tsx"),
+    route("categorys/accessories", "routes/categorys/accessories.tsx"),
+    
     route("releases", "routes/releases.tsx"),
     route("contact", "routes/contact.tsx"),
 
-    route("shirts", "routes/categorys/shirts.tsx"), //
-    route("pants", "routes/categorys/pants.tsx"),
-    route("dress", "routes/categorys/dress.tsx"),
-    route("accessories", "routes/categorys/accessories.tsx"),
-    
     route("profile", "routes/profile.tsx"),
     route("cart", "routes/cart/cart.tsx"),
     route("checkout", "routes/cart/checkout.tsx")
+    
 ] satisfies RouteConfig;
 
