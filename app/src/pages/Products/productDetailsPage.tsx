@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/src/components/impor
 import { Badge } from "~/src/components/imported/badge"
 import { Skeleton } from "~/src/components/imported/skeleton"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "~/src/components/imported/accordion"
+import { useProductRatings } from "~/src/hooks/useProductsRating"
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -28,7 +29,13 @@ const ProductDetails: React.FC = () => {
   const [activeTab, setActiveTab] = useState("description")
   const mainImageRef = useRef<HTMLDivElement>(null)
 
-  
+  const {
+    rating,
+    ratingCount,
+    likes,
+    hasLiked,
+    toggleLike
+  } = useProductRatings(id || '')
 
   useEffect(() => {
     if (id) {
@@ -102,7 +109,8 @@ const ProductDetails: React.FC = () => {
   }
 
   const toggleFavorite = () => {
-    setIsFavorite(!isFavorite)
+    toggleLike()
+    // Adicione qualquer lógica adicional de favoritos aqui
   }
 
   const scrollToImage = (index: number) => {
@@ -242,13 +250,13 @@ const ProductDetails: React.FC = () => {
               {/* Action buttons */}
               <div className="absolute top-4 right-4 flex flex-col space-y-2">
                 <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={toggleFavorite}
-                  className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-sm text-gray-600 hover:text-rose-500 transition-colors"
-                >
-                  <Heart className={`h-5 w-5 ${isFavorite ? "fill-rose-500 text-rose-500" : "fill-transparent"}`} />
-                </motion.button>
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={toggleFavorite}
+                className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-sm text-gray-600 hover:text-rose-500 transition-colors"
+              >
+                <Heart className={`h-5 w-5 ${hasLiked ? "fill-rose-500 text-rose-500" : "fill-transparent"}`} />
+              </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -256,6 +264,11 @@ const ProductDetails: React.FC = () => {
                 >
                   <Share2 className="h-5 w-5" />
                 </motion.button>
+              </div>
+
+              <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1">
+                <Heart className={`h-4 w-4 ${hasLiked ? "fill-rose-500 text-rose-500" : "text-gray-600"}`} />
+                <span className="text-xs font-medium text-gray-700">{likes}</span>
               </div>
             </div>
 
@@ -323,10 +336,19 @@ const ProductDetails: React.FC = () => {
           <div className="flex items-center gap-1 text-sm text-gray-500">
             <div className="flex">
               {[1, 2, 3, 4, 5].map((star) => (
-                <Star key={star} className="w-4 h-4 fill-current text-amber-400" />
+                <Star
+                  key={star}
+                  className={`w-4 h-4 ${
+                    star <= Math.floor(rating)
+                      ? "fill-amber-400 text-amber-400"
+                      : star - 0.5 <= rating
+                        ? "fill-amber-400/50 text-amber-400"
+                        : "text-gray-300"
+                  }`}
+                />
               ))}
             </div>
-            <span>(12 avaliações)</span>
+            <span>({ratingCount} avaliações)</span>
           </div>
 
           <div className="h-px bg-gray-100 my-4" />

@@ -5,6 +5,7 @@ import ProductCard from "~/src/components/products/Card/card"
 import { ShoppingBag, RefreshCw, ArrowRight, Package } from "lucide-react"
 import { Button } from "~/src/components/imported/button"
 import { Skeleton } from "~/src/components/imported/skeleton"
+import { GlobalBanner } from "~/src/components/common/Banner/banner"
 
 export default function LatestReleasesPage() {
     const { latestProducts, loading, error, refreshLatestProducts } = useLatestReleases(6, 12)
@@ -73,32 +74,14 @@ export default function LatestReleasesPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
-                className="mx-auto max-w-2xl text-center"
-            >
-                <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100"
-                >
-                <ShoppingBag className="h-8 w-8 text-neutral-900" />
-                </motion.div>
-                <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="text-3xl font-light tracking-tight text-neutral-900 sm:text-4xl md:text-5xl"
-                >
-                Latest Releases
-                </motion.h1>
-                <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-                className="mt-4 text-lg font-light text-neutral-600"
-                >
-                Discover the newest additions to our collection
-                </motion.p>
+                className="mx-auto max-w-full text-center"
+            ><GlobalBanner
+                title="Lançamentos"
+                description="Itens selecionados com até 50% de desconto"
+                imageUrl="https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/eb61eb8c-0284-4582-af9e-202f44e9d582/Leonardo_Kino_XL_Closeup_of_feminine_hands_wearing_minimalist_2.jpg"
+                autoRotate
+                rotationInterval={3000}
+                />
             </motion.div>
             </div>
         </section>
@@ -161,7 +144,7 @@ export default function LatestReleasesPage() {
 
             {/* Products grid */}
             {!loading && !error && safeProducts.length > 0 && (
-            <motion.div initial="hidden" animate="visible" variants={containerVariants} className="space-y-12">
+            <motion.div initial="hidden" animate="visible" variants={containerVariants} className="space-y-12 ">
                 <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <motion.h2 variants={itemVariants} className="text-xl font-light text-neutral-900 sm:text-2xl">
                     This Week's Arrivals
@@ -205,18 +188,24 @@ export default function LatestReleasesPage() {
                 </motion.div>
 
                 {/* Call to action */}
-                <motion.div variants={itemVariants} className="mx-auto max-w-2xl space-y-6 text-center">
-                <p className="text-neutral-600">These are just a few of our recent releases.</p>
-                <Button
-                    asChild
-                    className="group inline-flex items-center gap-2 bg-neutral-900 text-white hover:bg-neutral-800"
-                >
-                    <a href="/products">
-                    <span>View all products</span>
-                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                    </a>
-                </Button>
-                </motion.div>
+                <motion.div
+                    variants={itemVariants}
+                    className="mx-auto max-w-xl text-center space-y-5"
+                    >
+                    <p className="text-sm text-neutral-500 font-light tracking-wide">
+                        Quer mais Promoções?
+                    </p>
+
+                    <Button
+                        asChild
+                        className="group inline-flex items-center gap-2 bg-black text-white hover:bg-neutral-800 px-5 py-2 rounded-full text-sm font-medium transition-colors"
+                    >
+                        <a href="/products">
+                        <span>Explore Nossos Produtos</span>
+                        <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                        </a>
+                    </Button>
+                    </motion.div>
             </motion.div>
             )}
 

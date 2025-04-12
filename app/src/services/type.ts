@@ -13,6 +13,7 @@ export interface Product {
   name: string;
   description: string;
   price: number;
+  likes?: number // Adicione esta linha como opcional
   image: string;
   images: string[]; // Alterado de ProductImage[] para string[]
   category: string;

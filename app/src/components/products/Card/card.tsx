@@ -3,11 +3,12 @@ import type { Product } from "~/src/services/type"
 import { useNavigate } from "react-router-dom"
 import { formatPrice } from "~/src/utils/format"
 import { useCart } from "~/src/hooks/useCart"
-import { ShoppingCart, Check, Tag, Palette, Ruler, Heart, Eye, Star } from "lucide-react"
+import { ShoppingCart, Check, Tag, Palette, Ruler, Heart, Eye, Star, Share2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Badge } from "~/src/components/imported/badge"
 import { cn } from "~/src/lib/utils"
-
+import { toast } from "react-hot-toast" // Adicione esta importação para feedback ao usuário
+import { useProductRatings } from "~/src/hooks/useProductsRating"
 interface ProductCardProps {
   product: Product
   compact?: boolean
@@ -27,7 +28,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
   const displayPrice = hasDiscount ? product.salePrice! : product.price
   const discountPercentage = hasDiscount ? Math.round((1 - product.salePrice! / product.price) * 100) : 0
 
-  
+  const {
+    rating,
+    ratingCount,
+    likes,
+    hasLiked,
+    toggleLike
+  } = useProductRatings(product.id)
+
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation()
     setLoading(true)
@@ -48,16 +56,51 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation()
-    setIsFavorite(!isFavorite)
+    toggleLike()
+    if (!hasLiked) {
+      toast.success("Adicionado aos favoritos")
+    }
+  }
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    const productUrl = `${window.location.origin}/products/${product.id}`
+    
+    if (navigator.share) {
+      navigator.share({
+        title: product.name,
+        text: `Confira este produto incrível: ${product.name}`,
+        url: productUrl,
+      }).catch(err => {
+        console.log('Erro ao compartilhar:', err)
+        copyToClipboard(productUrl)
+      })
+    } else {
+      copyToClipboard(productUrl)
+    }
+  }
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success("Link copiado para a área de transferência!")
+    }).catch(err => {
+      console.error('Erro ao copiar:', err)
+      // Fallback para navegadores mais antigos
+      const textarea = document.createElement('textarea')
+      textarea.value = text
+      document.body.appendChild(textarea)
+      textarea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textarea)
+      toast.success("Link copiado para a área de transferência!")
+    })
   }
 
   const handleQuickView = (e: React.MouseEvent) => {
     e.stopPropagation()
-    // Implementation for quick view modal would go here
     console.log("Quick view:", product.name)
   }
 
-  // Função para mostrar cores disponíveis
   const renderColors = () => {
     if (!product.colors || product.colors.length === 0) return null
 
@@ -86,7 +129,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
     )
   }
 
-  // Função para mostrar tamanhos disponíveis
   const renderSizes = () => {
     if (!product.sizes || product.sizes.length === 0) return null
 
@@ -119,30 +161,31 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
     )
   }
 
-  // Render rating stars (placeholder)
   const renderRating = () => {
-    const rating = 4.5 // Placeholder rating
     return (
       <div className="flex items-center gap-1 mt-1">
         <div className="flex">
-          {[1, 2, 3, 4, 5].map((star, index) => (
+          {[1, 2, 3, 4, 5].map((star) => (
             <Star
-              key={`star-${product.id}-${star || index}`}
+              key={star}
               className={cn(
                 "h-3 w-3",
                 star <= Math.floor(rating)
                   ? "fill-amber-400 text-amber-400"
                   : star - 0.5 <= rating
                     ? "fill-amber-400/50 text-amber-400"
-                    : "text-gray-300",
+                    : "text-gray-300"
               )}
             />
           ))}
         </div>
-        <span className="text-xs text-gray-500">{rating}</span>
+        <span className="text-xs text-gray-500">
+          {rating} ({ratingCount} {ratingCount === 1 ? 'avaliação' : 'avaliações'})
+        </span>
       </div>
     )
   }
+  
 
   return (
     <motion.div
@@ -261,7 +304,48 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
           >
             <Eye className="h-4 w-4" />
           </motion.button>
+
+          <motion.button
+            className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-sm text-gray-600 hover:text-blue-500 transition-colors"
+            onClick={handleShare}
+            initial={{ opacity: 0, scale: 0.8, y: -10 }}
+            animate={{
+              opacity: isHovered ? 1 : 0,
+              scale: 1,
+              y: 0,
+            }}
+            transition={{ delay: 0.2 }}
+            whileTap={{ scale: 0.9 }}
+            aria-label="Compartilhar produto"
+          >
+            <Share2 className="h-4 w-4" />
+          </motion.button>
         </div>
+
+        {/* Likes counter */}
+        <motion.div
+          className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{
+            opacity: isHovered || hasLiked ? 1 : 0,
+            y: 0,
+          }}
+          transition={{ delay: 0.15 }}
+        >
+          <button 
+            onClick={toggleLike}
+            className="flex items-center gap-1"
+            aria-label={hasLiked ? "Remover curtida" : "Curtir produto"}
+          >
+            <Heart
+              className={cn(
+                "h-3.5 w-3.5 transition-colors",
+                hasLiked ? "fill-rose-500 text-rose-500" : "fill-transparent text-gray-600",
+              )}
+            />
+            <span className="text-xs font-medium text-gray-700">{likes}</span>
+          </button>
+        </motion.div>
 
         {/* Quick add to cart button on hover */}
         <motion.div

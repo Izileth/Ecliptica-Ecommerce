@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-
+import { GlobalBanner } from '~/src/components/common/Banner/banner';
 import { MapPin, Phone, Mail, Clock } from "lucide-react"
 import { motion } from "framer-motion"
 import { cn } from "~/src/lib/utils"
@@ -141,10 +141,13 @@ export default function ContactPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="mx-auto mb-16 max-w-2xl text-center"
+          className="mx-auto max-w-full mb-20 text-center"
         >
-          <h1 className="text-3xl font-light tracking-tight text-neutral-900 sm:text-4xl md:text-5xl">Contact Us</h1>
-          <p className="mt-4 text-lg text-neutral-600">We'd love to hear from you. Here's how you can reach us.</p>
+          <GlobalBanner
+              title="Contato"
+              description="Aproveite e fale conosco hoje mesmo!"
+              imageUrl="https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/a315f284-ae97-4ac0-810a-aa19218089f9/Leonardo_Kino_XL_Group_of_diverse_young_people_smiling_under_b_2.jpg"
+            />
         </motion.div>
 
         <div className="mx-auto max-w-6xl">
