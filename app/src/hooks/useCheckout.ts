@@ -1,42 +1,34 @@
-// src/hooks/useCheckout.ts
-import { useSelector } from 'react-redux';
-import type { RootState } from '../store/globalStore';
-import { checkoutService } from '../services/checkoutService';
-import  type{
-  CheckoutSessionResponse,
-} from '~/src/services/type';
-import type { CartItem } from '~/src/services/type';
-import type { User } from '~/src/services/type';
-import type { CheckoutItem } from '~/src/services/type';
-import type { CheckoutSessionRequest } from '~/src/services/type';
+// hooks/useCheckout.ts
+import { useState } from 'react';
+import type { CheckoutSessionRequest } from '../services/type';
+import { checkoutService } from '~/src/services/checkoutService';
+import { useNavigate } from 'react-router-dom';
 
+export const useCheckout = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-interface UseCheckoutPreviewParams {
-    items: CheckoutItem[];
-    userId: string;
-    addressId?: string;
-  }
-  
-  export const useCheckoutPreview = ({
-    items,
-    userId,
-    addressId,
-  }: UseCheckoutPreviewParams) => {
-    const initiateCheckout = async (): Promise<void> => {
-      const payload: CheckoutSessionRequest = {
-        items,
-        userId,
-        addressId,
-      };
-  
-      try {
-        const session: CheckoutSessionResponse = await checkoutService.createSession(payload);
+  const initiateCheckout = async (request: CheckoutSessionRequest) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const session = await checkoutService.createSession(request);
+      
+      // Redirecionar para gateway de pagamento ou página de sucesso
+      if (session.url) {
         window.location.href = session.url;
-      } catch (error) {
-        console.error('Erro ao iniciar o checkout:', error);
-        throw error;
+      } else {
+        navigate('/checkout/success');
       }
-    };
-  
-    return { initiateCheckout };
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Payment failed');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
+
+  return { initiateCheckout, loading, error };
+};

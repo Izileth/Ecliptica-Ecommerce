@@ -7,6 +7,8 @@ import type {
   PaginatedResponse
 } from './type';
 
+
+
 export const ProductService = {
   /**
    * Busca todos os produtos com filtros

@@ -1,109 +1,186 @@
 
-import React from 'react';
-import type { Cart } from '~/src/services/type';
-import { Button } from '~/src/components/imported/button';
-import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { useState, useEffect } from "react"
+import { Link } from "react-router-dom"
+import { motion, AnimatePresence } from "framer-motion"
+import { ArrowRight, ShoppingBag, Truck, Check } from "lucide-react"
+import { Button } from "~/src/components/imported/button"
+import { Progress } from "~/src/components/imported/progress"
+import { Separator } from "~/src/components/imported/separator"
+import { cn } from "~/src/lib/utils"
+
+// Types
+interface Product {
+  id: string
+  name: string
+  price: number
+  image?: string
+}
+
+interface CartItem {
+  id: string
+  product?: Product
+  quantity: number
+}
+
+interface Cart {
+  items: CartItem[]
+}
 
 interface CartSummaryProps {
-    cart?: Cart | null; 
+  cart?: Cart | null
 }
-  
-const CartSummary: React.FC<CartSummaryProps> = ({ cart }) => {
-    // Calcular o subtotal (soma de preço * quantidade para cada item)
-    const items = cart?.items || [];
-    const itemCount = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
-    
-    const subtotal = items.reduce((sum, item) => {
-      const price = item.product?.price || 0;
-      const quantity = item.quantity || 0;
-      return sum + (price * quantity);
-    }, 0);
 
-    const shipping = subtotal > 100 ? 0 : 15;
-    const total = subtotal + shipping;
+export default function CartSummary({ cart }: CartSummaryProps) {
+  const [mounted, setMounted] = useState(false)
 
-    if (itemCount === 0) {
-        return (
-        <div className="bg-white rounded-lg shadow overflow-hidden p-6 text-center">
-            <p className="text-gray-600 mb-4">Seu carrinho está vazio</p>
-            <Link to="/products">
-            <Button className="w-full">
-                Continuar Comprando
-            </Button>
-            </Link>
-        </div>
-        );
-    }
+  // Ensure animations only run after component is mounted (for SSR compatibility)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
-    
+  // Calculate cart totals
+  const items = cart?.items || []
+  const itemCount = items.reduce((sum, item) => sum + (item.quantity || 0), 0)
 
+  const subtotal = items.reduce((sum, item) => {
+    const price = item.product?.price || 0
+    const quantity = item.quantity || 0
+    return sum + price * quantity
+  }, 0)
+
+  const shipping = subtotal > 100 ? 0 : 15
+  const total = subtotal + shipping
+
+  // Calculate progress toward free shipping
+  const freeShippingThreshold = 100
+  const freeShippingProgress = Math.min((subtotal / freeShippingThreshold) * 100, 100)
+  const amountToFreeShipping = Math.max(freeShippingThreshold - subtotal, 0)
+
+  if (itemCount === 0) {
     return (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="p-6">
-            <h2 className="text-lg font-medium mb-4">Resumo do Pedido</h2>
-            
-            <div className="space-y-4">
-            <div className="flex justify-between">
-                <span className="text-gray-600">Subtotal</span>
-                <span>R$ {subtotal.toFixed(2)}</span>
-            </div>
-            
-            <div className="flex justify-between">
-                <span className="text-gray-600">Frete</span>
-                {shipping === 0 ? (
-                <span className="text-green-600">Grátis</span>
-                ) : (
-                <span>R$ {shipping.toFixed(2)}</span>
-                )}
-            </div>
-            
-            <div className="pt-4 mt-4 border-t border-gray-200">
-                <div className="flex justify-between">
-                <span className="font-medium">Total</span>
-                <span className="font-bold text-lg">R$ {total.toFixed(2)}</span>
-                </div>
-            </div>
-            
-            {shipping === 0 && (
-                <div className="bg-green-50 p-3 text-sm text-green-700 rounded">
-                Você ganhou frete grátis!
-                </div>
-            )}
-            
-            {shipping > 0 && (
-                <div className="text-sm text-gray-500">
-                Adicione mais R$ {(100 - subtotal).toFixed(2)} para ganhar frete grátis.
-                </div>
-            )}
-            </div>
+      <motion.div
+        initial={mounted ? { opacity: 0, y: 10 } : false}
+        animate={mounted ? { opacity: 1, y: 0 } : false}
+        transition={{ duration: 0.3 }}
+        className="overflow-hidden rounded-lg border bg-card shadow-sm"
+      >
+        <div className="flex flex-col items-center justify-center p-8 text-center">
+          <div className="mb-4 rounded-full bg-muted p-3">
+            <ShoppingBag className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <h2 className="mb-2 text-lg font-medium">Your cart is empty</h2>
+          <p className="mb-6 text-sm text-muted-foreground">Add items to your cart to see them here</p>
+          <Link to="/products">
+            <Button className="w-full">Browse Products</Button>
+          </Link>
+        </div>
+      </motion.div>
+    )
+  }
 
-            <div className="mt-6">
-            <Link 
-                to={itemCount > 0 ? "/checkout" : "#"} 
-                onClick={(e) => itemCount === 0 && e.preventDefault()}
-            >
-                <Button 
-                className="w-full" 
-                size="lg"
-                disabled={itemCount === 0}
+  return (
+    <motion.div
+      initial={mounted ? { opacity: 0, y: 10 } : false}
+      animate={mounted ? { opacity: 1, y: 0 } : false}
+      transition={{ duration: 0.3 }}
+      className="overflow-hidden rounded-lg border bg-card shadow-sm"
+    >
+      <div className="p-6">
+        <h2 className="mb-4 text-xl font-medium">Order Summary</h2>
+
+        <div className="space-y-4">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">
+              Subtotal ({itemCount} {itemCount === 1 ? "item" : "items"})
+            </span>
+            <span>${subtotal.toFixed(2)}</span>
+          </div>
+
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Shipping</span>
+            <AnimatePresence mode="wait">
+              {shipping === 0 ? (
+                <motion.span
+                  key="free"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="flex items-center text-green-600 dark:text-green-500"
                 >
-                Finalizar Compra
-                <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-            </Link>
-            </div>
-            
-            <div className="mt-4">
-            <Link to="/products" >
-                <Button variant="outline" className="w-full">
-                Continuar Comprando
-                </Button>
-            </Link>
-            </div>
-        </div>
-        </div>
-    );
-};
+                  <Check className="mr-1 h-4 w-4" />
+                  Free
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="paid"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                >
+                  ${shipping.toFixed(2)}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </div>
 
-export default CartSummary;
+          <Separator />
+
+          <div className="flex justify-between">
+            <span className="font-medium">Total</span>
+            <motion.span
+              className="text-lg font-bold"
+              key={total}
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 0.3 }}
+            >
+              ${total.toFixed(2)}
+            </motion.span>
+          </div>
+        </div>
+
+        {/* Free shipping progress */}
+        <div className={cn("mt-6 space-y-2", shipping === 0 ? "opacity-50" : "")}>
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center text-muted-foreground">
+              <Truck className="mr-1.5 h-4 w-4" />
+              {shipping === 0 ? (
+                <span>Free shipping applied</span>
+              ) : (
+                <span>${amountToFreeShipping.toFixed(2)} away from free shipping</span>
+              )}
+            </div>
+          </div>
+          <Progress value={freeShippingProgress} className="h-1.5" />
+        </div>
+
+        {shipping === 0 && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="mt-4 rounded-md bg-green-50 p-3 text-sm text-green-700 dark:bg-green-900/20 dark:text-green-400"
+          >
+            <div className="flex items-center">
+              <Check className="mr-2 h-4 w-4" />
+              You've unlocked free shipping!
+            </div>
+          </motion.div>
+        )}
+
+        <div className="mt-6 space-y-3">
+          <Link to={itemCount > 0 ? "/checkout" : "#"}>
+            <Button className="w-full" size="lg" disabled={itemCount === 0}>
+              Checkout
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+
+          <Link to="/products">
+            <Button variant="outline" className="w-full mt-2">
+              Continue Shopping
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </motion.div>
+  )
+}

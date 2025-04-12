@@ -10,7 +10,7 @@ const CamisetasGrid = () => {
         category="Camisas"
         title="Premium Audio Devices"
         description="Experience sound like never before with our high-fidelity audio collection."
-        imageUrl="/placeholder.svg?height=480&width=1200"
+        imageUrl="https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/35ebd228-7835-4ddf-9112-7422e71d695f/Leonardo_Kino_XL_A_young_modern_man_wearing_a_minimalist_cotto_1.jpg"
         textPosition="center"
         textColor="light"
         overlayOpacity={0.5}

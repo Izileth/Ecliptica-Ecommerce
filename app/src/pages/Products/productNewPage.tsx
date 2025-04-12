@@ -102,7 +102,7 @@ export default function NewProductPage() {
     if (formValues.sizes && formValues.sizes.length > 0) {
       formValues.sizes.forEach((size, index) => {
         if (!size.size) errors[`sizes-${index}`] = "Tamanho é obrigatório"
-        if (size.stock === 0) errors[`sizes-stock-${index}`] = "Estoque não pode ser negativo"
+        if (Number(size.stock) < 0) errors[`sizes-stock-${index}`] = "Estoque não pode ser negativo"
       })
     }
 
@@ -110,10 +110,9 @@ export default function NewProductPage() {
     if (formValues.colors && formValues.colors.length > 0) {
       formValues.colors.forEach((color, index) => {
         if (!color.colorName) errors[`colors-${index}`] = "Nome da cor é obrigatório"
-        if (color.stock === 0) errors[`colors-stock-${index}`] = "Estoque não pode ser negativo"
+        if (Number(color.stock) < 0) errors[`colors-stock-${index}`] = "Estoque não pode ser negativo"
       })
     }
-
     setFormErrors(errors)
     return Object.keys(errors).length === 0
   }, [formValues])
@@ -190,8 +189,9 @@ export default function NewProductPage() {
     return () => {
       // Revoga URLs de imagens adicionais
       formValues.additionalImages?.forEach(url => {
-        if (typeof url === 'string' && url.startsWith('blob:')){
-          console.log('Imagem Revogada')
+        // Verificar se url é uma string antes de usar startsWith
+        if (typeof url === 'string' && url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
         }
       });
       
@@ -678,7 +678,7 @@ export default function NewProductPage() {
                                     transition={{ duration: 0.2 }}
                                   >
                                     <img
-                                      src={formValues.image instanceof File ? URL.createObjectURL(formValues.image) : formValues.image || ''}
+                                      src={typeof img === 'string' ? img : URL.createObjectURL(img)}
                                       alt={`Imagem adicional ${index + 1}`}
                                       className="h-full w-full object-cover"
                                     />

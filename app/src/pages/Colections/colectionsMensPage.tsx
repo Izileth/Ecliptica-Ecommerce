@@ -9,7 +9,7 @@ const MensPage = () => {
         collection="Masculina"
         title="Coleção Essencial 2025"
         description="Peças atemporais para compor seu guarda-roupa perfeito"
-        imageUrl="/essential-collection-bg.jpg"
+        imageUrl="https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/c6070fc9-b070-4830-9cbf-ce15fdc24889/Leonardo_Kino_XL_Modern_man_dressed_in_casual_yet_sophisticate_2.jpg"
         season="Primavera"
         year={2023}
         textPosition="center"

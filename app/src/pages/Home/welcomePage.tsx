@@ -7,6 +7,7 @@ import Container from "~/src/components/layout/Container/container";
 import Section from "~/src/components/common/Section/section";
 import { ChevronDown } from "lucide-react";
 import { Title } from "~/src/components/common/Titles/titles";
+import EnhancedTagCarousel from "~/src/components/common/Tags/carousel";
 
 export default function Welcome() {
   const minimalItems = [
@@ -70,6 +71,17 @@ export default function Welcome() {
       avatar: "/placeholder.svg?height=80&width=80",
       rating: 4,
     },
+  ];
+
+  const tags = [
+    'Superação',
+    'Disciplina',
+    'Autoconhecimento',
+    'Liberdade',
+    'Foco',
+    'Alta Performance',
+    'Consistência',
+    'Ressignificação',
   ];
 
   const scrollToContent = () => {
@@ -175,25 +187,14 @@ export default function Welcome() {
       </Section>
 
       <Section background="white" className="relative">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="mb-4 font-serif text-3xl font-light tracking-wide text-neutral-900 sm:text-4xl">
-              Fique por dentro
-            </h2>
-            <p className="mb-8 text-sm font-light text-neutral-500">
-              Cadastre-se para receber novidades, lançamentos e ofertas
-              exclusivas.
-            </p>
-            <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-              <input
-                type="email"
-                placeholder="Seu e-mail"
-                className="w-full border-b border-neutral-300 bg-transparent px-4 py-2 text-sm font-light text-neutral-900 outline-none transition-colors focus:border-neutral-900 sm:w-72"
-              />
-              <button className="w-full border border-neutral-900 bg-neutral-900 px-6 py-2 text-xs font-light tracking-wider text-white transition-colors hover:bg-transparent hover:text-neutral-900 sm:w-auto">
-                ASSINAR
-              </button>
-            </div>
+          <Title
+              title="Fique Por Dentro"
+              subtitle="Principais tendencias da Temporada"
+              color="dark"
+            />
+            <EnhancedTagCarousel tags={tags.slice(0, 10)} itemsPerView={1} autoplayInterval={3000} />
           </div>
         </div>
       </Section>

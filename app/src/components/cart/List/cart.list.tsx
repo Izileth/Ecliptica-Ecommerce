@@ -1,143 +1,180 @@
-import React from 'react';
-import { Image } from '@radix-ui/react-avatar';
-import { useCart } from '~/src/hooks/useCart';
-import type { CartItem } from '~/src/services/type'
-import { Button } from '~/src/components/imported/button';
-import { Minus, Plus, X } from 'lucide-react';
+"use client"
 
-interface ImageProps {
-    src: string;
-    alt: string;
-    fill?: boolean; // Corrigindo para boolean
-    className?: string;
-    sizes?: string;
+import { useState } from "react"
+import { AnimatePresence, motion } from "framer-motion"
+import { Minus, Plus, Trash2 } from "lucide-react"
+import { Button } from "~/src/components/imported/button"
+import { Skeleton } from "~/src/components/imported/skeleton"
+import { cn } from "~/src/lib/utils"
+
+// Types
+interface Product {
+  id: string
+  name: string
+  description?: string
+  price: number
+  image?: string
 }
 
+interface CartItem {
+  id: string
+  product?: Product
+  quantity: number
+}
 
 interface CartItemListProps {
-    items?: CartItem[]; // Tornando opcional
-    onUpdate: (itemId: string, quantity: number) => void;
-    onRemove: (itemId: string) => void;
-    loading?: boolean;
+  items?: CartItem[]
+  onUpdate: (itemId: string, quantity: number) => void
+  onRemove: (itemId: string) => void
+  loading?: boolean
 }
-const CartItemList: React.FC<CartItemListProps> = ({
-    items = [], 
-    onUpdate, 
-    onRemove,
-    loading = false 
-    }) => {
 
-        console.log('Items recebidos no CartItemList:', {
-            items,
-            type: typeof items,
-            isArray: Array.isArray(items)
-          });
-          
-          // Verifique um item específico:
-          if (items && items[0]) {
-            console.log('Exemplo de item:', {
-              id: items[0].id,
-              product: !!items[0].product,
-              quantity: items[0].quantity
-            });
-        }     
-        const handleQuantityChange = (itemId: string, newQuantity: number) => {
-            if (newQuantity <= 0) {
-            onRemove(itemId);
-            } else {
-            onUpdate(itemId, newQuantity);
-            }
-        };
+export default function CartItemList({ items = [], onUpdate, onRemove, loading = false }: CartItemListProps) {
+  const [expandedItem, setExpandedItem] = useState<string | null>(null)
 
-        if (loading) {
-            return (
-              <div className="space-y-4">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-24 bg-gray-100 rounded animate-pulse"></div>
-                ))}
-              </div>
-            );
-          }
-        
-          if (!items || items.length === 0) {
-            return (
-              <div className="text-center py-8 text-gray-500">
-                Nenhum item no carrinho
-              </div>
-            );
-          }
+  const handleQuantityChange = (itemId: string, newQuantity: number) => {
+    if (newQuantity <= 0) {
+      onRemove(itemId)
+    } else {
+      onUpdate(itemId, newQuantity)
+    }
+  }
 
-
+  if (loading) {
     return (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="divide-y divide-gray-200">
-            {items.map((item) => (
-            <div key={item.id} className="p-4">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center">
-                {/* Imagem do produto */}
-                <div className="w-full sm:w-20 h-20 relative mb-3 sm:mb-0">
-                {item.product?.image ? (
-                    <img
-                    src={item.product.image}
-                    alt={item.product.name || 'Produto'}
-                    className="w-full h-full object-cover rounded"
+      <div className="space-y-4 rounded-lg">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="overflow-hidden rounded-lg border bg-card p-4">
+            <div className="flex gap-4">
+              <Skeleton className="h-24 w-24 rounded-md" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-5 w-2/3" />
+                <Skeleton className="h-4 w-full" />
+                <div className="flex items-center justify-between pt-2">
+                  <Skeleton className="h-6 w-20" />
+                  <Skeleton className="h-8 w-24" />
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  if (!items || items.length === 0) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12 text-center"
+      >
+        <div className="mb-3 rounded-full bg-muted p-3">
+          <Trash2 className="h-6 w-6 text-muted-foreground" />
+        </div>
+        <h3 className="mb-1 text-lg font-medium">Your cart is empty</h3>
+        <p className="text-sm text-muted-foreground">Items you add to your cart will appear here</p>
+      </motion.div>
+    )
+  }
+
+  return (
+    <div className="space-y-3">
+      <AnimatePresence initial={false}>
+        {items.map((item) => (
+          <motion.div
+            key={item.id}
+            layout
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden rounded-lg border bg-card"
+          >
+            <div className="p-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                {/* Product image */}
+                <div className="relative h-24 w-full overflow-hidden rounded-md sm:h-24 sm:w-24">
+                  {item.product?.image ? (
+                    <motion.img
+                      src={item.product.image}
+                      alt={item.product.name || "Product"}
+                      className="h-full w-full object-cover"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ duration: 0.2 }}
                     />
-                ) : (
-                    <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center">
-                    <span className="text-gray-500 text-xs">Sem imagem</span>
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-muted">
+                      <span className="text-xs text-muted-foreground">No image</span>
                     </div>
-                )}
+                  )}
                 </div>
 
-                {/* Informações do produto */}
-                <div className="flex-1 ml-0 sm:ml-4">
-                    <div className="flex justify-between mb-2">
-                    <h3 className="font-medium text-gray-900">
-                        {item.product?.name || 'Produto indisponível'}
-                    </h3>
+                {/* Product details */}
+                <div className="flex flex-1 flex-col">
+                  <div className="mb-2 flex items-start justify-between">
+                    <h3 className="font-medium">{item.product?.name || "Unavailable product"}</h3>
                     <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onRemove(item.id)}
+                      className="h-8 w-8 text-muted-foreground transition-colors hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span className="sr-only">Remove item</span>
+                    </Button>
+                  </div>
+
+                  {item.product?.description && (
+                    <motion.div
+                      className={cn(
+                        "text-sm text-muted-foreground",
+                        expandedItem === item.id ? "line-clamp-none" : "line-clamp-2",
+                      )}
+                    >
+                      {item.product.description}
+                    </motion.div>
+                  )}
+
+                  {item.product?.description && item.product.description.length > 100 && (
+                    <button
+                      onClick={() => setExpandedItem(expandedItem === item.id ? null : item.id)}
+                      className="mb-2 mt-1 text-left text-xs font-medium text-primary"
+                    >
+                      {expandedItem === item.id ? "Show less" : "Read more"}
+                    </button>
+                  )}
+
+                  <div className="mt-auto flex flex-wrap items-center justify-between gap-2">
+                    <div className="font-medium">${(item.product?.price || 0).toFixed(2)}</div>
+                    <div className="flex items-center rounded-md border bg-background">
+                      <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => onRemove(item.id)}
-                        className="h-6 w-6 text-gray-500 hover:text-red-500"
-                    >
-                        <X className="h-4 w-4" />
-                    </Button>
-                    </div>
-                    <p className="text-gray-600 text-sm mb-2">
-                    {item.product?.description?.substring(0, 100) || 'Sem descrição'}
-                    </p>
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                    <div className="font-medium text-gray-900 mb-2 sm:mb-0">
-                        R$ {(item.product?.price || 0).toFixed(2)}
-                    </div>
-                    <div className="flex items-center">
-                        <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
+                        className="h-8 w-8 rounded-none rounded-l-md"
                         onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                        >
+                      >
                         <Minus className="h-3 w-3" />
-                        </Button>
-                        <span className="mx-3 w-8 text-center">{item.quantity}</span>
-                        <Button
-                        variant="outline"
+                        <span className="sr-only">Decrease quantity</span>
+                      </Button>
+                      <div className="flex h-8 w-10 items-center justify-center text-sm">{item.quantity}</div>
+                      <Button
+                        variant="ghost"
                         size="icon"
-                        className="h-8 w-8"
+                        className="h-8 w-8 rounded-none rounded-r-md"
                         onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                        >
+                      >
                         <Plus className="h-3 w-3" />
-                        </Button>
+                        <span className="sr-only">Increase quantity</span>
+                      </Button>
                     </div>
-                    </div>
+                  </div>
                 </div>
-                </div>
+              </div>
             </div>
-            ))}
-        </div>
-        </div>
-    );
-};
-
-export default CartItemList;
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
+  )
+}

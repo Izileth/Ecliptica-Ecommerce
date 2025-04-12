@@ -10,7 +10,7 @@ const VestidosGrid = () => {
         category="Vestidos"
         title="Modern Living Room Collection"
         description="Discover our curated selection of contemporary furniture designed for comfort and style."
-        imageUrl="/placeholder.svg?height=480&width=1200"
+        imageUrl="https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/ac911869-b1b4-43c0-9cd0-55fa01b5dc91/Leonardo_Kino_XL_Elegant_young_woman_wearing_a_flowy_light_dre_0.jpg"
         textPosition="left"
         textColor="light"
       >

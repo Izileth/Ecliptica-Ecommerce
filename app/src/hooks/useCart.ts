@@ -93,6 +93,7 @@ export const useCart = () => {
     loading,
     error,
     itemCount,
+    subtotal: cart?.total || 0, // Adicionando subtotal diretamente no hook
     getCart,
     addItem,
     updateItem,

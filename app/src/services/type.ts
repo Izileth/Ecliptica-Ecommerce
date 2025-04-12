@@ -92,6 +92,7 @@ export interface ProductImage {
   
 }
 
+// Interfaces do Carrinho
 export interface CartItem {
   id: string;
   productId: string;
@@ -122,7 +123,7 @@ export interface CheckoutItem {
 }
 
 export interface CheckoutSessionRequest {
-  items: CheckoutItem[];
+  lineItems: CheckoutItem[];
   userId: string;
   // endereço pode ser incluído se necessário
   addressId?: string;
@@ -133,6 +134,104 @@ export interface CheckoutSessionResponse {
   url: string;
 }
 
+export interface PaymentMethod {
+  id: string;
+  type: 'credit_card' | 'pix' | 'boleto';
+  lastFourDigits?: string; // Para cartões
+}
+
+export interface ShippingAddress {
+  id: string;
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  isDefault: boolean;
+}
+
+export interface ShippingAddressRequest {
+  id: string;
+  // Adicione outros campos opcionais se necessário
+  postalCode?: string;
+}
+export interface CheckoutLineItem {
+  productId: string;
+  name: string;
+  quantity: number;
+  price: number;
+  imageUrl?: string;
+}
+
+export interface CheckoutCustomer {
+  userId: string;
+  email: string;
+  name: string;
+  taxId?: string;
+}
+
+export interface CheckoutSessionLineItem {
+  productId: string;
+  name: string;
+  quantity: number;
+  price: number;
+  imageUrl?: string;
+}
+
+// types/checkout.ts
+export interface CheckoutSessionRequest {
+  customer: {
+    userId: string;
+    email: string;
+    name: string;
+  };
+  shippingAddress?: {
+    street: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+  };
+  paymentMethod?: {
+    type: 'credit_card' | 'pix' | 'boleto';
+    card?: {
+      number: string;
+      name: string;
+      expiry: string;
+      cvc: string;
+    };
+  };
+}
+export interface CheckoutSessionResponse {
+  sessionId: string;
+  url: string;
+  expiresAt: string;
+  paymentStatus: 'pending' | 'paid' | 'failed' | 'canceled';
+  shippingOptions?: {
+    id?: string; // ID temporário ou de referência
+  }[];
+}
+
+export interface CheckoutError {
+  type: 'validation' | 'payment' | 'network' | 'timeout';
+  message: string;
+  code?: string;
+  details?: Record<string, unknown>;
+}
+
+// Implementação de erro customizado
+export class CheckoutServiceError extends Error {
+  constructor(
+    public readonly type: CheckoutError['type'],
+    message: string,
+    public readonly details?: unknown
+  ) {
+    super(message);
+    this.name = 'CheckoutServiceError';
+  }
+}
+
+// Interfaces de Ordem do Pedido
 export interface Order {
   id: string;
   userId: string;
@@ -150,6 +249,8 @@ export interface Order {
   };
   paymentMethod?: string;
 }
+
+// Interface do Forumalrio de Filtros
 export interface ProductFilterFormValues {
   category?: string;
   minPrice?: string;
@@ -212,7 +313,7 @@ export interface PasswordFormData {
   confirmPassword: string
 }
 
-
+//Interface de Busca por Produto
 export interface ProductSearchHook {
   searchProducts: (term: string, filters?: Partial<ProductFilterApiParams>) => Promise<void>;
   searchResults: Product[];

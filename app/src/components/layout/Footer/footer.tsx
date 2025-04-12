@@ -6,8 +6,7 @@ import { Link } from "react-router-dom"
 import { Instagram, Facebook, Twitter, Youtube, ArrowRight } from "lucide-react"
 import { Button } from "~/src/components/ui/Button/button"
 import { Input } from "~/src/components/ui/Input/input"
-
-
+import Bandeiras from "~/src/assets/Banderias_de_Cartões.png"
 export default function Footer() {
     const [email, setEmail] = useState("")
 
@@ -28,10 +27,10 @@ export default function Footer() {
             {/* Brand Column */}
             <div className="space-y-6">
                 <Link to="/" className="font-serif text-xl font-medium tracking-wider">
-                MAISON
+                ECLIPTICA
                 </Link>
                 <p className="text-sm text-muted-foreground max-w-xs">
-                Curated collections of modern essentials, designed with quality and sustainability in mind.
+                    Projetando um Novo Futuro - Hoje
                 </p>
                 <div className="flex items-center space-x-4">
                 <a
@@ -75,25 +74,25 @@ export default function Footer() {
 
             {/* Shop Column */}
             <div className="space-y-6">
-                <h3 className="font-medium text-sm uppercase tracking-wider">Shop</h3>
+                <h3 className="font-medium text-sm uppercase tracking-wider">Categorias</h3>
                 <nav className="flex flex-col space-y-3">
-                <Link to="/shop/women" className="text-sm text-muted-foreground hover:text-black transition-colors">
-                    Women
+                <Link to="categorys/shirts" className="text-sm text-muted-foreground hover:text-black transition-colors">    
+                    Camisetas
                 </Link>
-                <Link to="/shop/men" className="text-sm text-muted-foreground hover:text-black transition-colors">
-                    Men
+                <Link to="categorys/pants" className="text-sm text-muted-foreground hover:text-black transition-colors">
+                    Calças
                 </Link>
-                <Link to="/shop/accessories" className="text-sm text-muted-foreground hover:text-black transition-colors">
-                    Accessories
+                <Link to="categorys/dress" className="text-sm text-muted-foreground hover:text-black transition-colors">
+                    Vestidos
                 </Link>
-                <Link to="/shop/shoes" className="text-sm text-muted-foreground hover:text-black transition-colors">
-                    Shoes
+                <Link to="categorys/accessories" className="text-sm text-muted-foreground hover:text-black transition-colors">
+                    Accessórios
                 </Link>
-                <Link to="/new-arrivals" className="text-sm text-muted-foreground hover:text-black transition-colors">
-                    New Arrivals
+                <Link to="releases" className="text-sm text-muted-foreground hover:text-black transition-colors">
+                    Promoções
                 </Link>
-                <Link to="/sale" className="text-sm text-muted-foreground hover:text-black transition-colors">
-                    Sale
+                <Link to="/products" className="text-sm text-muted-foreground hover:text-black transition-colors">
+                    Coleções
                 </Link>
                 </nav>
             </div>
@@ -103,72 +102,63 @@ export default function Footer() {
                 <h3 className="font-medium text-sm uppercase tracking-wider">Company</h3>
                 <nav className="flex flex-col space-y-3">
                 <Link to="/about" className="text-sm text-muted-foreground hover:text-black transition-colors">
-                    About Us
+                    Sobre Nós
                 </Link>
-                <Link to="/sustainability" className="text-sm text-muted-foreground hover:text-black transition-colors">
-                    Sustainability
+                <Link to="/products" className="text-sm text-muted-foreground hover:text-black transition-colors">
+                    Produtos
                 </Link>
                 <Link to="/careers" className="text-sm text-muted-foreground hover:text-black transition-colors">
-                    Careers
+                    Carreiras
                 </Link>
                 <Link to="/stores" className="text-sm text-muted-foreground hover:text-black transition-colors">
-                    Store Locator
+                    Lojas
                 </Link>
                 <Link to="/contact" className="text-sm text-muted-foreground hover:text-black transition-colors">
-                    Contact Us
+                    Contato
                 </Link>
                 </nav>
             </div>
 
             {/* Newsletter Column */}
             <div className="space-y-6">
-                <h3 className="font-medium text-sm uppercase tracking-wider">Stay Connected</h3>
+                <h3 className="font-medium text-sm uppercase tracking-wider text-gray-900 dark:text-white">
+                    Nunca Pare de Evoluir
+                </h3>
                 <p className="text-sm text-muted-foreground">
-                Subscribe to our newsletter for exclusive offers and updates.
+                    Toda jornada de transformação começa com um único passo. No nosso blog, você encontra reflexões profundas, estratégias práticas e histórias reais de superação. 
                 </p>
-                <form onSubmit={handleSubmit} className="space-y-3">
-                <div className="flex">
-                    <Input
-                    type="email"
-                    placeholder="Your email address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="rounded-r-none"
-                    />
-                    <Button type="submit" className="rounded-l-none">
-                    <ArrowRight className="h-4 w-4" />
-                    </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                    By subscribing, you agree to our Privacy Policy and consent to receive updates.
-                </p>
-                </form>
+                <a 
+                    href="/blog" 
+                    className="inline-block text-sm font-medium text-blue-600 hover:text-blue-800 transition duration-200"
+                >
+                    Visite o Blog →
+                </a>
             </div>
+
             </div>
 
             {/* Payment Methods */}
             <div className="mt-12 pt-8 border-t">
-            <div className="flex flex-wrap gap-4 justify-center">
-                <img src="https://www.creditoparatodos.org/wp-content/uploads/2020/04/bandeiras-de-cartao-mundipagg-e1585858099678.png" alt="bandeiras" className="h-12 w-56" />
-            </div>
+                <div className="flex flex-wrap gap-4 justify-center">
+                    <img src={Bandeiras} alt="bandeiras" className="h-16 w-56" />
+                </div>
             </div>
 
             {/* Bottom Section */}
             <div className="mt-12 pt-8 border-t text-center md:flex md:justify-between md:text-left">
-            <p className="text-xs text-muted-foreground">&copy; {year} MAISON. All rights reserved.</p>
+            <p className="text-xs text-muted-foreground">&copy; {year} ECLIPTICA. Todos os Direitos Reservados.</p>
             <div className="mt-4 md:mt-0 flex flex-wrap justify-center md:justify-end gap-4 md:gap-6">
                 <Link to="/terms" className="text-xs text-muted-foreground hover:text-black transition-colors">
-                Terms of Service
+                Termos de Serviço
                 </Link>
                 <Link to="/privacy" className="text-xs text-muted-foreground hover:text-black transition-colors">
-                Privacy Policy
+                Política de Privacidade
                 </Link>
                 <Link to="/shipping" className="text-xs text-muted-foreground hover:text-black transition-colors">
-                Shipping Policy
+                Segurança de Dados
                 </Link>
                 <Link to="/returns" className="text-xs text-muted-foreground hover:text-black transition-colors">
-                Returns & Exchanges
+                Dúvidas & Repostas
                 </Link>
             </div>
             </div>

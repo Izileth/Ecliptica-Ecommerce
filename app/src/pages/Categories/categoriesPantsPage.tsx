@@ -10,7 +10,7 @@ const CalcasGrid = () => {
         category="Calças"
         title="Premium Audio Devices"
         description="Experience sound like never before with our high-fidelity audio collection."
-        imageUrl="/placeholder.svg?height=480&width=1200"
+        imageUrl="https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/8565d002-4115-465b-ab25-0b402178fa4a/Leonardo_Kino_XL_Fashionforward_person_walking_on_a_clean_city_3.jpg"
         textPosition="center"
         textColor="light"
         overlayOpacity={0.5}
