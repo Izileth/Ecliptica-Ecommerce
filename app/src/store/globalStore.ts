@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore} from '@reduxjs/toolkit';
 import productReducer from './productStore';
 import cartReducer from './cartStore';  // Importe o reducer do carrinho
 
@@ -7,9 +7,9 @@ export function createStore() {
   return configureStore({
     reducer: {
       products: productReducer,
-      cart: cartReducer,  // Adicione o reducer do carrinho aqui
+      cart: cartReducer,  
     },
-    devTools: process.env.NODE_ENV !== 'production',  // Habilita no desenvolvimento
+    devTools: process.env.NODE_ENV !== 'production',  
   });
 }
 
