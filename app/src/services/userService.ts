@@ -31,16 +31,18 @@ export const AuthUserService = {
   /**
    * Autenticação
    */
+
   login: async (credentials: LoginData): Promise<AuthResponse> => {
     try {
       const response = await api.post<AuthResponse>('/auth/login', credentials, {
-        withCredentials: true
+        withCredentials: true // Importante para receber o cookie
       });
       
       if (!response.data?.user) {
         throw new Error('Dados do usuário não retornados pela API');
       }
       
+      // Não salvamos mais nada no localStorage, apenas retornamos os dados do usuário
       return response.data;
     } catch (error: any) {
       const errorMessage = error.response?.data?.message 
@@ -49,13 +51,13 @@ export const AuthUserService = {
       throw new Error(errorMessage);
     }
   },
-
+  
   logout: async (): Promise<void> => {
     try {
       await api.post('/auth/logout', {}, { withCredentials: true });
+      // Não precisamos limpar o localStorage porque não estamos usando mais
     } catch (error) {
       console.error('Erro durante logout:', error);
-      // Não lançar erro para não impedir o logout local
     }
   },
 

@@ -33,41 +33,20 @@ const api = axios.create({
 });
   
 // Interceptor para adicionar o token de autorização, se disponível
+// Interceptor para adicionar Headers comuns
 api.interceptors.request.use(config => {
   // Não mexa nos headers para FormData
   if (!(config.data instanceof FormData)) {
     config.headers['Content-Type'] = 'application/json';
   }
-
-  // Endpoints de autenticação não precisam de token
-  const isAuthEndpoint = config.url?.includes('/auth/login') || 
-                         config.url?.includes('/auth/register') ||
-                         config.url?.includes('/auth/forgot-password') ||
-                         config.url?.includes('/auth/reset-password');
   
-  if (!isAuthEndpoint) {
-    const authData = localStorage.getItem('auth-storage');
-    if (authData) {
-      try {
-        const { state } = JSON.parse(authData);
-        // Simplificando a verificação do token
-        if (state.tokenData?.token) {
-          config.headers.Authorization = `Bearer ${state.tokenData.token}`;
-          console.log('Token adicionado ao cabeçalho:', state.tokenData.token.substring(0, 10) + '...');
-        } else {
-          console.log('Token não encontrado no storage');
-        }
-      } catch (error) {
-        console.error('Erro ao processar token:', error);
-      }
-    } else {
-      console.log('auth-storage não encontrado no localStorage');
-    }
-  }
+  // Não precisamos adicionar o token manualmente porque o cookie HTTP-only
+  // será enviado automaticamente em todas as requisições devido ao withCredentials: true
   
   return config;
 });
 
+// Interceptor de resposta para tratamento de erros
 // Interceptor de resposta para tratamento de erros
 api.interceptors.response.use(
   response => response,
@@ -96,42 +75,21 @@ api.interceptors.response.use(
         isRedirecting = true;
         lastRedirectTime = currentTime;
         
-        // Limpa os dados de autenticação primeiro
-        try {
-          // Limpa o storage
-          const authStorage = localStorage.getItem('auth-storage');
-          if (authStorage) {
-            const data = JSON.parse(authStorage);
-            // Mantém outras configurações, mas remove user e tokenData
-            data.state = { 
-              ...data.state,
-              user: null,
-              tokenData: null
-            };
-            localStorage.setItem('auth-storage', JSON.stringify(data));
-          }
-          
-          console.log('Sessão expirada. Redirecionando para login...');
-          
-          // Usa setTimeout para garantir que o redirecionamento aconteça após a conclusão
-          // de outras operações pendentes
+        console.log('Sessão expirada. Redirecionando para login...');
+        
+        // Usa setTimeout para garantir que o redirecionamento aconteça após a conclusão
+        // de outras operações pendentes
+        setTimeout(() => {
+          window.location.href = '/login';
+          // Reseta a flag após o redirecionamento
           setTimeout(() => {
-            window.location.href = '/login';
-            // Reseta a flag após o redirecionamento
-            setTimeout(() => {
-              isRedirecting = false;
-            }, 1000);
-          }, 100);
-          
-        } catch (e) {
-          console.error('Erro ao limpar dados de autenticação:', e);
-          isRedirecting = false;
-        }
+            isRedirecting = false;
+          }, 1000);
+        }, 100);
       }
     }
     
     return Promise.reject(error);
   }
 );
-
 export default api;
