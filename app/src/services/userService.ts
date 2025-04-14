@@ -78,7 +78,7 @@ export const AuthUserService = {
    */
   getProfile: async (): Promise<User> => {
     try {
-      const response = await api.get<User>('/users/profile',{
+      const response = await api.get<User>('/users/profile', {
         withCredentials: true
       });
       return response.data;
