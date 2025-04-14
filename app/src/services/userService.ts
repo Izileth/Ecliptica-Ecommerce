@@ -78,7 +78,9 @@ export const AuthUserService = {
    */
   getProfile: async (): Promise<User> => {
     try {
-      const response = await api.get<User>('/users/profile');
+      const response = await api.get<User>('/users/profile',{
+        withCredentials: true
+      });
       return response.data;
     } catch (error: any) {
       const errorMessage = error.response?.data?.message 
@@ -89,7 +91,9 @@ export const AuthUserService = {
 
   updateProfile: async (data: UpdateProfileData): Promise<User> => {
     try {
-      const response = await api.put<User>('/users/profile', data);
+      const response = await api.put<User>('/users/profile', data,{
+        withCredentials: true
+      });
       return response.data;
     } catch (error: any) {
       const errorMessage = error.response?.data?.message 
