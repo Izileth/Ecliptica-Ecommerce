@@ -9,7 +9,7 @@ export function createStore() {
       products: productReducer,
       cart: cartReducer,  // Adicione o reducer do carrinho aqui
     },
-    // Configurações simplificadas para SSR
+    devTools: process.env.NODE_ENV !== 'production',  // Habilita no desenvolvimento
   });
 }
 
