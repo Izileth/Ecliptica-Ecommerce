@@ -39,22 +39,29 @@ api.interceptors.request.use(config => {
     config.headers['Content-Type'] = 'application/json';
   }
 
-  // Seu código de autenticação existente...
+  // Endpoints de autenticação não precisam de token
   const isAuthEndpoint = config.url?.includes('/auth/login') || 
-                        config.url?.includes('/auth/register');
+                         config.url?.includes('/auth/register') ||
+                         config.url?.includes('/auth/forgot-password') ||
+                         config.url?.includes('/auth/reset-password');
   
   if (!isAuthEndpoint) {
     const authData = localStorage.getItem('auth-storage');
     if (authData) {
       try {
         const { state } = JSON.parse(authData);
-        if (state.tokenData?.token && 
-            (!state.tokenData.expiresAt || Date.now() < state.tokenData.expiresAt)) {
+        // Simplificando a verificação do token
+        if (state.tokenData?.token) {
           config.headers.Authorization = `Bearer ${state.tokenData.token}`;
+          console.log('Token adicionado ao cabeçalho:', state.tokenData.token.substring(0, 10) + '...');
+        } else {
+          console.log('Token não encontrado no storage');
         }
       } catch (error) {
         console.error('Erro ao processar token:', error);
       }
+    } else {
+      console.log('auth-storage não encontrado no localStorage');
     }
   }
   
