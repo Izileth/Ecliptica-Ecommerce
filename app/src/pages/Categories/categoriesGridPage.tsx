@@ -2,12 +2,13 @@ import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useProducts } from "~/src/hooks/useProducts"
 import ProductCard from "~/src/components/products/Card/card"
-import ProductFilter from "~/src/components/products/Filter/filter"
-import type { ProductFilterFormValues } from "~/src/services/type"
+import type { ProductFilterApiParams} from "~/src/services/type"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import ProductFilter from "~/src/components/products/Filter/filter"
 import { useMediaQuery } from "~/src/hooks/useMobile"
 import { Spinner } from "~/src/components/ui/Spinner/spinner"
 import { cn } from "~/src/lib/utils"
+import { Title } from "~/src/components/common/Titles/titles"
 
 interface CategoryGridProps {
   category: string
@@ -32,10 +33,10 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
     getProducts(1, { ...appliedFilters, category })
   }, [category, appliedFilters, getProducts])
 
-  const handleFilter = (filters: ProductFilterFormValues) => {
-    setAppliedFilters(filters)
-  }
-
+  const handleFilter = (filters: ProductFilterApiParams) => {
+    // No need for adapter anymore as the component returns the correct format
+     getProducts(1, filters);
+    };
   const handlePageChange = (page: number) => {
     getProducts(page, { ...appliedFilters, category })
   }
@@ -95,7 +96,6 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
           transition={{ duration: 0.4 }}
           className="mb-10"
         >
-          <ProductFilter onFilter={handleFilter} />
         </motion.div>
       </AnimatePresence>
 
@@ -109,14 +109,10 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
             className="mb-10 text-center"
           >
             {title && (
-              <h2 className="text-2xl md:text-3xl font-medium text-neutral-900">
-                {title}
-              </h2>
-            )}
-            {description && (
-              <p className="mt-2 text-neutral-500 max-w-2xl mx-auto">
-                {description}
-              </p>
+              <Title
+              title={title}
+              subtitle={description}>
+              </Title>
             )}
           </motion.div>
         )}

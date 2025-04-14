@@ -7,11 +7,11 @@ const SummerPage = () => {
     <Container maxWidth="full" padding="lg" className="mt-20">
       <CollectionBanner
         collection="Verão"
-        title="Coleção Essencial 2025"
-        description="Peças atemporais para compor seu guarda-roupa perfeito"
+        title="Leveza Que Veste Bem"
+        description="Cores vibrantes, tecidos frescos e cortes que respiram estilo. Viva o verão com autenticidade."
         imageUrl="https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/a315f284-ae97-4ac0-810a-aa19218089f9/Leonardo_Kino_XL_Group_of_diverse_young_people_smiling_under_b_0.jpg"
-        season="Primavera"
-        year={2023}
+        season="Verão"
+        year={2025}
         textPosition="center"
         overlayOpacity={0.4}
         className="my-8"
@@ -20,7 +20,10 @@ const SummerPage = () => {
           Explorar Coleção
         </Button>
       </CollectionBanner>
-      <CollectionGrid collection="Verão" />
+      <CollectionGrid 
+        title="Coleção Verão"
+        description="Leveza, cor e frescor para brilhar sob o sol"
+        collection="Verão" />
     </Container>
   );
 };

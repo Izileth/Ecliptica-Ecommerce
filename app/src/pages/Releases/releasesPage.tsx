@@ -101,7 +101,7 @@ export default function LatestReleasesPage() {
                     <RefreshCw className="h-6 w-6 text-neutral-400" />
                 </motion.div>
                 </div>
-                <p className="mt-4 text-neutral-600">Loading latest releases...</p>
+                <p className="mt-4 text-neutral-600">Carregando os Principais Destaques...</p>
             </div>
             )}
 
@@ -125,7 +125,7 @@ export default function LatestReleasesPage() {
                     </div>
                 </div>
                 <div className="ml-4">
-                    <h3 className="text-sm font-medium text-red-800">Error loading products</h3>
+                    <h3 className="text-sm font-medium text-red-800">Error ao Carregar Produtos</h3>
                     <p className="mt-1 text-sm text-red-700">{error}</p>
                     <div className="mt-3">
                     <Button
@@ -134,7 +134,7 @@ export default function LatestReleasesPage() {
                         onClick={refreshLatestProducts}
                         className="text-red-700 hover:bg-red-50"
                     >
-                        Try again
+                        Tente Novamente
                     </Button>
                     </div>
                 </div>
@@ -144,10 +144,10 @@ export default function LatestReleasesPage() {
 
             {/* Products grid */}
             {!loading && !error && safeProducts.length > 0 && (
-            <motion.div initial="hidden" animate="visible" variants={containerVariants} className="space-y-12 ">
-                <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+            <motion.div initial="hidden" animate="visible" variants={containerVariants} className="space-y-12 mx-10">
+                <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center ">
                 <motion.h2 variants={itemVariants} className="text-xl font-light text-neutral-900 sm:text-2xl">
-                    This Week's Arrivals
+                    Principais Destaques Dessa Semana
                 </motion.h2>
                 <motion.div variants={itemVariants}>
                     <Button
@@ -161,14 +161,14 @@ export default function LatestReleasesPage() {
                         isRefreshing ? "animate-spin" : "group-hover:rotate-90"
                         }`}
                     />
-                    <span>Refresh</span>
+                    <span>Atualizar</span>
                     </Button>
                 </motion.div>
                 </div>
 
                 <motion.div
                 variants={containerVariants}
-                className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                 >
                 <AnimatePresence>
                     {safeProducts.map((product, index) => (

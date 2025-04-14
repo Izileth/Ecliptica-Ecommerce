@@ -75,6 +75,40 @@ export default function Profile() {
     removeProduct,
   } = useProducts();
 
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    message: string;
+    type: 'success' | 'error';
+  }>({
+    show: false,
+    message: '',
+    type: 'success'
+  });
+
+  const Notification = ({ message, type, onClose }: {
+    message: string;
+    type: 'success' | 'error';
+    onClose: () => void;
+  }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className={`fixed bottom-4 right-4 p-4 rounded-md shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+      } text-white`}
+    >
+      <div className="flex items-center justify-between">
+        <span>{message}</span>
+        <button onClick={onClose} className="ml-4">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+        </button>
+      </div>
+    </motion.div>
+  );
+
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>("profile");
   const [profileData, setProfileData] = useState({
@@ -111,23 +145,70 @@ export default function Profile() {
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading((prev) => ({ ...prev, profile: true }));
-    clearError();
-
+    
+    // Guarda o estado anterior para possível rollback
+    const previousProfileData = { ...profileData };
+    
     try {
+      // Atualização otimista - já mostra os dados alterados antes da confirmação do back-end
+      setLoading((prev) => ({ ...prev, profile: true }));
+      clearError();
+  
+      // 1. Faz a chamada API para atualizar o perfil
       const updatedUser = await updateProfile({
         name: profileData.name,
         email: profileData.email,
       });
-
+  
+      // 2. Atualiza o estado com os dados confirmados pelo back-end
+      // (importante caso o back-end tenha processado os dados de forma diferente)
       setProfileData({
         name: updatedUser.name,
         email: updatedUser.email,
       });
-
+  
+      // 3. Feedback visual combinado (toast + notificação)
+      setNotification({
+        show: true,
+        message: 'Perfil atualizado com sucesso!, Faça o Login para Vizualizar.',
+        type: 'success'
+      });
+  
       toast.success("Perfil atualizado com sucesso");
+  
+      // Auto-fechamento da notificação após 5 segundos
+      const timer = setTimeout(() => {
+        setNotification(prev => ({ ...prev, show: false }));
+      }, 5000);
+  
+      // Limpa o timeout se o componente for desmontado
+      return () => clearTimeout(timer);
+      
     } catch (error: any) {
-      toast.error(error.message || "Falha ao atualizar perfil");
+      // Rollback em caso de erro
+      setProfileData(previousProfileData);
+      
+      // Feedback de erro detalhado
+      const errorMessage = error.response?.data?.message || 
+                          error.message || 
+                          "Falha ao atualizar perfil. Tente novamente mais tarde.";
+  
+      setNotification({
+        show: true,
+        message: errorMessage,
+        type: 'error'
+      });
+  
+      toast.error(errorMessage);
+  
+      // Auto-fechamento da notificação de erro
+      const errorTimer = setTimeout(() => {
+        setNotification(prev => ({ ...prev, show: false }));
+      }, 5000);
+  
+      // Limpa o timeout se o componente for desmontado
+      return () => clearTimeout(errorTimer);
+      
     } finally {
       setLoading((prev) => ({ ...prev, profile: false }));
     }
@@ -448,22 +529,45 @@ export default function Profile() {
                           className="h-10 rounded-none border-gray-200 focus:border-black focus:ring-0 font-light"
                         />
                       </div>
-                      <div>
+                      <div className="flex items-center gap-4">
                         <Button
                           type="submit"
                           disabled={loading.profile}
                           className="bg-black hover:bg-black/90 text-white rounded-none font-light tracking-wide text-sm h-10 transition-colors duration-300"
                         >
-                          {loading.profile
-                            ? "Salvando..."
-                            : "Salvar Alterações"}
+                          {loading.profile ? (
+                            <>
+                              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Salvando...
+                            </>
+                          ) : "Salvar Alterações"}
                         </Button>
+                        
+                        {loading.profile && (
+                          <span className="text-sm text-gray-500">
+                            Atualizando suas informações...
+                          </span>
+                        )}
                       </div>
                     </form>
                   </CardContent>
                 </Card>
               </motion.div>
             )}
+
+            {/* Notificação */}
+            <AnimatePresence>
+              {notification.show && (
+                <Notification
+                  message={notification.message}
+                  type={notification.type}
+                  onClose={() => setNotification(prev => ({ ...prev, show: false }))}
+                />
+              )}
+            </AnimatePresence>
 
             {/* Products Tab */}
             {activeTab === "products" && (

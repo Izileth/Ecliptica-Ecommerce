@@ -3,17 +3,18 @@ import Container from "~/src/components/layout/Container/container";
 import ProductGrid from "~/src/components/products/Grid/grid";
 import ProductFilter from "~/src/components/products/Filter/filter";
 import { useProducts } from "~/src/hooks/useProducts";
-import type { ProductFilterFormValues } from "~/src/services/type";
-import { FilterAdapter } from "../../utils/filterAdapter";
+import type { ProductFilterApiParams } from "~/src/services/type";
+// Remove FilterAdapter import since we're now using the API params directly
 
 export function Products() {
   const { getProducts } = useProducts();
 
-  // Tipagem explícita para os filtros
-  const handleFilter = (filters: ProductFilterFormValues) => {
-    const apiFilters = FilterAdapter.toApi(filters); // Conversão correta
-    getProducts(1, apiFilters);
+  // Updated to use ProductFilterApiParams directly
+  const handleFilter = (filters: ProductFilterApiParams) => {
+    // No need for adapter anymore as the component returns the correct format
+    getProducts(1, filters);
   };
+
   const overlayItems = [
     {
       id: 1,
@@ -46,7 +47,12 @@ export function Products() {
         height="h-[80vh]"
         className="mt-20"
       />
-      <ProductFilter onFilter={handleFilter} />
+      <ProductFilter
+        onFilter={handleFilter}
+        maxPriceLimit={2000}
+        initialCategory=""
+        collections={["Verão", "Inverno", "Casual", "Fitness"]}
+      />
       <ProductGrid />
     </Container>
   );

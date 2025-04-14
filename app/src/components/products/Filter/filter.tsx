@@ -1,6 +1,6 @@
 import type React from "react"
 import { useState, useEffect } from "react"
-import type { ProductFilterFormValues } from "~/src/services/type"
+import type { ProductFilterFormValues, ProductFilterApiParams } from "~/src/services/type"
 import { motion, AnimatePresence } from "framer-motion"
 import { Slider } from "~/src/components/imported/slider"
 import { Button } from "~/src/components/imported/button"
@@ -8,51 +8,83 @@ import { Badge } from "~/src/components/imported/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/src/components/imported/select"
 import { Switch } from "~/src/components/imported/switch"
 import { Label } from "~/src/components/imported/label"
-import { Filter, X, Check, ArrowRight } from "lucide-react"
+import { Filter, X, Check, ArrowRight, Search, SortAsc, SortDesc } from "lucide-react"
 import { cn } from "~/src/lib/utils"
 
 interface ProductFilterProps {
-  onFilter: (filters: ProductFilterFormValues) => void
+  onFilter: (filters: ProductFilterApiParams) => void
   maxPriceLimit?: number
+  initialCategory?: string
+  collections?: string[]
 }
 
-const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit = 1000 }) => {
+const ProductFilter: React.FC<ProductFilterProps> = ({ 
+  onFilter, 
+  maxPriceLimit = 1000, 
+  initialCategory = "",
+  collections = ["Verão", "Inverno", "Primavera", "Outono", "Casual"]
+}) => {
   // State for filter values
   const [filters, setFilters] = useState<ProductFilterFormValues>({
-    category: "",
+    category: initialCategory,
     minPrice: "",
     maxPrice: "",
     inStock: false,
+    sortBy: "createdAt",
+    sortOrder: "desc"
   })
+
+  // Additional filter states
+  const [searchTerm, setSearchTerm] = useState("")
+  const [collection, setCollection] = useState<string>("")
+  const [hasDiscount, setHasDiscount] = useState(false)
 
   // State for UI
   const [priceRange, setPriceRange] = useState<[number, number]>([0, maxPriceLimit])
   const [isExpanded, setIsExpanded] = useState(false)
   const [activeFiltersCount, setActiveFiltersCount] = useState(0)
   const [hasChanges, setHasChanges] = useState(false)
-  const [isMounted, setIsMounted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMounted, setIsMounted] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
-  
   useEffect(() => {
-    setIsMounted(true);
+    setIsMounted(true)
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+      setIsMobile(window.innerWidth < 768)
+    }
     
     if (typeof window !== 'undefined') {
-      handleResize();
-      window.addEventListener('resize', handleResize);
+      handleResize()
+      window.addEventListener('resize', handleResize)
     }
     
     return () => {
       if (typeof window !== 'undefined') {
-        window.removeEventListener('resize', handleResize);
+        window.removeEventListener('resize', handleResize)
       }
-    };
-  }, []);
+    }
+  }, [])
+
+  // Set initial category if provided
+  useEffect(() => {
+    if (initialCategory && !filters.category) {
+      setFilters(prev => ({
+        ...prev,
+        category: initialCategory
+      }))
+    }
+  }, [initialCategory])
+
   // Available categories
   const categories = ["Camisetas", "Calças", "Vestidos", "Acessórios"]
+
+  // Available sort options
+  const sortOptions = [
+    { value: "createdAt", label: "Mais recentes" },
+    { value: "name", label: "Nome" },
+    { value: "price", label: "Preço" },
+    { value: "salePrice", label: "Preço em promoção" }
+  ]
 
   // Update price inputs when slider changes
   useEffect(() => {
@@ -71,9 +103,14 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
     if (filters.minPrice && Number(filters.minPrice) > 0) count++
     if (filters.maxPrice && Number(filters.maxPrice) < maxPriceLimit) count++
     if (filters.inStock) count++
+    if (filters.sortBy && filters.sortBy !== "createdAt") count++
+    if (filters.sortOrder && filters.sortOrder !== "desc") count++
+    if (searchTerm) count++
+    if (collection) count++
+    if (hasDiscount) count++
 
     setActiveFiltersCount(count)
-  }, [filters, maxPriceLimit])
+  }, [filters, maxPriceLimit, searchTerm, collection, hasDiscount])
 
   // Handle form input changes
   const handleChange = (name: string, value: string | boolean) => {
@@ -86,7 +123,11 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
 
   // Handle category selection
   const handleCategoryChange = (value: string) => {
-    handleChange("category", value)
+    if (value === "Todos") {
+      clearCategoryFilter()
+    }else{
+      handleChange("category", value)
+    }
   }
 
   // Handle price range slider change
@@ -99,26 +140,63 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
     handleChange("inStock", checked)
   }
 
+
+  // Handle collection selection
+  const handleCollectionChange = (value: string) => {
+    if (value === "Todos") {
+      clearCollectionFilter()
+    }else {
+      setCollection(value)
+      setHasChanges(true)
+    }
+  }
+
+  // Handle discount toggle
+  const handleDiscountChange = (checked: boolean) => {
+    setHasDiscount(checked)
+    setHasChanges(true)
+  }
+
+  // Handle sort option change
+  const handleSortByChange = (value: string) => {
+    handleChange("sortBy", value as 'name' | 'price' | 'createdAt' | 'salePrice')
+  }
+
+  // Handle sort order toggle
+  const handleSortOrderChange = () => {
+    const newOrder = filters.sortOrder === "asc" ? "desc" : "asc"
+    handleChange("sortOrder", newOrder)
+  }
+
   // Apply filters
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Remove empty fields before submitting
-    const activeFilters = Object.fromEntries(
-      Object.entries(filters).filter(([_, value]) => value !== "" && value !== false && value !== undefined),
-    ) as ProductFilterFormValues
+    // Convert string values to appropriate types for API
+    const apiParams: ProductFilterApiParams = {
+      category: filters.category || undefined,
+      minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
+      maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
+      inStock: filters.inStock || undefined,
+      sortBy: filters.sortBy || undefined,
+      sortOrder: filters.sortOrder || undefined,
+      collection: collection || undefined,
+      hasDiscount: hasDiscount || undefined,
+      searchTerm: searchTerm || undefined
+    }
 
-    onFilter(activeFilters)
+    // Remove undefined fields
+    const cleanParams = Object.fromEntries(
+      Object.entries(apiParams).filter(([_, value]) => value !== undefined)
+    ) as ProductFilterApiParams
+
+    onFilter(cleanParams)
     setHasChanges(false)
 
     // Close filter panel on mobile after applying
-    if (window.innerWidth < 768) {
+    if (isMounted && isMobile) {
       setIsExpanded(false)
     }
-    if (isMounted && isMobile) {
-      setIsExpanded(false);
-    }
-    
   }
 
   // Reset all filters
@@ -129,9 +207,25 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
       minPrice: "",
       maxPrice: "",
       inStock: false,
+      sortBy: "createdAt",
+      sortOrder: "desc"
     })
+    setSearchTerm("")
+    setCollection("")
+    setHasDiscount(false)
     onFilter({})
     setHasChanges(false)
+  }
+
+  // Clear specific category or collection filter
+  const clearCategoryFilter = () => {
+    setFilters((prev) => ({ ...prev, category: "" }))
+    setHasChanges(true)
+  }
+
+  const clearCollectionFilter = () => {
+    setCollection("")
+    setHasChanges(true)
   }
 
   // Format price for display
@@ -141,7 +235,6 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
       currency: "BRL",
     }).format(price)
   }
-
   return (
     <div className="mb-8 mt-6">
       {/* Mobile filter toggle */}
@@ -170,8 +263,8 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
       </div>
 
       {/* Filter form */}
-      <AnimatePresence  mode="wait">
-      {(isExpanded || (isMounted && !isMobile)) && (
+      <AnimatePresence mode="wait">
+        {(isExpanded || (isMounted && !isMobile)) && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
@@ -192,7 +285,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
 
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                  {/* Category filter */}
+                  {/* First row */}
                   <div className="md:col-span-3">
                     <Label htmlFor="category" className="text-sm font-medium text-gray-700 mb-1.5 block">
                       Categoria
@@ -202,7 +295,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
                         <SelectValue placeholder="Todas categorias" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">Todas categorias</SelectItem>
+                        <SelectItem value="Todos">Todas categorias</SelectItem>
                         {categories.map((cat) => (
                           <SelectItem key={cat} value={cat}>
                             {cat}
@@ -212,8 +305,78 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
                     </Select>
                   </div>
 
+                  <div className="md:col-span-3">
+                    <Label htmlFor="collection" className="text-sm font-medium text-gray-700 mb-1.5 block">
+                      Coleção
+                    </Label>
+                    <Select value={collection} onValueChange={handleCollectionChange}>
+                      <SelectTrigger id="collection" className="w-full h-10 rounded-lg border-gray-200">
+                        <SelectValue placeholder="Todas coleções" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Todos">Todas coleções</SelectItem>
+                        {collections.map((col) => (
+                          <SelectItem key={col} value={col}>
+                            {col}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="md:col-span-3">
+                    <Label htmlFor="sortBy" className="text-sm font-medium text-gray-700 mb-1.5 block">
+                      Ordenar por
+                    </Label>
+                    <div className="flex gap-2">
+                      <Select value={filters.sortBy} onValueChange={handleSortByChange}>
+                        <SelectTrigger id="sortBy" className="flex-1 h-10 rounded-lg border-gray-200">
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {sortOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="h-10 w-10 p-0 flex items-center justify-center"
+                        onClick={handleSortOrderChange}
+                      >
+                        {filters.sortOrder === "asc" ? (
+                          <SortAsc className="h-4 w-4" />
+                        ) : (
+                          <SortDesc className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-3">
+                    <div className="h-full flex flex-col justify-end">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="flex items-center space-x-2">
+                          <Switch id="in-stock" checked={filters.inStock} onCheckedChange={handleInStockChange} />
+                          <Label htmlFor="in-stock" className="text-sm font-medium text-gray-700">
+                            Em estoque
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Switch id="has-discount" checked={hasDiscount} onCheckedChange={handleDiscountChange} />
+                          <Label htmlFor="has-discount" className="text-sm font-medium text-gray-700">
+                            Promoção
+                          </Label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Price range filter */}
-                  <div className="md:col-span-6">
+                  <div className="md:col-span-9">
                     <div className="flex items-center justify-between mb-1.5">
                       <Label className="text-sm font-medium text-gray-700">Faixa de Preço</Label>
                       <div className="text-sm text-gray-500 flex items-center gap-2">
@@ -232,15 +395,8 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
                     />
                   </div>
 
-                  {/* In stock filter and buttons */}
+                  {/* Action buttons */}
                   <div className="md:col-span-3 flex flex-col justify-end">
-                    <div className="flex items-center justify-between mb-4">
-                      <Label htmlFor="in-stock" className="text-sm font-medium text-gray-700">
-                        Apenas em estoque
-                      </Label>
-                      <Switch id="in-stock" checked={filters.inStock} onCheckedChange={handleInStockChange} />
-                    </div>
-
                     <div className="flex items-center gap-2 mt-auto">
                       <Button
                         type="submit"
@@ -278,7 +434,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
               </div>
 
               {/* Active filters */}
-              <AnimatePresence  mode="wait">
+              <AnimatePresence mode="wait">
                 {activeFiltersCount > 0 && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
@@ -293,6 +449,22 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
                       </div>
 
                       <div className="flex flex-wrap gap-2">
+                        {searchTerm && (
+                          <Badge
+                            variant="outline"
+                            className="bg-gray-50 text-gray-700 hover:bg-gray-100 rounded-full px-3 py-1 text-xs"
+                          >
+                            Busca: {searchTerm}
+                            <button
+                              type="button"
+                              onClick={() => setSearchTerm("")}
+                              className="ml-1 text-gray-400 hover:text-gray-700"
+                            >
+                              <X className="h-3 w-3 inline" />
+                            </button>
+                          </Badge>
+                        )}
+
                         {filters.category && (
                           <Badge
                             variant="outline"
@@ -302,6 +474,22 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
                             <button
                               type="button"
                               onClick={() => handleCategoryChange("")}
+                              className="ml-1 text-gray-400 hover:text-gray-700"
+                            >
+                              <X className="h-3 w-3 inline" />
+                            </button>
+                          </Badge>
+                        )}
+
+                        {collection && (
+                          <Badge
+                            variant="outline"
+                            className="bg-gray-50 text-gray-700 hover:bg-gray-100 rounded-full px-3 py-1 text-xs"
+                          >
+                            Coleção: {collection}
+                            <button
+                              type="button"
+                              onClick={() => setCollection("")}
                               className="ml-1 text-gray-400 hover:text-gray-700"
                             >
                               <X className="h-3 w-3 inline" />
@@ -342,6 +530,32 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
                             </button>
                           </Badge>
                         )}
+
+                        {hasDiscount && (
+                          <Badge
+                            variant="outline"
+                            className="bg-gray-50 text-gray-700 hover:bg-gray-100 rounded-full px-3 py-1 text-xs"
+                          >
+                            Em promoção
+                            <button
+                              type="button"
+                              onClick={() => setHasDiscount(false)}
+                              className="ml-1 text-gray-400 hover:text-gray-700"
+                            >
+                              <X className="h-3 w-3 inline" />
+                            </button>
+                          </Badge>
+                        )}
+
+                        {filters.sortBy && filters.sortBy !== "createdAt" && (
+                          <Badge
+                            variant="outline"
+                            className="bg-gray-50 text-gray-700 hover:bg-gray-100 rounded-full px-3 py-1 text-xs"
+                          >
+                            Ordenado por: {sortOptions.find(opt => opt.value === filters.sortBy)?.label}
+                            {filters.sortOrder === "asc" ? " (crescente)" : " (decrescente)"}
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   </motion.div>
@@ -353,9 +567,8 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilter, maxPriceLimit =
       </AnimatePresence>
 
       {/* Mobile filter applied indicator */}
-      
-      <AnimatePresence  mode="wait">
-      {(isExpanded || (isMounted && !isMobile)) && (
+      <AnimatePresence mode="wait">
+        {activeFiltersCount > 0 && !isExpanded && isMobile && isMounted && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

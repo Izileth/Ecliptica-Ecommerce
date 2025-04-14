@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useProducts } from "~/src/hooks/useProducts"
@@ -8,6 +6,7 @@ import { Spinner } from "~/src/components/ui/Spinner/spinner"
 import { Button } from "~/src/components/imported/button"
 import { Link } from "react-router-dom"
 import { useMediaQuery } from "~/src/hooks/useMobile"
+import { Title } from "../../common/Titles/titles"
 
 interface CollectionGridProps {
   collection: string
@@ -92,17 +91,16 @@ export function CollectionGrid({
   }
 
   return (
-    <section className={`space-y-10 ${className}`}>
+    <section className={`space-y-10 mx-4 ${className}`}>
       <AnimatePresence>
         {(title || description) && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="text-center max-w-2xl mx-auto px-4"
+            className="text-center max-w-full mx-auto px-4"
           >
-            {title && <h2 className="text-2xl md:text-3xl font-medium text-neutral-900 tracking-tight">{title}</h2>}
-            {description && <p className="mt-3 text-neutral-500 text-base leading-relaxed">{description}</p>}
+            {title && <Title title={title} subtitle={description}></Title>}
           </motion.div>
         )}
       </AnimatePresence>

@@ -8,8 +8,8 @@ const VestidosGrid = () => {
     <Container maxWidth="full" padding="sm" className="mt-20">
       <CategoryBanner
         category="Vestidos"
-        title="Modern Living Room Collection"
-        description="Discover our curated selection of contemporary furniture designed for comfort and style."
+        title="Fluidez Que Encanta"
+        description="Vestidos que dançam com o corpo, exalam elegância e destacam sua beleza natural."
         imageUrl="https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/ac911869-b1b4-43c0-9cd0-55fa01b5dc91/Leonardo_Kino_XL_Elegant_young_woman_wearing_a_flowy_light_dre_0.jpg"
         textPosition="left"
         textColor="light"
@@ -23,8 +23,8 @@ const VestidosGrid = () => {
       </CategoryBanner>
       <CategoryGrid
         category="Vestidos"
-        title="Elegância em Vestidos"
-        description="Vestidos para todas as ocasiões, desde o dia a dia até eventos especiais"
+        title="Vestidos Que Encantam"
+        description="Leveza e elegância para todos os momentos"
       />
     </Container>
   );

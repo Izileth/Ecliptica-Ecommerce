@@ -7,11 +7,11 @@ const WomanPage = () => {
     <Container maxWidth="full" padding="lg" className="mt-20">
       <CollectionBanner
         collection="Feminina"
-        title="Coleção Essencial 2023"
-        description="Peças atemporais para compor seu guarda-roupa perfeito"
+        title="Sua Essência, Seu Estilo"
+        description="Peças que celebram a liberdade, o charme e a força da mulher contemporânea."
         imageUrl="https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/51d9d107-7ec5-447e-ad7c-1dbaba682359/Leonardo_Kino_XL_Confident_woman_in_chic_modern_outfit_standin_1.jpg"
-        season="Primavera"
-        year={2023}
+        season="Outono"
+        year={2025}
         textPosition="center"
         overlayOpacity={0.4}
         className="my-8"
@@ -20,7 +20,11 @@ const WomanPage = () => {
           Explorar Coleção
         </Button>
       </CollectionBanner>
-      <CollectionGrid collection="Feminina" />
+      <CollectionGrid 
+        collection="Feminina"
+        title="Coleção Feminina"
+        description="Estilo, liberdade e elegância em cada detalhe"
+      />
     </Container>
   );
 };
