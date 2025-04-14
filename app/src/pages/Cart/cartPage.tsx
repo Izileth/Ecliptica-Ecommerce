@@ -1,9 +1,13 @@
 import React, { useEffect } from 'react';
+
 import { useCart } from '~/src/hooks/useCart';
+
 import CartItemList from '~/src/components/cart/List/cart.list';
 import CartSummary from '~/src/components/cart/Summary/cart.summary';
 import { Button } from '~/src/components/ui/Button/button';
+
 import { ShoppingBag, Trash2 } from 'lucide-react';
+
 import { Link } from 'react-router-dom';
 
 export const CartPage: React.FC = () => {

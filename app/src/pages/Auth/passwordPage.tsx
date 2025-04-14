@@ -1,16 +1,19 @@
-// src/pages/ForgotPassword.tsx
 import { useForm } from "react-hook-form";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+
 import { useAuthUser } from "~/src/hooks/useUser";
+
 import { Button } from "~/src/components/imported/button";
 import { Input } from "~/src/components/ui/Input/input";
 import { Label } from "~/src/components/imported/label";
 import { Loader2 } from "lucide-react";
+
 import { Link } from "react-router-dom";
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email("E-mail inválido"),
+    email: z.string().email("E-mail inválido"),
 });
 
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;

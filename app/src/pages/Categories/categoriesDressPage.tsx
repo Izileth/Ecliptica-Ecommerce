@@ -1,6 +1,5 @@
-// VestidosGrid.tsx
 import Container from "~/src/components/layout/Container/container";
-import CategoryGrid from "./categoriesGridPage";
+import CategoryGrid from "~/src/components/categories/Grid/grid";
 import { CategoryBanner } from "~/src/components/categories/Banner/banner";
 import { Button } from "~/src/components/imported/button";
 const VestidosGrid = () => {

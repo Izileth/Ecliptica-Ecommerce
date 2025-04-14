@@ -1,88 +1,23 @@
+//Componentes
 import Carousel from "~/src/components/common/Carousel/carousel";
 import { FeaturedProducts } from "~/src/components/products/SortBy/sort";
+import { Title } from "~/src/components/common/Titles/titles";
 import TestimonialCarousel from "~/src/components/common/Testmonials/carousel";
 import { DiscountCTA } from "~/src/components/common/Offers/offers";
-import CategoriesGrid from "~/src/components/categories/Grid/grid";
+import CategoriesGrid from "~/src/components/common/Grid/grid";
 import Container from "~/src/components/layout/Container/container";
 import Section from "~/src/components/common/Section/section";
-import { ChevronDown } from "lucide-react";
-import { Title } from "~/src/components/common/Titles/titles";
 import EnhancedTagCarousel from "~/src/components/common/Tags/carousel";
 
+//Icones
+import { ChevronDown } from "lucide-react";
+
+//Dados Estáticos
+import { DataCarousel } from "~/src/data/carousel/carousel";
+import { DataTestimonials } from "~/src/data/testmonials/testmonial";
+import { DataTags } from "~/src/data/items/items";
+
 export default function Welcome() {
-  const minimalItems = [
-    {
-      id: 1,
-      imageUrl:
-        "https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/ecc296c6-cd21-42ca-9374-b07a6bd5b708/Leonardo_Kino_XL_A_model_with_striking_features_walks_down_a_b_0.jpg",
-      title: "Minimalismo Elegante",
-      subtitle: "Menos é mais. Descubra nossa coleção de peças minimalistas.",
-      buttonText: "Explorar",
-      navigateTo: "/collections/minimal",
-      overlayOpacity: 0,
-    },
-    {
-      id: 2,
-      imageUrl:
-        "https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/256bf1f3-8863-4193-bbf4-bf6b8e8fe671/Leonardo_Kino_XL_A_woman_in_a_gold_sequined_couture_dress_pose_3.jpg",
-      title: "Essenciais",
-      subtitle: "Peças atemporais para um guarda-roupa versátil.",
-      buttonText: "Ver Coleção",
-      navigateTo: "/collections/essentials",
-      overlayOpacity: 0,
-    },
-    {
-      id: 3,
-      imageUrl:
-        "https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/d61721f8-9ec9-486a-b43b-44e12e509525/Leonardo_Kino_XL_A_sophisticated_woman_with_a_striking_gaze_po_3.jpg",
-      title: "Nova Coleção",
-      subtitle: "Descubra as últimas tendências da estação.",
-      buttonText: "Ver Coleção",
-      navigateTo: "/collections/new",
-      overlayOpacity: 0,
-    },
-  ];
-
-  const testimonials = [
-    {
-      id: 1,
-      name: "Sofia Oliveira",
-      role: "Cliente Premium",
-      content:
-        "A qualidade e elegância dos produtos superaram todas as minhas expectativas. Cada detalhe reflete um compromisso com a excelência que raramente encontro em outras marcas.",
-      avatar: "/placeholder.svg?height=80&width=80",
-      rating: 5,
-    },
-    {
-      id: 2,
-      name: "Rafael Mendes",
-      role: "Colecionador",
-      content:
-        "Impressionado com a atenção aos detalhes e o acabamento impecável. A experiência de compra foi tão refinada quanto os próprios produtos.",
-      avatar: "/placeholder.svg?height=80&width=80",
-      rating: 5,
-    },
-    {
-      id: 3,
-      name: "Isabela Costa",
-      role: "Estilista",
-      content:
-        "Como profissional da moda, reconheço o valor do design atemporal e da qualidade duradoura. Esta marca consegue unir tradição e contemporaneidade de forma única.",
-      avatar: "/placeholder.svg?height=80&width=80",
-      rating: 4,
-    },
-  ];
-
-  const tags = [
-    'Superação',
-    'Disciplina',
-    'Autoconhecimento',
-    'Liberdade',
-    'Foco',
-    'Alta Performance',
-    'Consistência',
-    'Ressignificação',
-  ];
 
   const scrollToContent = () => {
     const categoriesSection = document.getElementById("categories-section");
@@ -96,7 +31,7 @@ export default function Welcome() {
       {/* Hero Carousel Section */}
       <Section background="white" padding="sm" className="relative">
         <Carousel
-          items={minimalItems}
+          items={DataCarousel}
           variant="minimal"
           contentPosition="center"
           showDots={true}
@@ -145,7 +80,7 @@ export default function Welcome() {
             subtitle="Ficou na Duvida na hora de Pedir?, Veja os Relatos dos Compradores"
             color="dark"
           />
-          <TestimonialCarousel testimonials={testimonials} />
+          <TestimonialCarousel testimonials={DataTestimonials} />
         </div>
       </Section>
 
@@ -194,7 +129,7 @@ export default function Welcome() {
               subtitle="Principais tendencias da Temporada"
               color="dark"
             />
-            <EnhancedTagCarousel tags={tags.slice(0, 10)} itemsPerView={1} autoplayInterval={3000} />
+            <EnhancedTagCarousel tags={DataTags.slice(0, 10)} itemsPerView={1} autoplayInterval={3000} />
           </div>
         </div>
       </Section>

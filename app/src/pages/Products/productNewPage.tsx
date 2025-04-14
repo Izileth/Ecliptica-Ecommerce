@@ -7,7 +7,6 @@ import type { ProductFormValues, ProductSize, ProductColor } from "~/src/service
 import { useProducts } from "~/src/hooks/useProducts"
 import { ProductService } from "~/src/services/produtcService"
 
-// Components
 import { Button } from "~/src/components/imported/button"
 import { Input } from "~/src/components/imported/input"
 import { Label } from "~/src/components/imported/label"

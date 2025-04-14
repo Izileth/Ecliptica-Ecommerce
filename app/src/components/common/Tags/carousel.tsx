@@ -247,7 +247,7 @@ const EnhancedTagCarousel: React.FC<EnhancedTagCarouselProps> = ({
               {pageItems.map((tag, index) => (
                 <span
                   key={`${pageIndex}-${index}`}
-                  className="whitespace-nowrap px-4 py-2 bg-gray-100 text-sm font-medium rounded-full hover:bg-gray-200 transition-all duration-200 transform hover:scale-105 active:scale-95 cursor-pointer select-none"
+                  className="whitespace-nowrap px-4 py-2 my-6 bg-gray-100 text-sm font-medium rounded-full hover:bg-gray-200 transition-all duration-200 transform hover:scale-105 active:scale-95 cursor-pointer select-none"
                 >
                   {tag}
                 </span>

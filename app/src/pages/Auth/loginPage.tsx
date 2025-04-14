@@ -1,24 +1,27 @@
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useAuthUser } from "../../hooks/useUser";
+
+import { Link } from "react-router-dom";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useAuthUser } from "../../hooks/useUser";
+
 import { Button } from "~/src/components/ui/Button/button";
 import { Input } from "~/src/components/ui/Input/input";
 import { Label } from "~/src/components/ui/Label/label";
-import { Loader2 } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
 
-// Schema de validação com Zod
+import { Loader2 } from "lucide-react";
+
 const loginSchema = z.object({
-  email: z.string().email("E-mail inválido"),
-  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
+    email: z.string().email("E-mail inválido"),
+    password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-// Constantes para limitar tentativas automáticas
+
 const MAX_AUTO_LOGIN_ATTEMPTS = 2;
 const LOGIN_ATTEMPT_INTERVAL = 5000; // 5 segundos
 

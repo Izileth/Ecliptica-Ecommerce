@@ -1,21 +1,24 @@
-// src/pages/ResetPassword.tsx
 import { useForm } from "react-hook-form";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+
 import { useAuthUser } from "~/src/hooks/useUser";
 import { Button } from "~/src/components/ui/Button/button";
 import { Input } from "~/src/components/ui/Input/input";
 import { Label } from "~/src/components/imported/label";
+
 import { Loader2 } from "lucide-react";
+
 import { Link, useSearchParams } from "react-router-dom";
 
 const resetPasswordSchema = z.object({
-  token: z.string().min(1, "Token inválido"),
-  newPassword: z.string().min(8, "Senha deve ter no mínimo 8 caracteres"),
-  confirmPassword: z.string(),
+    token: z.string().min(1, "Token inválido"),
+    newPassword: z.string().min(8, "Senha deve ter no mínimo 8 caracteres"),
+    confirmPassword: z.string(),
 }).refine(data => data.newPassword === data.confirmPassword, {
-  message: "Senhas não coincidem",
-  path: ["confirmPassword"],
+    message: "Senhas não coincidem",
+    path: ["confirmPassword"],
 });
 
 type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;

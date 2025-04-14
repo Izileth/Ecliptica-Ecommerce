@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
+
 import { GlobalBanner } from '~/src/components/common/Banner/banner';
+
 import { MapPin, Phone, Mail, Clock } from "lucide-react"
+
 import { motion } from "framer-motion"
 import { cn } from "~/src/lib/utils"
 // Configure tipos para suas informações de contato

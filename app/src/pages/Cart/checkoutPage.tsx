@@ -1,16 +1,22 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+
+import { useCart } from "~/src/hooks/useCart"
+import { useCheckout } from "~/src/hooks/useCheckout"
+import { useAuthUser } from "~/src/hooks/useUser"
+
 import { Check, CreditCard, Truck } from "lucide-react"
 import { Button } from "~/src/components/imported/button"
 import { Card } from "~/src/components/imported/card"
 import { Input } from "~/src/components/imported/input"
 import { Label } from "~/src/components/imported/label"
+
 import { cn } from "~/src/lib/utils"
+
 import { motion } from "framer-motion"
-import { useCart } from "~/src/hooks/useCart"
-import { useCheckout } from "~/src/hooks/useCheckout"
-import { useAuthUser } from "~/src/hooks/useUser"
+
 import type { CheckoutSessionRequest } from "~/src/services/type"
+
 const CartSummary: React.FC<{ cart: any }> = ({ cart }) => {
   if (!cart) return null
 

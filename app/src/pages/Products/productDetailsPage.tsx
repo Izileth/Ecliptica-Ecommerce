@@ -1,9 +1,13 @@
 import type React from "react"
+
 import { useEffect, useState, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useProducts } from "~/src/hooks/useProducts"
 import { useCart } from "~/src/hooks/useCart"
+import { useProductRatings } from "~/src/hooks/useProductsRating"
+
 import { formatPrice } from "~/src/utils/format"
+
 import { Button } from "~/src/components/imported/button"
 import { ArrowLeft, Minus, Plus, Check, ShoppingBag, Tag, Star, Heart, Share2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -11,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/src/components/impor
 import { Badge } from "~/src/components/imported/badge"
 import { Skeleton } from "~/src/components/imported/skeleton"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "~/src/components/imported/accordion"
-import { useProductRatings } from "~/src/hooks/useProductsRating"
+
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>()

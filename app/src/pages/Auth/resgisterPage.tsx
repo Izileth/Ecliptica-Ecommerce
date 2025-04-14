@@ -1,12 +1,16 @@
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+
 import { useAuthUser } from "../../hooks/useUser";
 import { useNavigate } from "react-router-dom";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "~/src/components/ui/Button/button";
 import { Input } from "~/src/components/ui/Input/input";
 import { Label } from "~/src/components/ui/Label/label";
+
 import { Loader2 } from "lucide-react";
+
 import { Link } from "react-router-dom";
 
 // Schema de validação com Zod

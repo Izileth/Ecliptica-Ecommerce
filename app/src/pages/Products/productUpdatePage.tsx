@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ProductService } from "~/src/services/produtcService";
 import type { ProductFormValues, ProductSize, ProductColor } from "~/src/services/type";
 
-// Components
 import { Button } from "~/src/components/imported/button";
 import { Input } from "~/src/components/imported/input";
 import { Label } from "~/src/components/imported/label";
