@@ -9,7 +9,6 @@ export function createStore() {
       products: productReducer,
       cart: cartReducer,  
     },
-    devTools: process.env.NODE_ENV !== 'production',  
   });
 }
 

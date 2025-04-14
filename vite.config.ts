@@ -5,4 +5,9 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
+  resolve: {
+    alias: {
+      '@reduxjs/toolkit': 'node_modules/@reduxjs/toolkit'
+    }
+  }
 });
