@@ -12,6 +12,7 @@ const api = axios.create({
   timeout: 10000,
   withCredentials: true,
   
+  
   // Adicione esta configuração para prevenir transformação automática
   transformRequest: [
     function (data, headers) {
