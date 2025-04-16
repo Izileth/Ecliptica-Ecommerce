@@ -1,14 +1,14 @@
 //Componentes
 import Carousel from "~/src/components/common/Carousel/carousel";
-import { FeaturedProducts } from "~/src/components/products/SortBy/sort";
-import { Title } from "~/src/components/common/Titles/titles";
-import TestimonialCarousel from "~/src/components/common/Testmonials/carousel";
-import { DiscountCTA } from "~/src/components/common/Offers/offers";
+import { FeaturedProducts } from "~/src/components/products/Destacts/sort";
+import { Title } from "~/src/components/hero/Titles/titles";
+import TestimonialCarousel from "~/src/components/hero/Testmonials/carousel";
+import { DiscountCTA } from "~/src/components/hero/Offers/offers";
 import CategoriesGrid from "~/src/components/common/Grid/grid";
 import Container from "~/src/components/layout/Container/container";
 import Section from "~/src/components/common/Section/section";
-import EnhancedTagCarousel from "~/src/components/common/Tags/carousel";
-
+import EnhancedTagCarousel from "~/src/components/hero/Tags/carousel";
+import BlogBanner from "~/src/components/common/Banner/banner";
 //Icones
 import { ChevronDown } from "lucide-react";
 
@@ -18,7 +18,6 @@ import { DataTestimonials } from "~/src/data/testmonials/testmonial";
 import { DataTags } from "~/src/data/items/items";
 
 export default function Welcome() {
-
   const scrollToContent = () => {
     const categoriesSection = document.getElementById("categories-section");
     if (categoriesSection) {
@@ -54,7 +53,7 @@ export default function Welcome() {
       </Section>
 
       <Section id="categories-section" background="white" className="relative">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
           <Title
             title="Categorias"
             subtitle="Desubra o Estilo Perfeito"
@@ -65,7 +64,7 @@ export default function Welcome() {
       </Section>
 
       <Section background="white" className="relative">
-        <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-full sm:px-6 lg:px-8">
           <FeaturedProducts
             title="Produtos em Destaque"
             subtitle="Selecionados com exclusividade para você"
@@ -74,7 +73,7 @@ export default function Welcome() {
       </Section>
 
       <Section background="white" className="relative">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
           <Title
             title="Depoimentos"
             subtitle="Ficou na Duvida na hora de Pedir?, Veja os Relatos dos Compradores"
@@ -85,7 +84,7 @@ export default function Welcome() {
       </Section>
 
       <Section background="white" className="relative">
-        <div className="mx-auto max-w-7xl  px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-full  px-4 sm:px-6 lg:px-8">
           <div className="mb-6">
             <Title
               title="Destaques e promoções"
@@ -122,15 +121,25 @@ export default function Welcome() {
       </Section>
 
       <Section background="white" className="relative">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-          <Title
+            <Title
               title="Fique Por Dentro"
               subtitle="Principais tendencias da Temporada"
               color="dark"
             />
-            <EnhancedTagCarousel tags={DataTags.slice(0, 10)} itemsPerView={1} autoplayInterval={3000} />
+            <EnhancedTagCarousel
+              tags={DataTags.slice(0, 10)}
+              itemsPerView={1}
+              autoplayInterval={3000}
+            />
           </div>
+        </div>
+      </Section>
+
+      <Section background="white" className="relative">
+        <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
+          <BlogBanner/>
         </div>
       </Section>
     </Container>

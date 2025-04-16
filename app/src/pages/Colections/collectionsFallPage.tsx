@@ -2,11 +2,10 @@ import Container from "~/src/components/layout/Container/container";
 import { CollectionGrid } from "~/src/components/collections/Grid/grid";
 import { CollectionBanner } from "~/src/components/collections/Banner/banner";
 import { Button } from "~/src/components/imported/button";
-
 import BlogBanner from "~/src/components/common/Banner/banner";
-import { ArrowDown } from "lucide-react";
-const MensPage = () => {
 
+import { ArrowDown } from "lucide-react";
+const FallPage = () => {
   
   const scrollToContent = () => {
     const categoriesSection = document.getElementById("grid");
@@ -15,34 +14,33 @@ const MensPage = () => {
     }
   };
   return (
-    <Container  maxWidth="full" padding="lg" className="mt-20">
+    <Container maxWidth="full" padding="lg" className="mt-20">
       <CollectionBanner
-        collection="Masculina"
-        title="Estilo que Impõe Presença"
-        description="Peças pensadas para o homem moderno: atitude, conforto e autenticidade em cada detalhe."
-        imageUrl="https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/c6070fc9-b070-4830-9cbf-ce15fdc24889/Leonardo_Kino_XL_Modern_man_dressed_in_casual_yet_sophisticate_2.jpg"
-        season="Primavera"
+        collection="Outono"
+        title="Sua Essência, Seu Estilo"
+        description="Peças que celebram a liberdade, o charme e a força da mulher contemporânea."
+        imageUrl="https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/3840eb86-c0c7-41d9-85e2-82b0816b1f00/Leonardo_Kino_XL_Autumninspired_editorial_photo_with_casual_la_3.jpg"
+        season="Outono"
         year={2025}
         textPosition="center"
         overlayOpacity={0.4}
-        className="mb-10"
+        className="my-8"
       >
         <Button onClick={scrollToContent} variant="outline" className="mt-4 text-zinc-100 bg-transparent border-none rounded-none">
           Explorar Coleção
           <ArrowDown/>
         </Button>
       </CollectionBanner>
-      <Container maxWidth="full" className="px-0 mx-0 p-0" padding="sm" id="grid">
+      <Container maxWidth="full" padding="sm" id="grid">
       <CollectionGrid 
-        title="Coleção Masculina"
-        description="Decubra o poder da Masculinhidade"
-        collection="Masculina"
-        className="w-full p-0 m-0"
-         />
+        collection="Coleção Outono"
+        title="A leveza das folhas no seu Estilo"
+        description="Estilo, liberdade e elegância em cada detalhe"
+      />
       </Container>
-      <BlogBanner/>  
+      <BlogBanner/>
     </Container>
   );
 };
 
-export default MensPage;
+export default FallPage;

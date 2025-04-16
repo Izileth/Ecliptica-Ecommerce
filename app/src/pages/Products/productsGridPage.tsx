@@ -4,6 +4,7 @@ import Carousel from "~/src/components/common/Carousel/carousel";
 import Container from "~/src/components/layout/Container/container";
 import ProductGrid from "~/src/components/products/Grid/grid";
 import ProductFilter from "~/src/components/products/Filter/filter";
+import BlogBanner from "~/src/components/common/Banner/banner";
 
 import type { ProductFilterApiParams } from "~/src/services/type";
 
@@ -33,6 +34,7 @@ export function Products() {
         collections={["Verão", "Inverno", "Casual", "Fitness"]}
       />
       <ProductGrid />
+      <BlogBanner/>
     </Container>
   );
 }

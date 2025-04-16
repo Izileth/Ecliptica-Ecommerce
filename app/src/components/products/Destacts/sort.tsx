@@ -1,36 +1,39 @@
-import React, { useMemo, useEffect } from "react"
-import { useFeaturedProducts } from "~/src/hooks/useSortBy"
-import ProductCard from "../Card/card"
-import { Button } from "~/src/components/imported/button"
-import { RefreshCw } from 'lucide-react'
-import { Title } from "../../common/Titles/titles"
+import React, { useMemo, useEffect } from "react";
+import { useFeaturedProducts } from "~/src/hooks/useSortBy";
+import ProductCard from "../Card/card";
+import { Button } from "~/src/components/imported/button";
+import { RefreshCw } from "lucide-react";
+import { Title } from "../../hero/Titles/titles";
 
 interface FeaturedProductsProps {
-  title?: string
-  subtitle?: string
+  title?: string;
+  subtitle?: string;
 }
 
 export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   title = "Produtos Em Destaque",
-  subtitle = "Os produtos mais vendidos em um só lugar"
+  subtitle = "Os produtos mais vendidos em um só lugar",
 }) => {
-  const { featuredProducts, loading, error, refreshFeaturedProducts } = useFeaturedProducts()
+  const { featuredProducts, loading, error, refreshFeaturedProducts } =
+    useFeaturedProducts();
 
   // Verificar IDs vazios ou duplicados (para debug)
   useEffect(() => {
     if (featuredProducts.length > 0) {
       // Verificar IDs vazios
-      const emptyIds = featuredProducts.filter(p => !p.id);
+      const emptyIds = featuredProducts.filter((p) => !p.id);
       if (emptyIds.length > 0) {
-        console.error('ALERTA: Produtos com IDs vazios encontrados!', emptyIds);
+        console.error("ALERTA: Produtos com IDs vazios encontrados!", emptyIds);
       }
-      
+
       // Verificar IDs duplicados
-      const ids = featuredProducts.map(p => p.id);
+      const ids = featuredProducts.map((p) => p.id);
       const uniqueIds = new Set(ids);
       if (ids.length !== uniqueIds.size) {
-        console.error('ALERTA: IDs duplicados encontrados!', 
-          ids.filter((id, index) => ids.indexOf(id) !== index));
+        console.error(
+          "ALERTA: IDs duplicados encontrados!",
+          ids.filter((id, index) => ids.indexOf(id) !== index)
+        );
       }
     }
   }, [featuredProducts]);
@@ -38,14 +41,14 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   // Ensure products have the 'image' property and valid ID defined
   const safeProducts = useMemo(() => {
     return featuredProducts
-      .filter(product => !!product.id) // Filtra produtos sem ID
+      .filter((product) => !!product.id) // Filtra produtos sem ID
       .map((product) => {
         return {
           ...product,
           image: product.image || "/placeholder-image.jpg",
-          id: product.id || `temp-${Math.random().toString(36).substr(2, 9)}` // Garante um ID temporário se necessário
-        }
-      })
+          id: product.id || `temp-${Math.random().toString(36).substr(2, 9)}`, // Garante um ID temporário se necessário
+        };
+      });
   }, [featuredProducts]);
 
   if (loading) {
@@ -57,7 +60,10 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
           </div>
           <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 md:gap-x-6 lg:grid-cols-4 lg:gap-x-8">
             {[...Array(4)].map((_, index) => (
-              <div key={`skeleton-${index}`} className="flex flex-col space-y-3">
+              <div
+                key={`skeleton-${index}`}
+                className="flex flex-col space-y-3"
+              >
                 <div className="aspect-[3/4] w-full animate-pulse rounded-sm bg-neutral-200"></div>
                 <div className="h-4 w-2/3 animate-pulse rounded-sm bg-neutral-200"></div>
                 <div className="h-3 w-1/2 animate-pulse rounded-sm bg-neutral-200"></div>
@@ -67,7 +73,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
           </div>
         </div>
       </section>
-    )
+    );
   }
 
   if (error) {
@@ -89,25 +95,22 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
           </div>
         </div>
       </section>
-    )
+    );
   }
 
   if (safeProducts.length === 0) {
-    return null
+    return null;
   }
 
   return (
     <section className="py-10 sm:py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-full  sm:px-6 lg">
         <div className="text-center">
           <Title title={title} subtitle={subtitle} color="dark" />
         </div>
         <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 md:gap-x-6 lg:grid-cols-4 lg:gap-x-8">
           {safeProducts.map((product) => (
-            <ProductCard 
-              key={`featured-${product.id}`} 
-              product={product} 
-            />
+            <ProductCard key={`featured-${product.id}`} product={product} />
           ))}
         </div>
         <div className="mt-12 text-center">
@@ -123,5 +126,5 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
         </div>
       </div>
     </section>
-  )
-}
+  );
+};

@@ -52,9 +52,9 @@ export default function NewProductPage() {
     stock: 0,
   })
 
-  const categories = ["Camisetas", "Calças", "Vestidos", "Sapatos", "Acessórios"]
+  const categories = ["Camisetas", "Calças", "Vestidos", "Acessórios"]
 
-  const collections = ["Coleção Verão", "Coleção Inverno", "Lançamentos", "Promoções", "Edição Limitada"]
+  const collections = ["Coleção Verão", "Coleção Inverno","Coleção Outono" ,"Coleção Primavera" ,"Coleção Masculina", "Coleção Feminina"]
 
   const validateForm = useCallback((): boolean => {
     const errors: Record<string, string> = {}

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import { useNavigate } from "react-router-dom";
 import { Search, Loader2, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from "framer-motion";
+import { useProducts } from '~/src/hooks/useProducts';
 import { useProductSearch } from "~/src/hooks/useSearch";
 import {
   CommandDialog,
@@ -34,6 +35,32 @@ export default function SearchComponent() {
     
     // Hook de busca
     const { searchResults, searchProducts, isSearching } = useProductSearch();
+   
+    const { getFeaturedProducts, products, loading: productsLoading } = useProducts();
+    const [loadingSuggestions, setLoadingSuggestions] = useState(true);
+
+    const suggestedItems = useMemo(() => {
+        if (!productsLoading && products.length > 0) {
+            setLoadingSuggestions(false);
+            return getFeaturedProducts(6).map(product => ({
+                id: product.id,
+                title: product.name,
+                category: product.category,
+                path: `/products/${product.id}`,
+                imageUrl: product.image || '/placeholder.svg',
+                price: product.price,
+                salePrice: product.salePrice
+            }));
+        }
+        return [];
+    }, [products, productsLoading, getFeaturedProducts]);
+
+    // Pré-carrega produtos quando o modal abre
+    useEffect(() => {
+        if (open && products.length === 0) {
+            getFeaturedProducts(6);
+        }
+    }, [open]);
     
     // Função para executar busca com debounce
     const debouncedSearch = useCallback((searchTerm: string) => {
@@ -49,21 +76,18 @@ export default function SearchComponent() {
             }
         }, 300);
     }, [searchProducts]);
-    
-    // Efeito para buscar quando a query muda (com debounce aprimorado)
+  
+
     useEffect(() => {
-        if (open) {
-            debouncedSearch(query);
-        }
+        // Buscar independentemente se o diálogo está aberto ou não
+        debouncedSearch(query);
         
-        // Cleanup quando o componente é desmontado
         return () => {
             if (searchTimeoutRef.current) {
                 clearTimeout(searchTimeoutRef.current);
             }
         };
-    }, [query, open, debouncedSearch]);
-    
+    }, [query, debouncedSearch]);
     // Efeito para gerenciar events de teclado (atalho Cmd+K)
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -76,7 +100,14 @@ export default function SearchComponent() {
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
+    useEffect(() => {
+        console.log('Search results changed:', searchResults);
+    }, [searchResults]);
     
+    useEffect(() => {
+        console.log('Query changed:', query);
+    }, [query]);
+
     // Efeito para persistir o foco no diálogo
     useEffect(() => {
         if (open && !lastOpenState.current) {
@@ -102,13 +133,13 @@ export default function SearchComponent() {
     }, [open]);
     
     // Transforma os resultados de busca
-    const results = useMemo<SearchResult[]>(() => {
+    const results = useMemo(() => {
         return searchResults.map(product => ({
             id: product.id,
             title: product.name,
             category: product.category,
             path: `/products/${product.id}`,
-            imageUrl: product.image,
+            imageUrl: product.image || '/placeholder.svg',
             price: product.price,
             salePrice: product.salePrice
         }));
@@ -197,6 +228,75 @@ export default function SearchComponent() {
                         </AnimatePresence>
                     </CommandEmpty>
 
+                    {!query && results.length === 0 && (
+                        <CommandGroup heading="Produtos em Destaque" className="px-2">
+                            {loadingSuggestions ? (
+                                <div className="py-4 flex justify-center">
+                                    <Loader2 className="h-5 w-5 animate-spin text-neutral-400" />
+                                </div>
+                            ) : suggestedItems.length > 0 ? (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ staggerChildren: 0.05 }}
+                                >
+                                    {suggestedItems.map((item) => (
+                                        <motion.div
+                                            key={item.id}
+                                            initial={{ opacity: 0, y: 5 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.2 }}
+                                        >
+                                            <CommandItem
+                                                value={`suggest-${item.id}`}
+                                                onSelect={() => handleSelect(item)}
+                                                className="flex items-center gap-3 py-3 px-2 cursor-pointer rounded-lg hover:bg-neutral-50 transition-colors"
+                                            >
+                                                <div className="w-10 h-10 rounded-md overflow-hidden bg-neutral-100 flex-shrink-0">
+                                                    <img
+                                                        src={item.imageUrl}
+                                                        alt={item.title}
+                                                        className="w-full h-full object-cover"
+                                                        loading="lazy"
+                                                    />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium text-neutral-800 truncate">
+                                                        {item.title}
+                                                    </p>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="text-xs text-neutral-500">
+                                                            {item.category}
+                                                        </p>
+                                                        {item.salePrice ? (
+                                                            <>
+                                                                <span className="text-xs line-through text-neutral-400">
+                                                                    R$ {item.price?.toFixed(2)}
+                                                                </span>
+                                                                <span className="text-xs text-red-500 font-medium">
+                                                                    R$ {item.salePrice.toFixed(2)}
+                                                                </span>
+                                                            </>
+                                                        ) : (
+                                                            <span className="text-xs text-neutral-700 font-medium">
+                                                                R$ {item.price?.toFixed(2)}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <ArrowRight className="h-3.5 w-3.5 text-neutral-400 flex-shrink-0" />
+                                            </CommandItem>
+                                        </motion.div>
+                                    ))}
+                                </motion.div>
+                            ) : (
+                                <div className="py-4 text-center text-sm text-neutral-500">
+                                    Nenhum destaque disponível
+                                </div>
+                            )}
+                        </CommandGroup>
+                    )}
+
                     {results.length > 0 && (
                         <CommandGroup heading="Resultados" className="px-2">
                             <AnimatePresence>
@@ -257,7 +357,7 @@ export default function SearchComponent() {
                             </AnimatePresence>
                         </CommandGroup>
                     )}
-
+                     
                     <CommandGroup heading="Seções Populares" className="px-2 mt-2">
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                             {popularSections.map((section) => (

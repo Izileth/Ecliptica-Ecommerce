@@ -6,7 +6,7 @@ export const DataProducts = [
         title: "Nova Temporada",
         subtitle: "Descubra as tendências que definirão a próxima estação.",
         buttonText: "Explorar Novidades",
-        navigateTo: "/collections/new-season",
+        navigateTo: "releases",
     },
     {
         id: 2,
@@ -15,6 +15,6 @@ export const DataProducts = [
         title: "Coleção Exclusiva",
         subtitle: "Peças únicas desenvolvidas pelos nossos designers.",
         buttonText: "Ver Exclusivos",
-        navigateTo: "/collections/exclusive",
+        navigateTo: "colections/mens",
     },
 ];

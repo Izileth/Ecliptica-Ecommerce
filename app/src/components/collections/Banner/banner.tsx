@@ -65,13 +65,13 @@ export function CollectionBanner({
     }, [imageUrl])
 
     return (
-        <div className={cn("w-full px-4 sm:px-6 md:px-8", className)}>
+        <div className={cn("w-full px-2 sm:px-6 md:px-2", className)}>
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="relative w-full overflow-hidden rounded-lg sm:rounded-xl md:rounded-2xl"
-            style={{ height: "clamp(240px, 40vh, 480px)" }}
+            style={{ height: "clamp(240px, 60vh, 680px)" }}
         >
             {/* Imagem de fundo */}
             <motion.div

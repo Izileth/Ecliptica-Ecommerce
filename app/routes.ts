@@ -15,8 +15,9 @@ export default [
 
     route("colections/mens", "routes/colections/mens.tsx"),
     route("colections/womans", "routes/colections/girls.tsx"),
-    route("colections/summer", "routes/colections/unisex.tsx"),
-    route("coletions/winter", "routes/colections/season.tsx"),
+    route("colections/summer", "routes/colections/summer.tsx"),
+    route("coletions/winter", "routes/colections/winter.tsx"),
+    route("coletions/falls", "routes/colections/fall.tsx"),
 
     route("categorys/shirts", "routes/categorys/shirts.tsx"), //
     route("categorys/pants", "routes/categorys/pants.tsx"),

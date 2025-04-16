@@ -2,7 +2,17 @@ import Container from "~/src/components/layout/Container/container";
 import { CollectionGrid } from "~/src/components/collections/Grid/grid";
 import { CollectionBanner } from "~/src/components/collections/Banner/banner";
 import { Button } from "~/src/components/imported/button";
+import BlogBanner from "~/src/components/common/Banner/banner";
+
+import { ArrowDown } from "lucide-react";
 const SummerPage = () => {
+  
+  const scrollToContent = () => {
+    const categoriesSection = document.getElementById("grid");
+    if (categoriesSection) {
+      categoriesSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
   return (
     <Container maxWidth="full" padding="lg" className="mt-20">
       <CollectionBanner
@@ -16,14 +26,18 @@ const SummerPage = () => {
         overlayOpacity={0.4}
         className="my-8"
       >
-        <Button variant="outline" className="mt-4 text-zinc-950">
+        <Button onClick={scrollToContent} variant="outline" className="mt-4 text-zinc-100 bg-transparent border-none rounded-none">
           Explorar Coleção
+          <ArrowDown/>
         </Button>
       </CollectionBanner>
+      <Container maxWidth="full" padding="sm" id="grid">
       <CollectionGrid 
         title="Coleção Verão"
         description="Leveza, cor e frescor para brilhar sob o sol"
         collection="Verão" />
+      </Container>
+        <BlogBanner/>
     </Container>
   );
 };

@@ -1,4 +1,4 @@
-export const DataCarousel = [
+export const DataContact = [
     {
         id: 1,
         imageUrl:
@@ -6,17 +6,17 @@ export const DataCarousel = [
         title: "Minimalismo Elegante",
         subtitle: "Menos é mais. Descubra nossa coleção de peças minimalistas.",
         buttonText: "Explorar",
-        navigateTo: "coletions/falls",
+        navigateTo: "categorys/accessories",
         overlayOpacity: 0,
     },
     {
         id: 2,
         imageUrl:
         "https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/256bf1f3-8863-4193-bbf4-bf6b8e8fe671/Leonardo_Kino_XL_A_woman_in_a_gold_sequined_couture_dress_pose_3.jpg",
-        title: "Acessórios",
+        title: "Essenciais",
         subtitle: "Peças atemporais para um guarda-roupa versátil.",
         buttonText: "Ver Coleção",
-        navigateTo: "categorys/accessories",
+        navigateTo: "colections/womans",
         overlayOpacity: 0,
     },
     {
@@ -26,7 +26,7 @@ export const DataCarousel = [
         title: "Nova Coleção",
         subtitle: "Descubra as últimas tendências da estação.",
         buttonText: "Ver Coleção",
-        navigateTo: "colections/womans",
+        navigateTo: "releases",
         overlayOpacity: 0,
     },
 ];

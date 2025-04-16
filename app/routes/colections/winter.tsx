@@ -1,5 +1,5 @@
 import { Wine } from "lucide-react";
-import type { Route } from "./+types/season";
+import type { Route } from "./+types/winter";
 import WinterPage from "~/src/pages/Colections/colectionsWinterPage";
 export function meta({}: Route.MetaArgs) {
   return [

@@ -1,8 +1,18 @@
 import Container from "~/src/components/layout/Container/container";
 import CategoryGrid from "~/src/components/categories/Grid/grid";
 import { CategoryBanner } from "~/src/components/categories/Banner/banner";
+import BlogBanner from "~/src/components/common/Banner/banner";
 import { Button } from "~/src/components/imported/button";
+
+import { ArrowDown } from "lucide-react";
 const VestidosGrid = () => {
+
+  const scrollToContent = () => {
+    const categoriesSection = document.getElementById("grid");
+    if (categoriesSection) {
+      categoriesSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
   return (
     <Container maxWidth="full" padding="sm" className="mt-20">
       <CategoryBanner
@@ -13,18 +23,19 @@ const VestidosGrid = () => {
         textPosition="left"
         textColor="light"
       >
-        <Button
-          variant="outline"
-          className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
-        >
-          Explore Collection
+          <Button onClick={scrollToContent} variant="outline" className="mt-4 text-zinc-100 bg-transparent border-none rounded-none">
+          Explorar Coleção
+          <ArrowDown/>
         </Button>
       </CategoryBanner>
+      <Container maxWidth="full" className="px-0 mx-0 p-0" padding="sm" id="grid">
       <CategoryGrid
         category="Vestidos"
         title="Vestidos Que Encantam"
         description="Leveza e elegância para todos os momentos"
       />
+      </Container>
+      <BlogBanner/>
     </Container>
   );
 };

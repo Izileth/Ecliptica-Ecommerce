@@ -1,11 +1,14 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from "react";
 
-import { GlobalBanner } from '~/src/components/common/Banner/banner';
+import BlogBanner from "~/src/components/common/Banner/banner";
+import Carousel from "~/src/components/common/Carousel/carousel";
 
-import { MapPin, Phone, Mail, Clock } from "lucide-react"
+import { MapPin, Phone, Mail, Clock, ChevronDown } from "lucide-react";
 
-import { motion } from "framer-motion"
-import { cn } from "~/src/lib/utils"
+import { DataCarousel } from "~/src/data/carousel/carousel";
+
+import { motion } from "framer-motion";
+import { cn } from "~/src/lib/utils";
 // Configure tipos para suas informações de contato
 interface ContactInfo {
   companyName: string;
@@ -28,26 +31,26 @@ interface ContactInfo {
 
 // Componente para o mapa que será carregado apenas no cliente
 const MapComponent = React.lazy(() =>
-  import('~/src/components/contact/Map/map').then((module) => ({
+  import("~/src/components/contact/Map/map").then((module) => ({
     default: module.default as React.ComponentType<{
-      coordinates: [number, number]
-      companyName: string
-      address: string
-    }>
+      coordinates: [number, number];
+      companyName: string;
+      address: string;
+    }>,
   }))
-)
+);
 
 export default function ContactPage() {
-  const [isClient, setIsClient] = useState(false)
-  const [activeSection, setActiveSection] = useState<string | null>(null)
+  const [isClient, setIsClient] = useState(false);
+  const [activeSection, setActiveSection] = useState<string | null>(null);
 
   useEffect(() => {
-    setIsClient(true)
-  }, [])
+    setIsClient(true);
+  }, []);
 
   // This information could come from an API or configuration file
   const contactInfo: ContactInfo = {
-    companyName: "Fashion Store",
+    companyName: "Ecliptica - Novos Horizontes - Hoje",
     address: {
       street: "Av. Paulista, 1000",
       city: "São Paulo",
@@ -61,15 +64,22 @@ export default function ContactPage() {
     businessHours: {
       weekdays: "09:00 - 18:00",
       saturday: "10:00 - 16:00",
-      sunday: "Closed",
+      sunday: "Fechado",
     },
-  }
+  };
 
   const fullAddress = useMemo(() => {
-    const { street, city, state, postalCode, country } = contactInfo.address
-    return `${street}, ${city}, ${state}, ${postalCode}, ${country}`
-  }, [contactInfo])
-  
+    const { street, city, state, postalCode, country } = contactInfo.address;
+    return `${street}, ${city}, ${state}, ${postalCode}, ${country}`;
+  }, [contactInfo]);
+
+  const scrollToContent = () => {
+    const categoriesSection = document.getElementById("grid");
+    if (categoriesSection) {
+      categoriesSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
 
   // Animation variants
   const containerVariants = {
@@ -80,7 +90,7 @@ export default function ContactPage() {
         staggerChildren: 0.1,
       },
     },
-  }
+  };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -92,13 +102,13 @@ export default function ContactPage() {
         ease: "easeOut",
       },
     },
-  }
+  };
 
   const contactSections = [
     {
       id: "address",
       icon: MapPin,
-      title: "Address",
+      title: "Endereço",
       content: (
         <>
           <p className="text-neutral-600">{contactInfo.address.street}</p>
@@ -114,7 +124,7 @@ export default function ContactPage() {
     {
       id: "phone",
       icon: Phone,
-      title: "Phone",
+      title: "Telefone",
       content: <p className="text-neutral-600">{contactInfo.phone}</p>,
     },
     {
@@ -126,34 +136,56 @@ export default function ContactPage() {
     {
       id: "hours",
       icon: Clock,
-      title: "Business Hours",
+      title: "Horário de Funcionamento",
       content: (
         <>
-          <p className="text-neutral-600">Monday to Friday: {contactInfo.businessHours.weekdays}</p>
-          <p className="text-neutral-600">Saturday: {contactInfo.businessHours.saturday}</p>
-          <p className="text-neutral-600">Sunday: {contactInfo.businessHours.sunday}</p>
+          <p className="text-neutral-600">
+            Segunda a Sexta: {contactInfo.businessHours.weekdays}
+          </p>
+          <p className="text-neutral-600">
+            Sábado: {contactInfo.businessHours.saturday}
+          </p>
+          <p className="text-neutral-600">
+            Domingo: {contactInfo.businessHours.sunday}
+          </p>
         </>
       ),
     },
-  ]
+  ];
 
   return (
     <div className="bg-neutral-50 py-16 md:py-24">
-      <div className="container mx-auto px-4">
+      <div className="container max-w-full px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="mx-auto max-w-full mb-20 text-center"
         >
-          <GlobalBanner
-              title="Contato"
-              description="Aproveite e fale conosco hoje mesmo!"
-              imageUrl="https://cdn.leonardo.ai/users/c60a0145-a4a8-4ee5-91cf-76495889e8b2/generations/a315f284-ae97-4ac0-810a-aa19218089f9/Leonardo_Kino_XL_Group_of_diverse_young_people_smiling_under_b_2.jpg"
+          <Carousel
+              items={DataCarousel}
+              variant="minimal"
+              contentPosition="center"
+              showDots={true}
+              showProgress={false}
+              height="h-[80vh]"
+              className="absolute inset-0"
             />
+            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 transform">
+              <button
+                onClick={scrollToContent}
+                className="flex flex-col items-center justify-center text-white transition-opacity duration-300 hover:opacity-70"
+                aria-label="Scroll to content"
+              >
+                <span className="mb-2 font-serif text-sm tracking-widest">
+                  DESCUBRA
+                </span>
+                <ChevronDown className="h-6 mb-16 w-6 animate-bounce" />
+              </button>
+            </div>
         </motion.div>
 
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-full">
           <div className="grid gap-8 md:grid-cols-2 lg:gap-12">
             {/* Contact Information */}
             <motion.div
@@ -162,8 +194,13 @@ export default function ContactPage() {
               variants={containerVariants}
               className="space-y-6 rounded-2xl bg-white p-6 shadow-sm sm:p-8"
             >
-              <motion.div variants={itemVariants} className="border-b border-neutral-100 pb-4">
-                <h2 className="text-xl font-light text-neutral-900 sm:text-2xl">{contactInfo.companyName}</h2>
+              <motion.div
+                variants={itemVariants}
+                className="border-b border-neutral-100 pb-4"
+              >
+                <h2 className="text-xl font-light text-neutral-900 sm:text-2xl">
+                  {contactInfo.companyName}
+                </h2>
               </motion.div>
 
               <div className="space-y-8">
@@ -181,7 +218,7 @@ export default function ContactPage() {
                           "flex h-10 w-10 items-center justify-center rounded-full transition-colors",
                           activeSection === section.id
                             ? "bg-neutral-900 text-white"
-                            : "bg-neutral-100 text-neutral-500 group-hover:bg-neutral-200",
+                            : "bg-neutral-100 text-neutral-500 group-hover:bg-neutral-200"
                         )}
                       >
                         <section.icon className="h-5 w-5" />
@@ -206,14 +243,14 @@ export default function ContactPage() {
                   className="inline-flex items-center justify-center rounded-full border border-neutral-200 bg-white px-5 py-2 text-sm font-medium text-neutral-900 transition-colors hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-300"
                 >
                   <Mail className="mr-2 h-4 w-4" />
-                  Send Email
+                  Email
                 </a>
                 <a
                   href={`tel:${contactInfo.phone.replace(/\D/g, "")}`}
                   className="inline-flex items-center justify-center rounded-full border border-neutral-200 bg-white px-5 py-2 text-sm font-medium text-neutral-900 transition-colors hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-300"
                 >
                   <Phone className="mr-2 h-4 w-4" />
-                  Call Us
+                  Telefone
                 </a>
               </motion.div>
             </motion.div>
@@ -225,7 +262,7 @@ export default function ContactPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="overflow-hidden rounded-2xl bg-white shadow-sm"
             >
-              <div className="h-[400px] sm:h-[500px]">
+              <div className="h-[400px] sm:h-[500px] w-full">
                 {isClient ? (
                   <MapComponent
                     coordinates={contactInfo.coordinates}
@@ -236,7 +273,9 @@ export default function ContactPage() {
                   <div className="flex h-full items-center justify-center bg-neutral-50">
                     <div className="text-center">
                       <MapPin className="mx-auto mb-3 h-8 w-8 text-neutral-300" />
-                      <p className="text-neutral-500">Map will load in browser</p>
+                      <p className="text-neutral-500">
+                        Mapa Em Seu Browser
+                      </p>
                     </div>
                   </div>
                 )}
@@ -314,6 +353,9 @@ export default function ContactPage() {
           */}
         </div>
       </div>
+      <div className="mt-20">
+        <BlogBanner/>
+      </div>
     </div>
-  )
+  );
 }

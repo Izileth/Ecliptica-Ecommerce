@@ -1,4 +1,4 @@
-import type { Route } from "./+types/unisex";
+import type { Route } from "./+types/summer";
 import SummerPage from "~/src/pages/Colections/colectionsSummerPage";
 export function meta({}: Route.MetaArgs) {
     return [

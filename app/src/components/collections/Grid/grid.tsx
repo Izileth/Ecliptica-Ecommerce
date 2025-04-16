@@ -1,21 +1,21 @@
-import { useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { useProducts } from "~/src/hooks/useProducts"
-import ProductCard from "../../products/Card/card"
-import { Spinner } from "~/src/components/ui/Spinner/spinner"
-import { Button } from "~/src/components/imported/button"
-import { Link } from "react-router-dom"
-import { useMediaQuery } from "~/src/hooks/useMobile"
-import { Title } from "../../common/Titles/titles"
+import { useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useProducts } from "~/src/hooks/useProducts";
+import ProductCard from "../../products/Card/card";
+import { Spinner } from "~/src/components/ui/Spinner/spinner";
+import { Button } from "~/src/components/imported/button";
+import { Link } from "react-router-dom";
+import { useMediaQuery } from "~/src/hooks/useMobile";
+import { Title } from "../../hero/Titles/titles";
 
 interface CollectionGridProps {
-  collection: string
-  title?: string
-  description?: string
-  showAllLink?: boolean
-  limit?: number
-  className?: string
-  mobileColumns?: number // Nova prop para controle de colunas mobile
+  collection: string;
+  title?: string;
+  description?: string;
+  showAllLink?: boolean;
+  limit?: number;
+  className?: string;
+  mobileColumns?: number; // Nova prop para controle de colunas mobile
 }
 
 export function CollectionGrid({
@@ -27,13 +27,14 @@ export function CollectionGrid({
   className = "",
   mobileColumns = 2, // Padrão de 2 colunas para mobile
 }: CollectionGridProps) {
-  const { products, loading, getCollectionProducts, clearError } = useProducts()
-  const isMobile = useMediaQuery("(max-width: 640px)")
+  const { products, loading, getCollectionProducts, clearError } =
+    useProducts();
+  const isMobile = useMediaQuery("(max-width: 640px)");
 
   useEffect(() => {
-    clearError()
-    getCollectionProducts(collection, 1, limit)
-  }, [collection, limit, getCollectionProducts, clearError])
+    clearError();
+    getCollectionProducts(collection, 1, limit);
+  }, [collection, limit, getCollectionProducts, clearError]);
 
   // Animation variants
   const containerVariants = {
@@ -44,7 +45,7 @@ export function CollectionGrid({
         staggerChildren: 0.1,
       },
     },
-  }
+  };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -56,25 +57,25 @@ export function CollectionGrid({
         duration: 0.6,
       },
     },
-  }
+  };
 
   // Definição dinâmica das colunas baseada no tamanho da tela
-  const gridColumnsClass = isMobile 
-    ? `grid-cols-${mobileColumns}` 
-    : "sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+  const gridColumnsClass = isMobile
+    ? `grid-cols-${mobileColumns}`
+    : "sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4";
 
   if (loading && !products.length) {
     return (
-      <div className={`flex justify-center items-center h-64 ${className}`}>
+      <div className={`flex justify-center items-center max-w-full h-64 ${className}`}>
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
         >
-          <Spinner className="h-10 w-10 text-neutral-300" />
+          <Spinner className="h-10 w-full text-neutral-300" />
         </motion.div>
       </div>
-    )
+    );
   }
 
   if (!products.length && !loading) {
@@ -85,20 +86,22 @@ export function CollectionGrid({
         transition={{ duration: 0.5 }}
         className={`text-center py-16 ${className}`}
       >
-        <h3 className="text-xl font-medium text-neutral-600">Nenhum produto encontrado na coleção "{collection}"</h3>
+        <h3 className="text-xl font-medium text-neutral-600">
+          Nenhum produto encontrado na coleção "{collection}"
+        </h3>
       </motion.div>
-    )
+    );
   }
 
   return (
-    <section className={`space-y-10 mx-4 ${className}`}>
+    <section className={`space-y-14 mb-14 px-0 lg:px-4  max-w-full ${className}`}>
       <AnimatePresence>
         {(title || description) && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="text-center max-w-full mx-auto px-4"
+            className="text-center max-w-full mx-auto px-2"
           >
             {title && <Title title={title} subtitle={description}></Title>}
           </motion.div>
@@ -109,17 +112,17 @@ export function CollectionGrid({
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className={`grid grid-cols-${mobileColumns} sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-8 sm:gap-y-10 px-4`}
+        className={`grid grid-cols-${mobileColumns} sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-8 sm:gap-y-10  w-full max-w-full`}
       >
         {products.slice(0, limit).map((product, index) => (
-          <motion.div 
-            key={product.id} 
-            variants={itemVariants} 
-            className="h-full"
+          <motion.div
+            key={product.id}
+            variants={itemVariants}
+            className="h-full w-full"
             custom={index} // Para animação escalonada
           >
-            <ProductCard 
-              product={product} 
+            <ProductCard
+              product={product}
               // Adiciona margem reduzida apenas entre colunas no mobile
             />
           </motion.div>
@@ -143,5 +146,5 @@ export function CollectionGrid({
         </motion.div>
       )}
     </section>
-  )
+  );
 }
