@@ -128,7 +128,9 @@ export default function Footer() {
                     Toda jornada de transformação começa com um único passo. No nosso blog, você encontra reflexões profundas, estratégias práticas e histórias reais de superação. 
                 </p>
                 <a 
-                    href="/blog" 
+                    href="https://timely-cascaron-9610a5.netlify.app/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
                     className="inline-block text-sm font-medium text-blue-600 hover:text-blue-800 transition duration-200"
                 >
                     Visite o Blog →

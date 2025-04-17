@@ -16,7 +16,9 @@ const BlogBanner: React.FC = () => {
             </div>
             
             <a 
-                href="/blog/lancamentos" 
+                href="https://timely-cascaron-9610a5.netlify.app/" 
+                target="_blank" 
+                rel="noopener noreferrer"
                 className="flex items-center justify-center px-8 py-3 bg-white text-gray-900 hover:bg-gray-100 transition-colors rounded-sm"
             >
                 <span className="font-medium">Visitar Blog</span>
