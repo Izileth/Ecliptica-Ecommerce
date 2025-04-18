@@ -1,34 +1,8 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { AuthUserService } from '../services/userService';
-import type { User } from '../services/type';
-import { toast } from 'sonner';
-
-interface AuthState {
-    user: User | null;
-    isLoading: boolean;
-    error: string | null;
-    
-    // Autenticação
-    login: (credentials: { email: string; password: string }) => Promise<void>;
-    register: (userData: { name: string; email: string; password: string }) => Promise<void>;
-    logout: (options?: { silent?: boolean }) => Promise<void>;
-    
-    //Recuperação de senha
-    requestPasswordReset: (email: string) => Promise<void>;
-    resetPassword: (data: { token: string; newPassword: string }) => Promise<void>;
-    
-    
-    // Perfil
-    fetchProfile: () => Promise<void>;
-    updateProfile: (data: { name?: string; email?: string }) => Promise<User>;
-    updatePassword: (data: { currentPassword: string; newPassword: string }) => Promise<void>;
-    
-    // Utilitários
-    isAuthenticated: () => boolean;
-    isAdmin: () => boolean;
-    clearError: () => void;
-}
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { AuthUserService } from "../../services/userService";
+import { toast } from "sonner";
+import type { AuthState } from "./types";
 
 export const useAuthStore = create<AuthState>()(
     persist(
@@ -42,20 +16,20 @@ export const useAuthStore = create<AuthState>()(
             set({ isLoading: true, error: null });
             try {
             const { user } = await AuthUserService.login(credentials);
-            set({ 
+            set({
                 user: {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                isAdmin: user.isAdmin || false
+                isAdmin: user.isAdmin || false,
                 },
-                isLoading: false 
+                isLoading: false,
             });
-            toast.success('Login realizado com sucesso');
+            toast.success("Login realizado com sucesso");
             } catch (error: any) {
-            set({ 
+            set({
                 error: error.message,
-                isLoading: false 
+                isLoading: false,
             });
             toast.error(error.message);
             throw error; // Re-throw para tratamento adicional se necessário
@@ -66,20 +40,20 @@ export const useAuthStore = create<AuthState>()(
             set({ isLoading: true, error: null });
             try {
             const { user } = await AuthUserService.register(userData);
-            set({ 
+            set({
                 user: {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                isAdmin: user.isAdmin || false
+                isAdmin: user.isAdmin || false,
                 },
-                isLoading: false 
+                isLoading: false,
             });
-            toast.success('Registro realizado com sucesso');
+            toast.success("Registro realizado com sucesso");
             } catch (error: any) {
-            set({ 
+            set({
                 error: error.message,
-                isLoading: false 
+                isLoading: false,
             });
             toast.error(error.message);
             throw error;
@@ -92,7 +66,7 @@ export const useAuthStore = create<AuthState>()(
             } finally {
             set({ user: null });
             if (!options.silent) {
-                toast.success('Logout realizado com sucesso');
+                toast.success("Logout realizado com sucesso");
             }
             }
         },
@@ -102,19 +76,19 @@ export const useAuthStore = create<AuthState>()(
             set({ isLoading: true });
             try {
             const user = await AuthUserService.getProfile();
-            set({ 
+            set({
                 user: {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                isAdmin: user.isAdmin || false
+                isAdmin: user.isAdmin || false,
                 },
-                isLoading: false 
+                isLoading: false,
             });
             } catch (error: any) {
-            set({ 
+            set({
                 error: error.message,
-                isLoading: false 
+                isLoading: false,
             });
             // Não mostrar toast para evitar poluição em loads automáticos
             }
@@ -127,19 +101,19 @@ export const useAuthStore = create<AuthState>()(
             const updatedUser = {
                 ...get().user,
                 ...user,
-                isAdmin: user.isAdmin || false
+                isAdmin: user.isAdmin || false,
             };
-            
-            set({ 
+
+            set({
                 user: updatedUser,
-                isLoading: false 
+                isLoading: false,
             });
-            toast.success('Perfil atualizado com sucesso');
+            toast.success("Perfil atualizado com sucesso");
             return updatedUser;
             } catch (error: any) {
-            set({ 
+            set({
                 error: error.message,
-                isLoading: false 
+                isLoading: false,
             });
             toast.error(error.message);
             throw error;
@@ -149,13 +123,16 @@ export const useAuthStore = create<AuthState>()(
         updatePassword: async ({ currentPassword, newPassword }) => {
             set({ isLoading: true, error: null });
             try {
-            await AuthUserService.updatePassword({ currentPassword, newPassword });
+            await AuthUserService.updatePassword({
+                currentPassword,
+                newPassword,
+            });
             set({ isLoading: false });
-            toast.success('Senha atualizada com sucesso');
+            toast.success("Senha atualizada com sucesso");
             } catch (error: any) {
-            set({ 
+            set({
                 error: error.message,
-                isLoading: false 
+                isLoading: false,
             });
             toast.error(error.message);
             throw error;
@@ -166,11 +143,11 @@ export const useAuthStore = create<AuthState>()(
             try {
             await AuthUserService.requestPasswordReset(email);
             set({ isLoading: false });
-            toast.success('E-mail de redefinição enviado com sucesso');
+            toast.success("E-mail de redefinição enviado com sucesso");
             } catch (error: any) {
-            set({ 
+            set({
                 error: error.message,
-                isLoading: false 
+                isLoading: false,
             });
             toast.error(error.message);
             throw error;
@@ -182,11 +159,11 @@ export const useAuthStore = create<AuthState>()(
             try {
             await AuthUserService.resetPassword({ token, newPassword });
             set({ isLoading: false });
-            toast.success('Senha redefinida com sucesso');
+            toast.success("Senha redefinida com sucesso");
             } catch (error: any) {
-            set({ 
+            set({
                 error: error.message,
-                isLoading: false 
+                isLoading: false,
             });
             toast.error(error.message);
             throw error;
@@ -196,14 +173,14 @@ export const useAuthStore = create<AuthState>()(
         // Utilitários
         isAuthenticated: () => !!get().user,
         isAdmin: () => get().user?.isAdmin || false,
-        clearError: () => set({ error: null })
+        clearError: () => set({ error: null }),
         }),
         {
-        name: 'auth-storage',
-        partialize: (state) => ({ 
-            user: state.user 
+        name: "auth-storage",
+        partialize: (state) => ({
+            user: state.user,
         }),
-        version: 1 // Incrementar se mudar a estrutura
+        version: 1, // Incrementar se mudar a estrutura
         }
     )
 );

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useProducts } from "~/src/hooks/useProducts";
-import type { Product } from "../services/type";
+import type { Product } from "../types/type";
 
 export const useFeaturedProducts = (
   minCount: number = 4,

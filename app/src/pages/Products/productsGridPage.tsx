@@ -6,7 +6,7 @@ import ProductGrid from "~/src/components/products/Grid/grid";
 import ProductFilter from "~/src/components/products/Filter/filter";
 import BlogBanner from "~/src/components/common/Banner/banner";
 
-import type { ProductFilterApiParams } from "~/src/services/type";
+import type { ProductFilterApiParams } from "~/src/types/type";
 
 import { DataProducts } from "~/src/data/products/product";
 
@@ -34,7 +34,7 @@ export function Products() {
         collections={["Verão", "Inverno", "Casual", "Fitness"]}
       />
       <ProductGrid />
-      <BlogBanner/>
+      <BlogBanner />
     </Container>
   );
 }

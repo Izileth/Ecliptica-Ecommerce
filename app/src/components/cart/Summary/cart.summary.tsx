@@ -67,10 +67,10 @@ export default function CartSummary({ cart }: CartSummaryProps) {
           <div className="mb-4 rounded-full bg-muted p-3">
             <ShoppingBag className="h-6 w-6 text-muted-foreground" />
           </div>
-          <h2 className="mb-2 text-lg font-medium">Your cart is empty</h2>
-          <p className="mb-6 text-sm text-muted-foreground">Add items to your cart to see them here</p>
+          <h2 className="mb-2 text-lg font-medium">Seu Carrinho Está Vazio</h2>
+          <p className="mb-6 text-sm text-muted-foreground">Os Items que foram adicionados aparecerão aqui..</p>
           <Link to="/products">
-            <Button className="w-full">Browse Products</Button>
+            <Button className="w-full">Pesquisar mais Produtos</Button>
           </Link>
         </div>
       </motion.div>
@@ -85,7 +85,7 @@ export default function CartSummary({ cart }: CartSummaryProps) {
       className="overflow-hidden rounded-lg border bg-card shadow-sm"
     >
       <div className="p-6">
-        <h2 className="mb-4 text-xl font-medium">Order Summary</h2>
+        <h2 className="mb-4 text-xl font-medium">Sumário de Compra</h2>
 
         <div className="space-y-4">
           <div className="flex justify-between">
@@ -96,7 +96,7 @@ export default function CartSummary({ cart }: CartSummaryProps) {
           </div>
 
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Shipping</span>
+            <span className="text-muted-foreground">Entrega</span>
             <AnimatePresence mode="wait">
               {shipping === 0 ? (
                 <motion.span
@@ -107,7 +107,7 @@ export default function CartSummary({ cart }: CartSummaryProps) {
                   className="flex items-center text-green-600 dark:text-green-500"
                 >
                   <Check className="mr-1 h-4 w-4" />
-                  Free
+                  Grátis
                 </motion.span>
               ) : (
                 <motion.span
@@ -143,9 +143,9 @@ export default function CartSummary({ cart }: CartSummaryProps) {
             <div className="flex items-center text-muted-foreground">
               <Truck className="mr-1.5 h-4 w-4" />
               {shipping === 0 ? (
-                <span>Free shipping applied</span>
+                <span>Entrega Grátis Aplicada</span>
               ) : (
-                <span>${amountToFreeShipping.toFixed(2)} away from free shipping</span>
+                <span>${amountToFreeShipping.toFixed(2)} Preço Restante Para Ganhar Frente Grátis</span>
               )}
             </div>
           </div>
@@ -160,7 +160,7 @@ export default function CartSummary({ cart }: CartSummaryProps) {
           >
             <div className="flex items-center">
               <Check className="mr-2 h-4 w-4" />
-              You've unlocked free shipping!
+              Voce Desbloqueou o Frete Grátis!
             </div>
           </motion.div>
         )}
@@ -168,14 +168,14 @@ export default function CartSummary({ cart }: CartSummaryProps) {
         <div className="mt-6 space-y-3">
           <Link to={itemCount > 0 ? "/checkout" : "#"}>
             <Button className="w-full" size="lg" disabled={itemCount === 0}>
-              Checkout
+              Checkout Final
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
 
           <Link to="/products">
             <Button variant="outline" className="w-full mt-2">
-              Continue Shopping
+              Continue Comprando
             </Button>
           </Link>
         </div>

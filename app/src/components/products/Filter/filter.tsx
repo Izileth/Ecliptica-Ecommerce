@@ -1,28 +1,45 @@
-import type React from "react"
-import { useState, useEffect } from "react"
-import type { ProductFilterFormValues, ProductFilterApiParams } from "~/src/services/type"
-import { motion, AnimatePresence } from "framer-motion"
-import { Slider } from "~/src/components/imported/slider"
-import { Button } from "~/src/components/imported/button"
-import { Badge } from "~/src/components/imported/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/src/components/imported/select"
-import { Switch } from "~/src/components/imported/switch"
-import { Label } from "~/src/components/imported/label"
-import { Filter, X, Check, ArrowRight, Search, SortAsc, SortDesc } from "lucide-react"
-import { cn } from "~/src/lib/utils"
+import type React from "react";
+import { useState, useEffect } from "react";
+import type {
+  ProductFilterFormValues,
+  ProductFilterApiParams,
+} from "~/src/types/type";
+import { motion, AnimatePresence } from "framer-motion";
+import { Slider } from "~/src/components/imported/slider";
+import { Button } from "~/src/components/imported/button";
+import { Badge } from "~/src/components/imported/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/src/components/imported/select";
+import { Switch } from "~/src/components/imported/switch";
+import { Label } from "~/src/components/imported/label";
+import {
+  Filter,
+  X,
+  Check,
+  ArrowRight,
+  Search,
+  SortAsc,
+  SortDesc,
+} from "lucide-react";
+import { cn } from "~/src/lib/utils";
 
 interface ProductFilterProps {
-  onFilter: (filters: ProductFilterApiParams) => void
-  maxPriceLimit?: number
-  initialCategory?: string
-  collections?: string[]
+  onFilter: (filters: ProductFilterApiParams) => void;
+  maxPriceLimit?: number;
+  initialCategory?: string;
+  collections?: string[];
 }
 
-const ProductFilter: React.FC<ProductFilterProps> = ({ 
-  onFilter, 
-  maxPriceLimit = 1000, 
+const ProductFilter: React.FC<ProductFilterProps> = ({
+  onFilter,
+  maxPriceLimit = 1000,
   initialCategory = "",
-  collections = ["Verão", "Inverno", "Primavera", "Outono", "Casual"]
+  collections = ["Verão", "Inverno", "Primavera", "Outono", "Casual"],
 }) => {
   // State for filter values
   const [filters, setFilters] = useState<ProductFilterFormValues>({
@@ -31,60 +48,63 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
     maxPrice: "",
     inStock: false,
     sortBy: "createdAt",
-    sortOrder: "desc"
-  })
+    sortOrder: "desc",
+  });
 
   // Additional filter states
-  const [searchTerm, setSearchTerm] = useState("")
-  const [collection, setCollection] = useState<string>("")
-  const [hasDiscount, setHasDiscount] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("");
+  const [collection, setCollection] = useState<string>("");
+  const [hasDiscount, setHasDiscount] = useState(false);
 
   // State for UI
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, maxPriceLimit])
-  const [isExpanded, setIsExpanded] = useState(false)
-  const [activeFiltersCount, setActiveFiltersCount] = useState(0)
-  const [hasChanges, setHasChanges] = useState(false)
-  const [isMounted, setIsMounted] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+  const [priceRange, setPriceRange] = useState<[number, number]>([
+    0,
+    maxPriceLimit,
+  ]);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [activeFiltersCount, setActiveFiltersCount] = useState(0);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true)
+    setIsMounted(true);
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768)
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    if (typeof window !== "undefined") {
+      handleResize();
+      window.addEventListener("resize", handleResize);
     }
-    
-    if (typeof window !== 'undefined') {
-      handleResize()
-      window.addEventListener('resize', handleResize)
-    }
-    
+
     return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('resize', handleResize)
+      if (typeof window !== "undefined") {
+        window.removeEventListener("resize", handleResize);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   // Set initial category if provided
   useEffect(() => {
     if (initialCategory && !filters.category) {
-      setFilters(prev => ({
+      setFilters((prev) => ({
         ...prev,
-        category: initialCategory
-      }))
+        category: initialCategory,
+      }));
     }
-  }, [initialCategory])
+  }, [initialCategory]);
 
   // Available categories
-  const categories = ["Camisetas", "Calças", "Vestidos", "Acessórios"]
+  const categories = ["Camisetas", "Calças", "Vestidos", "Acessórios"];
 
   // Available sort options
   const sortOptions = [
     { value: "createdAt", label: "Mais recentes" },
     { value: "name", label: "Nome" },
     { value: "price", label: "Preço" },
-    { value: "salePrice", label: "Preço em promoção" }
-  ]
+    { value: "salePrice", label: "Preço em promoção" },
+  ];
 
   // Update price inputs when slider changes
   useEffect(() => {
@@ -92,85 +112,87 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
       ...prev,
       minPrice: priceRange[0].toString(),
       maxPrice: priceRange[1].toString(),
-    }))
-    setHasChanges(true)
-  }, [priceRange])
+    }));
+    setHasChanges(true);
+  }, [priceRange]);
 
   // Count active filters for badge
   useEffect(() => {
-    let count = 0
-    if (filters.category) count++
-    if (filters.minPrice && Number(filters.minPrice) > 0) count++
-    if (filters.maxPrice && Number(filters.maxPrice) < maxPriceLimit) count++
-    if (filters.inStock) count++
-    if (filters.sortBy && filters.sortBy !== "createdAt") count++
-    if (filters.sortOrder && filters.sortOrder !== "desc") count++
-    if (searchTerm) count++
-    if (collection) count++
-    if (hasDiscount) count++
+    let count = 0;
+    if (filters.category) count++;
+    if (filters.minPrice && Number(filters.minPrice) > 0) count++;
+    if (filters.maxPrice && Number(filters.maxPrice) < maxPriceLimit) count++;
+    if (filters.inStock) count++;
+    if (filters.sortBy && filters.sortBy !== "createdAt") count++;
+    if (filters.sortOrder && filters.sortOrder !== "desc") count++;
+    if (searchTerm) count++;
+    if (collection) count++;
+    if (hasDiscount) count++;
 
-    setActiveFiltersCount(count)
-  }, [filters, maxPriceLimit, searchTerm, collection, hasDiscount])
+    setActiveFiltersCount(count);
+  }, [filters, maxPriceLimit, searchTerm, collection, hasDiscount]);
 
   // Handle form input changes
   const handleChange = (name: string, value: string | boolean) => {
     setFilters((prev) => ({
       ...prev,
       [name]: value,
-    }))
-    setHasChanges(true)
-  }
+    }));
+    setHasChanges(true);
+  };
 
   // Handle category selection
   const handleCategoryChange = (value: string) => {
     if (value === "Todos") {
-      clearCategoryFilter()
-    }else{
-      handleChange("category", value)
+      clearCategoryFilter();
+    } else {
+      handleChange("category", value);
     }
-  }
+  };
 
   // Handle price range slider change
   const handlePriceRangeChange = (value: number[]) => {
-    setPriceRange([value[0], value[1]])
-  }
+    setPriceRange([value[0], value[1]]);
+  };
 
   // Handle in stock toggle
   const handleInStockChange = (checked: boolean) => {
-    handleChange("inStock", checked)
-  }
-
+    handleChange("inStock", checked);
+  };
 
   // Handle collection selection
   const handleCollectionChange = (value: string) => {
     if (value === "Todos") {
-      clearCollectionFilter()
-    }else {
-      setCollection(value)
-      setHasChanges(true)
+      clearCollectionFilter();
+    } else {
+      setCollection(value);
+      setHasChanges(true);
     }
-  }
+  };
 
   // Handle discount toggle
   const handleDiscountChange = (checked: boolean) => {
-    setHasDiscount(checked)
-    setHasChanges(true)
-  }
+    setHasDiscount(checked);
+    setHasChanges(true);
+  };
 
   // Handle sort option change
   const handleSortByChange = (value: string) => {
-    handleChange("sortBy", value as 'name' | 'price' | 'createdAt' | 'salePrice')
-  }
+    handleChange(
+      "sortBy",
+      value as "name" | "price" | "createdAt" | "salePrice"
+    );
+  };
 
   // Handle sort order toggle
   const handleSortOrderChange = () => {
-    const newOrder = filters.sortOrder === "asc" ? "desc" : "asc"
-    handleChange("sortOrder", newOrder)
-  }
+    const newOrder = filters.sortOrder === "asc" ? "desc" : "asc";
+    handleChange("sortOrder", newOrder);
+  };
 
   // Apply filters
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     // Convert string values to appropriate types for API
     const apiParams: ProductFilterApiParams = {
@@ -182,59 +204,59 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
       sortOrder: filters.sortOrder || undefined,
       collection: collection || undefined,
       hasDiscount: hasDiscount || undefined,
-      searchTerm: searchTerm || undefined
-    }
+      searchTerm: searchTerm || undefined,
+    };
 
     // Remove undefined fields
     const cleanParams = Object.fromEntries(
       Object.entries(apiParams).filter(([_, value]) => value !== undefined)
-    ) as ProductFilterApiParams
+    ) as ProductFilterApiParams;
 
-    onFilter(cleanParams)
-    setHasChanges(false)
+    onFilter(cleanParams);
+    setHasChanges(false);
 
     // Close filter panel on mobile after applying
     if (isMounted && isMobile) {
-      setIsExpanded(false)
+      setIsExpanded(false);
     }
-  }
+  };
 
   // Reset all filters
   const handleReset = () => {
-    setPriceRange([0, maxPriceLimit])
+    setPriceRange([0, maxPriceLimit]);
     setFilters({
       category: "",
       minPrice: "",
       maxPrice: "",
       inStock: false,
       sortBy: "createdAt",
-      sortOrder: "desc"
-    })
-    setSearchTerm("")
-    setCollection("")
-    setHasDiscount(false)
-    onFilter({})
-    setHasChanges(false)
-  }
+      sortOrder: "desc",
+    });
+    setSearchTerm("");
+    setCollection("");
+    setHasDiscount(false);
+    onFilter({});
+    setHasChanges(false);
+  };
 
   // Clear specific category or collection filter
   const clearCategoryFilter = () => {
-    setFilters((prev) => ({ ...prev, category: "" }))
-    setHasChanges(true)
-  }
+    setFilters((prev) => ({ ...prev, category: "" }));
+    setHasChanges(true);
+  };
 
   const clearCollectionFilter = () => {
-    setCollection("")
-    setHasChanges(true)
-  }
+    setCollection("");
+    setHasChanges(true);
+  };
 
   // Format price for display
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
       currency: "BRL",
-    }).format(price)
-  }
+    }).format(price);
+  };
   return (
     <div className="mb-8 mt-6">
       {/* Mobile filter toggle */}
@@ -255,7 +277,12 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
         </Button>
 
         {activeFiltersCount > 0 && (
-          <Button variant="ghost" size="sm" onClick={handleReset} className="text-gray-500 hover:text-gray-700">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleReset}
+            className="text-gray-500 hover:text-gray-700"
+          >
             <X className="h-4 w-4 mr-1" />
             <span>Limpar</span>
           </Button>
@@ -278,7 +305,12 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
             >
               <div className="md:hidden flex items-center justify-between p-4 border-b border-gray-100">
                 <h2 className="font-medium text-gray-900">Filtros</h2>
-                <Button type="button" variant="ghost" size="icon" onClick={() => setIsExpanded(false)}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsExpanded(false)}
+                >
                   <X className="h-4 w-4" />
                 </Button>
               </div>
@@ -287,11 +319,20 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
                   {/* First row */}
                   <div className="md:col-span-3">
-                    <Label htmlFor="category" className="text-sm font-medium text-gray-700 mb-1.5 block">
+                    <Label
+                      htmlFor="category"
+                      className="text-sm font-medium text-gray-700 mb-1.5 block"
+                    >
                       Categoria
                     </Label>
-                    <Select value={filters.category} onValueChange={handleCategoryChange}>
-                      <SelectTrigger id="category" className="w-full h-10 rounded-lg border-gray-200">
+                    <Select
+                      value={filters.category}
+                      onValueChange={handleCategoryChange}
+                    >
+                      <SelectTrigger
+                        id="category"
+                        className="w-full h-10 rounded-lg border-gray-200"
+                      >
                         <SelectValue placeholder="Todas categorias" />
                       </SelectTrigger>
                       <SelectContent>
@@ -306,11 +347,20 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
                   </div>
 
                   <div className="md:col-span-3">
-                    <Label htmlFor="collection" className="text-sm font-medium text-gray-700 mb-1.5 block">
+                    <Label
+                      htmlFor="collection"
+                      className="text-sm font-medium text-gray-700 mb-1.5 block"
+                    >
                       Coleção
                     </Label>
-                    <Select value={collection} onValueChange={handleCollectionChange}>
-                      <SelectTrigger id="collection" className="w-full h-10 rounded-lg border-gray-200">
+                    <Select
+                      value={collection}
+                      onValueChange={handleCollectionChange}
+                    >
+                      <SelectTrigger
+                        id="collection"
+                        className="w-full h-10 rounded-lg border-gray-200"
+                      >
                         <SelectValue placeholder="Todas coleções" />
                       </SelectTrigger>
                       <SelectContent>
@@ -325,12 +375,21 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
                   </div>
 
                   <div className="md:col-span-3">
-                    <Label htmlFor="sortBy" className="text-sm font-medium text-gray-700 mb-1.5 block">
+                    <Label
+                      htmlFor="sortBy"
+                      className="text-sm font-medium text-gray-700 mb-1.5 block"
+                    >
                       Ordenar por
                     </Label>
                     <div className="flex gap-2">
-                      <Select value={filters.sortBy} onValueChange={handleSortByChange}>
-                        <SelectTrigger id="sortBy" className="flex-1 h-10 rounded-lg border-gray-200">
+                      <Select
+                        value={filters.sortBy}
+                        onValueChange={handleSortByChange}
+                      >
+                        <SelectTrigger
+                          id="sortBy"
+                          className="flex-1 h-10 rounded-lg border-gray-200"
+                        >
                           <SelectValue placeholder="Selecione" />
                         </SelectTrigger>
                         <SelectContent>
@@ -360,14 +419,28 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
                     <div className="h-full flex flex-col justify-end">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="flex items-center space-x-2">
-                          <Switch id="in-stock" checked={filters.inStock} onCheckedChange={handleInStockChange} />
-                          <Label htmlFor="in-stock" className="text-sm font-medium text-gray-700">
+                          <Switch
+                            id="in-stock"
+                            checked={filters.inStock}
+                            onCheckedChange={handleInStockChange}
+                          />
+                          <Label
+                            htmlFor="in-stock"
+                            className="text-sm font-medium text-gray-700"
+                          >
                             Em estoque
                           </Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Switch id="has-discount" checked={hasDiscount} onCheckedChange={handleDiscountChange} />
-                          <Label htmlFor="has-discount" className="text-sm font-medium text-gray-700">
+                          <Switch
+                            id="has-discount"
+                            checked={hasDiscount}
+                            onCheckedChange={handleDiscountChange}
+                          />
+                          <Label
+                            htmlFor="has-discount"
+                            className="text-sm font-medium text-gray-700"
+                          >
                             Promoção
                           </Label>
                         </div>
@@ -378,7 +451,9 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
                   {/* Price range filter */}
                   <div className="md:col-span-9">
                     <div className="flex items-center justify-between mb-1.5">
-                      <Label className="text-sm font-medium text-gray-700">Faixa de Preço</Label>
+                      <Label className="text-sm font-medium text-gray-700">
+                        Faixa de Preço
+                      </Label>
                       <div className="text-sm text-gray-500 flex items-center gap-2">
                         <span>{formatPrice(priceRange[0])}</span>
                         <ArrowRight className="h-3 w-3" />
@@ -402,7 +477,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
                         type="submit"
                         className={cn(
                           "flex-1 bg-gray-900 hover:bg-gray-800 text-white rounded-lg h-10 transition-all",
-                          hasChanges && "relative overflow-hidden",
+                          hasChanges && "relative overflow-hidden"
                         )}
                       >
                         {hasChanges && (
@@ -445,7 +520,9 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
                     <div className="pt-4 border-t border-gray-100">
                       <div className="flex items-center gap-2 mb-3">
                         <Check className="h-4 w-4 text-emerald-500" />
-                        <span className="text-sm font-medium text-gray-700">Filtros ativos</span>
+                        <span className="text-sm font-medium text-gray-700">
+                          Filtros ativos
+                        </span>
                       </div>
 
                       <div className="flex flex-wrap gap-2">
@@ -502,18 +579,21 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
                             variant="outline"
                             className="bg-gray-50 text-gray-700 hover:bg-gray-100 rounded-full px-3 py-1 text-xs"
                           >
-                            Preço mínimo: {formatPrice(Number(filters.minPrice))}
+                            Preço mínimo:{" "}
+                            {formatPrice(Number(filters.minPrice))}
                           </Badge>
                         )}
 
-                        {filters.maxPrice && Number(filters.maxPrice) < maxPriceLimit && (
-                          <Badge
-                            variant="outline"
-                            className="bg-gray-50 text-gray-700 hover:bg-gray-100 rounded-full px-3 py-1 text-xs"
-                          >
-                            Preço máximo: {formatPrice(Number(filters.maxPrice))}
-                          </Badge>
-                        )}
+                        {filters.maxPrice &&
+                          Number(filters.maxPrice) < maxPriceLimit && (
+                            <Badge
+                              variant="outline"
+                              className="bg-gray-50 text-gray-700 hover:bg-gray-100 rounded-full px-3 py-1 text-xs"
+                            >
+                              Preço máximo:{" "}
+                              {formatPrice(Number(filters.maxPrice))}
+                            </Badge>
+                          )}
 
                         {filters.inStock && (
                           <Badge
@@ -552,8 +632,15 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
                             variant="outline"
                             className="bg-gray-50 text-gray-700 hover:bg-gray-100 rounded-full px-3 py-1 text-xs"
                           >
-                            Ordenado por: {sortOptions.find(opt => opt.value === filters.sortBy)?.label}
-                            {filters.sortOrder === "asc" ? " (crescente)" : " (decrescente)"}
+                            Ordenado por:{" "}
+                            {
+                              sortOptions.find(
+                                (opt) => opt.value === filters.sortBy
+                              )?.label
+                            }
+                            {filters.sortOrder === "asc"
+                              ? " (crescente)"
+                              : " (decrescente)"}
                           </Badge>
                         )}
                       </div>
@@ -578,7 +665,10 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
             <div className="flex items-center">
               <Check className="h-4 w-4 text-emerald-500 mr-2" />
               <span>
-                {activeFiltersCount} {activeFiltersCount === 1 ? "filtro aplicado" : "filtros aplicados"}
+                {activeFiltersCount}{" "}
+                {activeFiltersCount === 1
+                  ? "filtro aplicado"
+                  : "filtros aplicados"}
               </span>
             </div>
             <Button
@@ -593,7 +683,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
         )}
       </AnimatePresence>
     </div>
-  )
-}
+  );
+};
 
-export default ProductFilter
+export default ProductFilter;

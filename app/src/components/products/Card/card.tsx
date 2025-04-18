@@ -1,108 +1,125 @@
-import React from "react"
-import type { Product } from "~/src/services/type"
-import { useNavigate } from "react-router-dom"
-import { formatPrice } from "~/src/utils/format"
-import { useCart } from "~/src/hooks/useCart"
-import { ShoppingCart, Check, Tag, Palette, Ruler, Heart, Eye, Star, Share2 } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Badge } from "~/src/components/imported/badge"
-import { cn } from "~/src/lib/utils"
-import { toast } from "react-hot-toast" // Adicione esta importação para feedback ao usuário
-import { useProductRatings } from "~/src/hooks/useProductsRating"
+import React from "react";
+import type { Product } from "~/src/types/type";
+import { useNavigate } from "react-router-dom";
+import { formatPrice } from "~/src/utils/format";
+import { useCart } from "~/src/hooks/useCart";
+import {
+  ShoppingCart,
+  Check,
+  Tag,
+  Palette,
+  Ruler,
+  Heart,
+  Eye,
+  Star,
+  Share2,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Badge } from "~/src/components/imported/badge";
+import { cn } from "~/src/lib/utils";
+import { toast } from "react-hot-toast"; // Adicione esta importação para feedback ao usuário
+import { useProductRatings } from "~/src/hooks/useProductsRating";
 interface ProductCardProps {
-  product: Product
-  compact?: boolean
-  featured?: boolean
+  product: Product;
+  compact?: boolean;
+  featured?: boolean;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, featured = false }) => {
-  const navigate = useNavigate()
-  const { addItem } = useCart()
-  const [loading, setLoading] = React.useState(false)
-  const [added, setAdded] = React.useState(false)
-  const [isHovered, setIsHovered] = React.useState(false)
-  const [isFavorite, setIsFavorite] = React.useState(false)
-  const [imageLoaded, setImageLoaded] = React.useState(false)
+const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  compact = false,
+  featured = false,
+}) => {
+  const navigate = useNavigate();
+  const { addItem } = useCart();
+  const [loading, setLoading] = React.useState(false);
+  const [added, setAdded] = React.useState(false);
+  const [isHovered, setIsHovered] = React.useState(false);
+  const [isFavorite, setIsFavorite] = React.useState(false);
+  const [imageLoaded, setImageLoaded] = React.useState(false);
 
-  const hasDiscount = product.salePrice !== null && product.salePrice < product.price
-  const displayPrice = hasDiscount ? product.salePrice! : product.price
-  const discountPercentage = hasDiscount ? Math.round((1 - product.salePrice! / product.price) * 100) : 0
+  const hasDiscount =
+    product.salePrice !== null && product.salePrice < product.price;
+  const displayPrice = hasDiscount ? product.salePrice! : product.price;
+  const discountPercentage = hasDiscount
+    ? Math.round((1 - product.salePrice! / product.price) * 100)
+    : 0;
 
-  const {
-    rating,
-    ratingCount,
-    likes,
-    hasLiked,
-    toggleLike
-  } = useProductRatings(product.id)
+  const { rating, ratingCount, likes, hasLiked, toggleLike } =
+    useProductRatings(product.id);
 
   const handleAddToCart = async (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setLoading(true)
+    e.stopPropagation();
+    setLoading(true);
 
     try {
-      await addItem(product.id, 1)
-      setAdded(true)
+      await addItem(product.id, 1);
+      setAdded(true);
 
       setTimeout(() => {
-        setAdded(false)
-      }, 2000)
+        setAdded(false);
+      }, 2000);
     } catch (error) {
-      console.error("Erro ao adicionar ao carrinho:", error)
+      console.error("Erro ao adicionar ao carrinho:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const toggleFavorite = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    toggleLike()
+    e.stopPropagation();
+    toggleLike();
     if (!hasLiked) {
-      toast.success("Adicionado aos favoritos")
+      toast.success("Adicionado aos favoritos");
     }
-  }
+  };
 
   const handleShare = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    const productUrl = `${window.location.origin}/products/${product.id}`
-    
+    e.stopPropagation();
+    const productUrl = `${window.location.origin}/products/${product.id}`;
+
     if (navigator.share) {
-      navigator.share({
-        title: product.name,
-        text: `Confira este produto incrível: ${product.name}`,
-        url: productUrl,
-      }).catch(err => {
-        console.log('Erro ao compartilhar:', err)
-        copyToClipboard(productUrl)
-      })
+      navigator
+        .share({
+          title: product.name,
+          text: `Confira este produto incrível: ${product.name}`,
+          url: productUrl,
+        })
+        .catch((err) => {
+          console.log("Erro ao compartilhar:", err);
+          copyToClipboard(productUrl);
+        });
     } else {
-      copyToClipboard(productUrl)
+      copyToClipboard(productUrl);
     }
-  }
+  };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      toast.success("Link copiado para a área de transferência!")
-    }).catch(err => {
-      console.error('Erro ao copiar:', err)
-      // Fallback para navegadores mais antigos
-      const textarea = document.createElement('textarea')
-      textarea.value = text
-      document.body.appendChild(textarea)
-      textarea.select()
-      document.execCommand('copy')
-      document.body.removeChild(textarea)
-      toast.success("Link copiado para a área de transferência!")
-    })
-  }
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        toast.success("Link copiado para a área de transferência!");
+      })
+      .catch((err) => {
+        console.error("Erro ao copiar:", err);
+        // Fallback para navegadores mais antigos
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        toast.success("Link copiado para a área de transferência!");
+      });
+  };
 
   const handleQuickView = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    console.log("Quick view:", product.name)
-  }
+    e.stopPropagation();
+    console.log("Quick view:", product.name);
+  };
 
   const renderColors = () => {
-    if (!product.colors || product.colors.length === 0) return null
+    if (!product.colors || product.colors.length === 0) return null;
 
     return (
       <div className="flex items-center gap-1.5 mt-2">
@@ -120,20 +137,24 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
             />
           ))}
           {product.colors.length > 4 && (
-            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-gray-500">
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-xs text-gray-500"
+            >
               +{product.colors.length - 4}
             </motion.span>
           )}
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   const renderSizes = () => {
-    if (!product.sizes || product.sizes.length === 0) return null
+    if (!product.sizes || product.sizes.length === 0) return null;
 
-    const availableSizes = product.sizes.filter((size) => size.stock > 0)
-    if (availableSizes.length === 0) return null
+    const availableSizes = product.sizes.filter((size) => size.stock > 0);
+    if (availableSizes.length === 0) return null;
 
     return (
       <div className="flex items-center gap-1.5 mt-2">
@@ -152,14 +173,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
             </motion.span>
           ))}
           {availableSizes.length > 4 && (
-            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-gray-500">
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-xs text-gray-500"
+            >
               +{availableSizes.length - 4}
             </motion.span>
           )}
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   const renderRating = () => {
     return (
@@ -173,26 +198,26 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
                 star <= Math.floor(rating)
                   ? "fill-amber-400 text-amber-400"
                   : star - 0.5 <= rating
-                    ? "fill-amber-400/50 text-amber-400"
-                    : "text-gray-300"
+                  ? "fill-amber-400/50 text-amber-400"
+                  : "text-gray-300"
               )}
             />
           ))}
         </div>
         <span className="text-xs text-gray-500">
-          {rating} ({ratingCount} {ratingCount === 1 ? 'avaliação' : 'avaliações'})
+          {rating} ({ratingCount}{" "}
+          {ratingCount === 1 ? "avaliação" : "avaliações"})
         </span>
       </div>
-    )
-  }
-  
+    );
+  };
 
   return (
     <motion.div
       className={cn(
         "group bg-white rounded-xl overflow-hidden flex flex-col h-full transition-all duration-300",
         featured ? "shadow-md hover:shadow-lg" : "shadow-sm hover:shadow",
-        featured && "md:col-span-2 md:row-span-2",
+        featured && "md:col-span-2 md:row-span-2"
       )}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -208,7 +233,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
         }}
       >
         {/* Skeleton loader */}
-        {!imageLoaded && <div className="absolute inset-0 bg-gray-100 animate-pulse" />}
+        {!imageLoaded && (
+          <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+        )}
 
         <motion.img
           src={product.image || "/placeholder.svg?height=400&width=400"}
@@ -234,7 +261,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
         <div className="absolute top-3 left-3 flex flex-col gap-1.5">
           <AnimatePresence>
             {hasDiscount && (
-              <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -20, opacity: 0 }}>
+              <motion.div
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -20, opacity: 0 }}
+              >
                 <Badge className="bg-rose-500 hover:bg-rose-600 text-white border-0 px-2.5 py-1 rounded-full shadow-sm">
                   {discountPercentage}% OFF
                 </Badge>
@@ -279,12 +310,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
               y: 0,
             }}
             whileTap={{ scale: 0.9 }}
-            aria-label={isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+            aria-label={
+              isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"
+            }
           >
             <Heart
               className={cn(
                 "h-4 w-4 transition-colors",
-                isFavorite ? "fill-rose-500 text-rose-500" : "fill-transparent",
+                isFavorite ? "fill-rose-500 text-rose-500" : "fill-transparent"
               )}
             />
           </motion.button>
@@ -332,7 +365,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
           }}
           transition={{ delay: 0.15 }}
         >
-          <button 
+          <button
             onClick={toggleLike}
             className="flex items-center gap-1"
             aria-label={hasLiked ? "Remover curtida" : "Curtir produto"}
@@ -340,7 +373,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
             <Heart
               className={cn(
                 "h-3.5 w-3.5 transition-colors",
-                hasLiked ? "fill-rose-500 text-rose-500" : "fill-transparent text-gray-600",
+                hasLiked
+                  ? "fill-rose-500 text-rose-500"
+                  : "fill-transparent text-gray-600"
               )}
             />
             <span className="text-xs font-medium text-gray-700">{likes}</span>
@@ -357,7 +392,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
           <motion.button
             className={cn(
               "w-full text-white py-2 px-4 rounded-lg transition-all flex items-center justify-center gap-2",
-              loading ? "bg-gray-400 cursor-not-allowed" : added ? "bg-emerald-500" : "bg-gray-900 hover:bg-gray-800",
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : added
+                ? "bg-emerald-500"
+                : "bg-gray-900 hover:bg-gray-800"
             )}
             onClick={handleAddToCart}
             disabled={loading || product.countInStock <= 0}
@@ -383,7 +422,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
         </motion.div>
       </div>
 
-      <div className={cn("p-4 flex flex-col flex-grow", compact ? "space-y-1" : "space-y-2")}>
+      <div
+        className={cn(
+          "p-4 flex flex-col flex-grow",
+          compact ? "space-y-1" : "space-y-2"
+        )}
+      >
         {/* Category & Collection */}
         {!compact && (
           <div className="flex flex-wrap gap-1.5">
@@ -411,7 +455,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
         <h3
           className={cn(
             "font-medium text-gray-900 transition-colors group-hover:text-gray-700",
-            compact ? "text-sm line-clamp-1" : featured ? "text-lg line-clamp-2" : "text-base line-clamp-1",
+            compact
+              ? "text-sm line-clamp-1"
+              : featured
+              ? "text-lg line-clamp-2"
+              : "text-base line-clamp-1"
           )}
         >
           {product.name}
@@ -421,7 +469,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
         {!compact && renderRating()}
 
         {/* Description */}
-        {!compact && <p className="text-gray-500 text-xs line-clamp-2 leading-relaxed">{product.description}</p>}
+        {!compact && (
+          <p className="text-gray-500 text-xs line-clamp-2 leading-relaxed">
+            {product.description}
+          </p>
+        )}
 
         {/* Prices */}
         <div className="flex items-baseline gap-2 mt-auto">
@@ -429,12 +481,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
             className={cn(
               "font-medium",
               compact ? "text-sm" : featured ? "text-xl" : "text-base",
-              hasDiscount ? "text-rose-600" : "text-gray-900",
+              hasDiscount ? "text-rose-600" : "text-gray-900"
             )}
           >
             {formatPrice(displayPrice)}
           </span>
-          {hasDiscount && <span className="text-xs text-gray-400 line-through">{formatPrice(product.price)}</span>}
+          {hasDiscount && (
+            <span className="text-xs text-gray-400 line-through">
+              {formatPrice(product.price)}
+            </span>
+          )}
         </div>
 
         {/* Variants */}
@@ -449,13 +505,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
         <div
           className={cn(
             "flex items-center justify-between mt-2",
-            "md:opacity-100 md:group-hover:opacity-0 md:transition-opacity md:duration-300",
+            "md:opacity-100 md:group-hover:opacity-0 md:transition-opacity md:duration-300"
           )}
         >
           <div className="text-xs">
             {product.countInStock > 0 ? (
               <span className="text-emerald-600 font-medium">
-                {product.countInStock} disponível{product.countInStock !== 1 ? "s" : ""}
+                {product.countInStock} disponível
+                {product.countInStock !== 1 ? "s" : ""}
               </span>
             ) : (
               <span className="text-rose-500 font-medium">Esgotado</span>
@@ -468,8 +525,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
               loading
                 ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                 : added
-                  ? "bg-emerald-500 text-white"
-                  : "bg-gray-900 text-white hover:bg-gray-800",
+                ? "bg-emerald-500 text-white"
+                : "bg-gray-900 text-white hover:bg-gray-800"
             )}
             onClick={handleAddToCart}
             disabled={loading || product.countInStock <= 0}
@@ -495,7 +552,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, fea
         </div>
       </div>
     </motion.div>
-  )
-}
+  );
+};
 
-export default ProductCard
+export default ProductCard;

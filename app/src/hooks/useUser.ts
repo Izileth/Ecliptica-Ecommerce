@@ -1,5 +1,5 @@
 // src/hooks/useAuthUser.ts
-import { useAuthStore } from '../store/authStore';
+import { useAuthStore } from "../store/auth/authStore";
 
 export const useAuthUser = () => {
   const {
@@ -16,7 +16,7 @@ export const useAuthUser = () => {
     updatePassword,
     requestPasswordReset,
     resetPassword,
-    clearError
+    clearError,
   } = useAuthStore();
 
   return {
@@ -24,7 +24,7 @@ export const useAuthUser = () => {
     user,
     isLoading,
     error,
-    
+
     // Autenticação
     isAuthenticated: isAuthenticated(),
     isAdmin: isAdmin(),
@@ -36,13 +36,13 @@ export const useAuthUser = () => {
 
     requestPasswordReset,
     resetPassword,
-    
+
     // Perfil
     fetchProfile,
     updateProfile,
     updatePassword,
-    
+
     // Utilitários
-    clearError
+    clearError,
   };
 };

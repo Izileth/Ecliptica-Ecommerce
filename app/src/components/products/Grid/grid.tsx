@@ -1,25 +1,25 @@
 import React from "react";
 import ProductCard from "../../products/Card/card";
-import type { Product } from "~/src/services/type";
+import type { Product } from "~/src/types/type";
 import { useProducts } from "~/src/hooks/useProducts";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import { Button } from "~/src/components/imported/button";
 
 const ProductGrid = () => {
-  const { 
-    products = [], 
-    loading, 
-    error, 
-    pagination = { 
-      page: 1, 
-      pages: 1, 
-      hasNextPage: false, 
-      hasPrevPage: false, 
+  const {
+    products = [],
+    loading,
+    error,
+    pagination = {
+      page: 1,
+      pages: 1,
+      hasNextPage: false,
+      hasPrevPage: false,
       total: 0,
-      limit: 10
-    }, 
+      limit: 10,
+    },
     getProducts,
-    filters 
+    filters,
   } = useProducts();
 
   // Carrega os produtos inicialmente
@@ -29,31 +29,33 @@ const ProductGrid = () => {
 
   // Debug: monitora mudanças na paginação
   React.useEffect(() => {
-    console.log('Paginação atualizada:', pagination);
+    console.log("Paginação atualizada:", pagination);
   }, [pagination]);
 
   const handlePageChange = (page: number) => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
     getProducts(page, filters);
   };
 
   React.useEffect(() => {
-    console.log('Produtos recebidos:', products);
-    
+    console.log("Produtos recebidos:", products);
+
     // Verificar duplicidade de IDs
-    const ids = products.map(p => p.id);
+    const ids = products.map((p) => p.id);
     const uniqueIds = new Set(ids);
     if (ids.length !== uniqueIds.size) {
-      console.error('ALERTA: IDs duplicados encontrados!', 
-        ids.filter((id, index) => ids.indexOf(id) !== index));
+      console.error(
+        "ALERTA: IDs duplicados encontrados!",
+        ids.filter((id, index) => ids.indexOf(id) !== index)
+      );
     }
-    
+
     // Verificar IDs vazios
-    const emptyIds = ids.filter(id => !id);
+    const emptyIds = ids.filter((id) => !id);
     if (emptyIds.length > 0) {
-      console.error('ALERTA: IDs vazios ou nulos encontrados!');
+      console.error("ALERTA: IDs vazios ou nulos encontrados!");
     }
   }, [products]);
 
@@ -68,7 +70,7 @@ const ProductGrid = () => {
     } else {
       const maxPagesBeforeCurrent = Math.floor(maxVisiblePages / 2);
       const maxPagesAfterCurrent = Math.ceil(maxVisiblePages / 2) - 1;
-      
+
       if (page <= maxPagesBeforeCurrent) {
         startPage = 1;
         endPage = maxVisiblePages;
@@ -171,17 +173,18 @@ const ProductGrid = () => {
   }
 
   if (products.length === 0) {
-    return <EmptyState resetFilters={() => getProducts(1, { ...filters, page: 1 })} />;
+    return (
+      <EmptyState
+        resetFilters={() => getProducts(1, { ...filters, page: 1 })}
+      />
+    );
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
         {products.map((product) => (
-          <ProductCard 
-            key={`product-${product.id}`}
-            product={product}
-          />
+          <ProductCard key={`product-${product.id}`} product={product} />
         ))}
       </div>
 
@@ -190,7 +193,10 @@ const ProductGrid = () => {
       <div className="text-center text-sm text-gray-500 mt-4">
         Mostrando {products.length} de {pagination.total} produtos
         {pagination.total > pagination.limit && (
-          <span> (Página {pagination.page} de {pagination.pages})</span>
+          <span>
+            {" "}
+            (Página {pagination.page} de {pagination.pages})
+          </span>
         )}
       </div>
     </div>
@@ -202,7 +208,10 @@ const LoadingSkeleton = () => (
   <div className="container mx-auto px-4 py-12">
     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {[...Array(8)].map((_, i) => (
-        <div key={`skeleton-${i}`} className="bg-gray-100 rounded-lg aspect-square animate-pulse" />
+        <div
+          key={`skeleton-${i}`}
+          className="bg-gray-100 rounded-lg aspect-square animate-pulse"
+        />
       ))}
     </div>
   </div>

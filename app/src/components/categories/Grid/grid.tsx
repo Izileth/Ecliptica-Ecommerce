@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useMediaQuery } from "~/src/hooks/useMobile";
 import { useProducts } from "~/src/hooks/useProducts";
 
-import type { ProductFilterApiParams } from "~/src/services/type";
+import type { ProductFilterApiParams } from "~/src/types/type";
 
 import ProductCard from "~/src/components/products/Card/card";
 import { Spinner } from "~/src/components/ui/Spinner/spinner";
@@ -91,9 +91,7 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
   }
 
   return (
-    <div
-      className={cn("mx-auto max-w-full lg:px-4 py-12 sm:px-6 ", className)}
-    >
+    <div className={cn("mx-auto max-w-full lg:px-4 py-12 sm:px-6 ", className)}>
       {/* Filtro com animação */}
       <AnimatePresence>
         <motion.div

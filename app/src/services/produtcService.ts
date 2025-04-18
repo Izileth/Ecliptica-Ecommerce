@@ -1,39 +1,41 @@
 // src/services/productService.ts
-import api from './api';
+import api from "./api";
 import type {
   Product,
   ProductFormValues,
   ProductFilterApiParams,
-  PaginatedResponse
-} from './type';
-
-
+  PaginatedResponse,
+} from "../types/type";
 
 export const ProductService = {
   /**
    * Busca todos os produtos com filtros
    */
-  getAll: async (filters?: ProductFilterApiParams): Promise<PaginatedResponse> => {
+  getAll: async (
+    filters?: ProductFilterApiParams
+  ): Promise<PaginatedResponse> => {
     try {
       // Normaliza parâmetros booleanos para strings 'true'/'false'
-      const normalizedFilters = filters ? {
-        ...filters,
-        inStock: filters.inStock ? 'true' : undefined,
-        hasDiscount: filters.hasDiscount ? 'true' : undefined
-      } : undefined;
+      const normalizedFilters = filters
+        ? {
+            ...filters,
+            inStock: filters.inStock ? "true" : undefined,
+            hasDiscount: filters.hasDiscount ? "true" : undefined,
+          }
+        : undefined;
 
-      const response = await api.get('/products', { 
+      const response = await api.get("/products", {
         params: normalizedFilters,
-        paramsSerializer: { indexes: null } // Para arrays formatados corretamente
+        paramsSerializer: { indexes: null }, // Para arrays formatados corretamente
       });
 
       return {
-        status: response.data.status || 'success',
+        status: response.data.status || "success",
         data: response.data.data,
-        pagination: response.data.pagination
+        pagination: response.data.pagination,
       };
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error("Error fetching products:", error);
       throw error;
     }
   },
@@ -41,9 +43,11 @@ export const ProductService = {
   /**
    * Busca produtos do usuário logado
    */
-  getUserProducts: async (filters?: Omit<ProductFilterApiParams, 'hasDiscount' | 'collection'>): Promise<PaginatedResponse> => {
-    const response = await api.get('/products/user/products', { 
-      params: filters 
+  getUserProducts: async (
+    filters?: Omit<ProductFilterApiParams, "hasDiscount" | "collection">
+  ): Promise<PaginatedResponse> => {
+    const response = await api.get("/products/user/products", {
+      params: filters,
     });
     return response.data;
   },
@@ -60,10 +64,10 @@ export const ProductService = {
    * Cria novo produto
    */
   create: async (formData: FormData): Promise<Product> => {
-    const response = await api.post('/products', formData, {
+    const response = await api.post("/products", formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        "Content-Type": "multipart/form-data",
+      },
     });
     return response.data.data;
   },
@@ -74,8 +78,8 @@ export const ProductService = {
   update: async (id: string, formData: FormData): Promise<Product> => {
     const response = await api.put(`/products/${id}`, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        "Content-Type": "multipart/form-data",
+      },
     });
     return response.data.data;
   },
@@ -91,40 +95,43 @@ export const ProductService = {
    * Busca produtos por categoria
    */
   getByCategory: async (
-    category: string, 
-    filters?: Pick<ProductFilterApiParams, 'page' | 'limit' | 'sortBy' | 'sortOrder'>
+    category: string,
+    filters?: Pick<
+      ProductFilterApiParams,
+      "page" | "limit" | "sortBy" | "sortOrder"
+    >
   ): Promise<PaginatedResponse> => {
-    const response = await api.get(`/products/category/${category}`, { 
-      params: filters 
+    const response = await api.get(`/products/category/${category}`, {
+      params: filters,
     });
     return response.data;
   },
 
-   /**
+  /**
    * Busca produtos por Coleção
    */
 
   getByCollection: async (
-    collection: string, 
-    page?: number, 
+    collection: string,
+    page?: number,
     limit?: number
   ): Promise<PaginatedResponse> => {
     const response = await api.get<PaginatedResponse>(
-      `/products/collection/${encodeURIComponent(collection)}`, 
+      `/products/collection/${encodeURIComponent(collection)}`,
       {
-        params: { 
-          page, 
+        params: {
+          page,
           limit,
           // Inclua outros parâmetros de filtro se necessário
-        }
+        },
       }
     );
     return response.data;
   },
-  
+
   // Opcional: Método para listar todas as coleções disponíveis
   getAllCollections: async (): Promise<string[]> => {
-    const response = await api.get<string[]>('/products/collections/all');
+    const response = await api.get<string[]>("/products/collections/all");
     return response.data;
   },
 
@@ -135,25 +142,25 @@ export const ProductService = {
     const formData = new FormData();
 
     // Campos básicos
-    formData.append('name', values.name);
-    formData.append('description', values.description);
-    formData.append('price', values.price);
-    formData.append('category', values.category);
-    formData.append('countInStock', values.countInStock);
+    formData.append("name", values.name);
+    formData.append("description", values.description);
+    formData.append("price", values.price);
+    formData.append("category", values.category);
+    formData.append("countInStock", values.countInStock);
 
     // Campos opcionais
     if (values.salePrice !== undefined) {
-      formData.append('salePrice', values.salePrice || '');
+      formData.append("salePrice", values.salePrice || "");
     }
-    
+
     if (values.collection) {
-      formData.append('collection', values.collection);
+      formData.append("collection", values.collection);
     }
 
     // Imagem principal
     if (values.image instanceof File) {
-      formData.append('image', values.image);
-    } else if (typeof values.image === 'string' && values.image) {
+      formData.append("image", values.image);
+    } else if (typeof values.image === "string" && values.image) {
       // Se for string (URL existente), não precisa enviar novamente
     }
 
@@ -161,7 +168,7 @@ export const ProductService = {
     if (values.additionalImages) {
       values.additionalImages.forEach((img, index) => {
         if (img instanceof File) {
-          formData.append('additionalImages', img);
+          formData.append("additionalImages", img);
         }
         // URLs existentes são tratadas no backend
       });
@@ -169,7 +176,7 @@ export const ProductService = {
 
     // Imagens removidas
     if (values.removedImages && values.removedImages.length > 0) {
-      formData.append('removedImages', JSON.stringify(values.removedImages));
+      formData.append("removedImages", JSON.stringify(values.removedImages));
     }
 
     // Features
@@ -207,28 +214,30 @@ export const ProductService = {
    */
   getInitialFormValues: (product?: Product): ProductFormValues => ({
     id: product?.id,
-    name: product?.name || '',
-    description: product?.description || '',
-    price: product?.price.toString() || '0',
-    category: product?.category || '',
-    countInStock: product?.countInStock.toString() || '0',
+    name: product?.name || "",
+    description: product?.description || "",
+    price: product?.price.toString() || "0",
+    category: product?.category || "",
+    countInStock: product?.countInStock.toString() || "0",
     image: product?.image || null,
     additionalImages: product?.images || [],
     salePrice: product?.salePrice?.toString() || null,
     collection: product?.collection || null,
     features: product?.features || [],
-    sizes: product?.sizes?.map(size => ({
-      size: size.size,
-      stock: size.stock,
-      id: size.id
-    })) || [],
-    colors: product?.colors?.map(color => ({
-      colorName: color.colorName,
-      colorCode: color.colorCode,
-      stock: color.stock,
-      imageUrl: color.imageUrl || null,
-      id: color.id
-    })) || [],
-    removedImages: []
-  })
+    sizes:
+      product?.sizes?.map((size) => ({
+        size: size.size,
+        stock: size.stock,
+        id: size.id,
+      })) || [],
+    colors:
+      product?.colors?.map((color) => ({
+        colorName: color.colorName,
+        colorCode: color.colorCode,
+        stock: color.stock,
+        imageUrl: color.imageUrl || null,
+        id: color.id,
+      })) || [],
+    removedImages: [],
+  }),
 };

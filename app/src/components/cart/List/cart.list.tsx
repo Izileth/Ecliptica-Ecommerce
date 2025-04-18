@@ -70,8 +70,8 @@ export default function CartItemList({ items = [], onUpdate, onRemove, loading =
         <div className="mb-3 rounded-full bg-muted p-3">
           <Trash2 className="h-6 w-6 text-muted-foreground" />
         </div>
-        <h3 className="mb-1 text-lg font-medium">Your cart is empty</h3>
-        <p className="text-sm text-muted-foreground">Items you add to your cart will appear here</p>
+        <h3 className="mb-1 text-lg font-medium">Seu Carrinho Está Vazio</h3>
+        <p className="text-sm text-muted-foreground">Os Items que foram adicionados aparecerão aqui...</p>
       </motion.div>
     )
   }
@@ -103,7 +103,7 @@ export default function CartItemList({ items = [], onUpdate, onRemove, loading =
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-muted">
-                      <span className="text-xs text-muted-foreground">No image</span>
+                      <span className="text-xs text-muted-foreground">Sem imagem</span>
                     </div>
                   )}
                 </div>
@@ -153,7 +153,7 @@ export default function CartItemList({ items = [], onUpdate, onRemove, loading =
                         onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
                       >
                         <Minus className="h-3 w-3" />
-                        <span className="sr-only">Decrease quantity</span>
+                        <span className="sr-only">Adcionar Item</span>
                       </Button>
                       <div className="flex h-8 w-10 items-center justify-center text-sm">{item.quantity}</div>
                       <Button
@@ -163,7 +163,7 @@ export default function CartItemList({ items = [], onUpdate, onRemove, loading =
                         onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
                       >
                         <Plus className="h-3 w-3" />
-                        <span className="sr-only">Increase quantity</span>
+                        <span className="sr-only">Remover Item</span>
                       </Button>
                     </div>
                   </div>

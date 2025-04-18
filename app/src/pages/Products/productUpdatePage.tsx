@@ -3,16 +3,49 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { ProductService } from "~/src/services/produtcService";
-import type { ProductFormValues, ProductSize, ProductColor } from "~/src/services/type";
+import type {
+  ProductFormValues,
+  ProductSize,
+  ProductColor,
+} from "~/src/types/type";
 
 import { Button } from "~/src/components/imported/button";
 import { Input } from "~/src/components/imported/input";
 import { Label } from "~/src/components/imported/label";
 import { Textarea } from "~/src/components/imported/textarea";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "~/src/components/imported/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/src/components/imported/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/src/components/imported/tabs";
-import { Plus, Trash2, X, Info, ImageIcon, Tag, Palette, Save, ArrowLeft, AlertCircle } from "lucide-react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+  CardDescription,
+} from "~/src/components/imported/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/src/components/imported/select";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "~/src/components/imported/tabs";
+import {
+  Plus,
+  Trash2,
+  X,
+  Info,
+  ImageIcon,
+  Tag,
+  Palette,
+  Save,
+  ArrowLeft,
+  AlertCircle,
+} from "lucide-react";
 import { Badge } from "~/src/components/imported/badge";
 import { ScrollArea } from "~/src/components/imported/scroll-area";
 import { Alert, AlertDescription } from "~/src/components/imported/alert";
@@ -22,7 +55,11 @@ type ProductCategory = "Camisetas" | "Calças" | "Vestidos" | "Acessórios";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
-const ProductImagePreview = ({ src, onRemove, isNew }: {
+const ProductImagePreview = ({
+  src,
+  onRemove,
+  isNew,
+}: {
   src: string;
   onRemove?: () => void;
   isNew?: boolean;
@@ -30,10 +67,11 @@ const ProductImagePreview = ({ src, onRemove, isNew }: {
   return (
     <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 group">
       <img
-        src={src || 'https://via.placeholder.com/300x300?text=Sem+Imagem'}
+        src={src || "https://via.placeholder.com/300x300?text=Sem+Imagem"}
         className="w-full h-full object-cover"
         onError={(e) => {
-          e.currentTarget.src = 'https://via.placeholder.com/300x300?text=Imagem+Removida';
+          e.currentTarget.src =
+            "https://via.placeholder.com/300x300?text=Imagem+Removida";
         }}
       />
       {onRemove && (
@@ -56,12 +94,12 @@ const ProductImagePreview = ({ src, onRemove, isNew }: {
 export default function EditProductPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  
+
   // Estados principais
   const [loading, setLoading] = useState({ page: true, submit: false });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState("basic");
-  
+
   // Estado do formulário
   const [formValues, setFormValues] = useState<ProductFormValues>({
     name: "",
@@ -83,27 +121,40 @@ export default function EditProductPage() {
     main: {
       current: "", // URL da imagem atual
       new: null as File | null, // Nova imagem
-      newUrl: "" // URL da nova imagem
+      newUrl: "", // URL da nova imagem
     },
     additional: {
       current: [] as string[], // URLs das imagens atuais
       new: [] as { file: File; url: string }[], // Novas imagens com suas URLs
-      removed: [] as string[] // URLs das imagens removidas
-    }
+      removed: [] as string[], // URLs das imagens removidas
+    },
   });
-  
 
   // Estados para novos itens
   const [newFeature, setNewFeature] = useState("");
-  const [newSize, setNewSize] = useState<Omit<ProductSize, "id">>({ size: "", stock: 0 });
+  const [newSize, setNewSize] = useState<Omit<ProductSize, "id">>({
+    size: "",
+    stock: 0,
+  });
   const [newColor, setNewColor] = useState<Omit<ProductColor, "id">>({
     colorName: "",
     colorCode: "#000000",
     stock: 0,
   });
 
-  const categories: ProductCategory[] = ["Camisetas", "Calças", "Vestidos", "Acessórios"];
-  const collections = ["Coleção Verão", "Coleção Inverno", "Lançamentos", "Promoções", "Edição Limitada"];
+  const categories: ProductCategory[] = [
+    "Camisetas",
+    "Calças",
+    "Vestidos",
+    "Acessórios",
+  ];
+  const collections = [
+    "Coleção Verão",
+    "Coleção Inverno",
+    "Lançamentos",
+    "Promoções",
+    "Edição Limitada",
+  ];
 
   // Carrega os dados do produto
   const loadProduct = useCallback(async () => {
@@ -134,18 +185,17 @@ export default function EditProductPage() {
           newUrl: product.image,
         },
         additional: {
-          current: product.images?.map(img => img) || [],
+          current: product.images?.map((img) => img) || [],
           new: [],
-          removed: []
-        }
+          removed: [],
+        },
       });
-
     } catch (error) {
       console.error("Error loading product:", error);
       toast.error("Falha ao carregar os dados do produto");
       navigate("/profile?tab=products", { replace: true });
     } finally {
-      setLoading(prev => ({ ...prev, page: false }));
+      setLoading((prev) => ({ ...prev, page: false }));
     }
   }, [id, navigate]);
 
@@ -161,20 +211,21 @@ export default function EditProductPage() {
       if (images.main.newUrl) {
         URL.revokeObjectURL(images.main.newUrl);
       }
-      
+
       // Limpar URLs das imagens adicionais
-      images.additional.new.forEach(item => {
+      images.additional.new.forEach((item) => {
         URL.revokeObjectURL(item.url);
       });
     };
-  }, []);  // Dependência vazia para executar apenas na desmontagem
+  }, []); // Dependência vazia para executar apenas na desmontagem
 
   // Validação do formulário
   const validateForm = useCallback((): boolean => {
     const errors: Record<string, string> = {};
 
     if (!formValues.name.trim()) errors.name = "Nome é obrigatório";
-    if (!formValues.description.trim()) errors.description = "Descrição é obrigatória";
+    if (!formValues.description.trim())
+      errors.description = "Descrição é obrigatória";
 
     const price = parseFloat(formValues.price);
     if (isNaN(price)) errors.price = "Preço inválido";
@@ -189,7 +240,8 @@ export default function EditProductPage() {
     if (formValues.salePrice) {
       const salePrice = parseFloat(formValues.salePrice);
       if (isNaN(salePrice)) errors.salePrice = "Preço promocional inválido";
-      else if (salePrice >= price) errors.salePrice = "Preço promocional deve ser menor que o normal";
+      else if (salePrice >= price)
+        errors.salePrice = "Preço promocional deve ser menor que o normal";
     }
 
     setFormErrors(errors);
@@ -197,15 +249,17 @@ export default function EditProductPage() {
   }, [formValues]);
 
   // Manipuladores de campos
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormValues(prev => ({ ...prev, [name]: value }));
-    if (formErrors[name]) setFormErrors(prev => ({ ...prev, [name]: "" }));
+    setFormValues((prev) => ({ ...prev, [name]: value }));
+    if (formErrors[name]) setFormErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    
+
     let cleanedValue = value;
     if (name === "price" || name === "salePrice") {
       cleanedValue = value.replace(/[^0-9.]/g, "");
@@ -215,77 +269,85 @@ export default function EditProductPage() {
       cleanedValue = value.replace(/[^0-9]/g, "");
     }
 
-    setFormValues(prev => ({ ...prev, [name]: cleanedValue }));
-    if (formErrors[name]) setFormErrors(prev => ({ ...prev, [name]: "" }));
+    setFormValues((prev) => ({ ...prev, [name]: cleanedValue }));
+    if (formErrors[name]) setFormErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   // Manipuladores de imagens
   const handleMainImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
       const file = e.target.files[0];
-      
+
       if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-        setFormErrors(prev => ({ ...prev, image: "Tipo de arquivo não suportado" }));
+        setFormErrors((prev) => ({
+          ...prev,
+          image: "Tipo de arquivo não suportado",
+        }));
         return;
       }
-      
+
       if (file.size > MAX_FILE_SIZE) {
-        setFormErrors(prev => ({ ...prev, image: "Arquivo muito grande (máx. 5MB)" }));
+        setFormErrors((prev) => ({
+          ...prev,
+          image: "Arquivo muito grande (máx. 5MB)",
+        }));
         return;
       }
-  
+
       // Revogar URL anterior se existir
       if (images.main.newUrl) {
         URL.revokeObjectURL(images.main.newUrl);
       }
-  
+
       const newUrl = URL.createObjectURL(file);
-      
-      setImages(prev => ({
+
+      setImages((prev) => ({
         ...prev,
-        main: { 
-          ...prev.main, 
+        main: {
+          ...prev.main,
           new: file,
-          newUrl: newUrl
-        }
+          newUrl: newUrl,
+        },
       }));
-      setFormErrors(prev => ({ ...prev, image: "" }));
+      setFormErrors((prev) => ({ ...prev, image: "" }));
     }
   };
 
-  const handleAdditionalImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAdditionalImagesChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     if (e.target.files) {
-      const filesArray = Array.from(e.target.files).filter(file => {
+      const filesArray = Array.from(e.target.files).filter((file) => {
         const isValidType = ALLOWED_FILE_TYPES.includes(file.type);
         const isValidSize = file.size <= MAX_FILE_SIZE;
-        
+
         if (!isValidType) {
           toast.error(`Arquivo "${file.name}": Tipo não suportado`);
         }
         if (!isValidSize) {
           toast.error(`Arquivo "${file.name}": Tamanho excede 5MB`);
         }
-        
+
         return isValidType && isValidSize;
       });
-  
-      const newFilesWithUrls = filesArray.map(file => ({
+
+      const newFilesWithUrls = filesArray.map((file) => ({
         file,
-        url: URL.createObjectURL(file)
+        url: URL.createObjectURL(file),
       }));
-  
-      setImages(prev => ({
+
+      setImages((prev) => ({
         ...prev,
         additional: {
           ...prev.additional,
-          new: [...prev.additional.new, ...newFilesWithUrls]
-        }
+          new: [...prev.additional.new, ...newFilesWithUrls],
+        },
       }));
     }
   };
 
   const removeAdditionalImage = (index: number) => {
-    setImages(prev => {
+    setImages((prev) => {
       if (index < prev.additional.current.length) {
         // Imagem existente
         const imageToRemove = prev.additional.current[index];
@@ -294,28 +356,28 @@ export default function EditProductPage() {
           additional: {
             current: prev.additional.current.filter((_, i) => i !== index),
             new: prev.additional.new,
-            removed: [...prev.additional.removed, imageToRemove]
-          }
+            removed: [...prev.additional.removed, imageToRemove],
+          },
         };
       } else {
         // Imagem nova
         const newIndex = index - prev.additional.current.length;
-        
+
         // Verificar se o índice é válido
         if (newIndex >= 0 && newIndex < prev.additional.new.length) {
           // Revogar URL do objeto antes de removê-lo
           URL.revokeObjectURL(prev.additional.new[newIndex].url);
-          
+
           return {
             ...prev,
             additional: {
               current: prev.additional.current,
               new: prev.additional.new.filter((_, i) => i !== newIndex),
-              removed: prev.additional.removed
-            }
+              removed: prev.additional.removed,
+            },
           };
         }
-        
+
         return prev; // Retorna o estado inalterado se o índice for inválido
       }
     });
@@ -324,89 +386,97 @@ export default function EditProductPage() {
   // Manipuladores de características
   const addFeature = () => {
     if (newFeature.trim()) {
-      setFormValues(prev => ({
+      setFormValues((prev) => ({
         ...prev,
-        features: [...prev.features, newFeature.trim()]
+        features: [...prev.features, newFeature.trim()],
       }));
       setNewFeature("");
     }
   };
 
   const removeFeature = (index: number) => {
-    setFormValues(prev => ({
+    setFormValues((prev) => ({
       ...prev,
-      features: prev.features.filter((_, i) => i !== index)
+      features: prev.features.filter((_, i) => i !== index),
     }));
   };
 
   // Manipuladores de tamanhos
   const addSize = () => {
     if (newSize.size.trim()) {
-      setFormValues(prev => ({
+      setFormValues((prev) => ({
         ...prev,
-        sizes: [...prev.sizes, { ...newSize }]
+        sizes: [...prev.sizes, { ...newSize }],
       }));
       setNewSize({ size: "", stock: 0 });
     }
   };
 
-  const updateSize = (index: number, field: keyof ProductSize, value: string | number) => {
-    setFormValues(prev => {
+  const updateSize = (
+    index: number,
+    field: keyof ProductSize,
+    value: string | number
+  ) => {
+    setFormValues((prev) => {
       const newSizes = [...prev.sizes];
       newSizes[index] = {
         ...newSizes[index],
-        [field]: field === "stock" ? Number(value) : value
+        [field]: field === "stock" ? Number(value) : value,
       };
       return { ...prev, sizes: newSizes };
     });
   };
 
   const removeSize = (index: number) => {
-    setFormValues(prev => ({
+    setFormValues((prev) => ({
       ...prev,
-      sizes: prev.sizes.filter((_, i) => i !== index)
+      sizes: prev.sizes.filter((_, i) => i !== index),
     }));
   };
 
   // Manipuladores de cores
   const addColor = () => {
     if (newColor.colorName.trim()) {
-      setFormValues(prev => ({
+      setFormValues((prev) => ({
         ...prev,
-        colors: [...prev.colors, { ...newColor }]
+        colors: [...prev.colors, { ...newColor }],
       }));
       setNewColor({ colorName: "", colorCode: "#000000", stock: 0 });
     }
   };
 
-  const updateColor = (index: number, field: keyof ProductColor, value: string) => {
-    setFormValues(prev => {
+  const updateColor = (
+    index: number,
+    field: keyof ProductColor,
+    value: string
+  ) => {
+    setFormValues((prev) => {
       const newColors = [...prev.colors];
       newColors[index] = {
         ...newColors[index],
-        [field]: field === "stock" ? Number(value) : value
+        [field]: field === "stock" ? Number(value) : value,
       };
       return { ...prev, colors: newColors };
     });
   };
 
   const removeColor = (index: number) => {
-    setFormValues(prev => ({
+    setFormValues((prev) => ({
       ...prev,
-      colors: prev.colors.filter((_, i) => i !== index)
+      colors: prev.colors.filter((_, i) => i !== index),
     }));
   };
-  
+
   // Envio do formulário
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       toast.error("Por favor, corrija os erros no formulário");
       return;
     }
 
-    setLoading(prev => ({ ...prev, submit: true }));
+    setLoading((prev) => ({ ...prev, submit: true }));
 
     try {
       if (!id) throw new Error("ID do produto não fornecido");
@@ -420,11 +490,11 @@ export default function EditProductPage() {
         formData.append("image", images.main.new);
       }
 
-      images.additional.new.forEach(item => {
+      images.additional.new.forEach((item) => {
         formData.append("additionalImages", item.file);
       });
 
-      images.additional.removed.forEach(url => {
+      images.additional.removed.forEach((url) => {
         formData.append("removedImages", url);
       });
 
@@ -433,29 +503,30 @@ export default function EditProductPage() {
       navigate("/profile?tab=products");
     } catch (error: any) {
       console.error("Error updating product:", error);
-      
+
       let errorMessage = "Erro ao atualizar produto";
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
-        
+
         // Trata erros específicos de campos
         if (error.response.data.errors) {
           const newErrors: Record<string, string> = {};
-          Object.entries(error.response.data.errors).forEach(([field, messages]) => {
-            if (Array.isArray(messages) && messages[0]) {
-              newErrors[field] = messages[0];
+          Object.entries(error.response.data.errors).forEach(
+            ([field, messages]) => {
+              if (Array.isArray(messages) && messages[0]) {
+                newErrors[field] = messages[0];
+              }
             }
-          });
+          );
           setFormErrors(newErrors);
         }
       }
 
       toast.error(errorMessage);
     } finally {
-      setLoading(prev => ({ ...prev, submit: false }));
+      setLoading((prev) => ({ ...prev, submit: false }));
     }
   };
-
 
   // Verificação de mudanças
   const hasChanges = useMemo(() => {
@@ -463,11 +534,15 @@ export default function EditProductPage() {
       images.main.new !== null ||
       images.additional.new.length > 0 ||
       images.additional.removed.length > 0 ||
-      Object.keys(formValues).some(key => {
+      Object.keys(formValues).some((key) => {
         const initialValue = formValues[key as keyof ProductFormValues];
         // Verificar se houve mudança em relação ao valor inicial
         // (implementação simplificada - você pode querer comparar com os valores originais)
-        return initialValue !== "" && initialValue !== null && initialValue !== undefined;
+        return (
+          initialValue !== "" &&
+          initialValue !== null &&
+          initialValue !== undefined
+        );
       })
     );
   }, [images, formValues]);
@@ -502,13 +577,21 @@ export default function EditProductPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 mt-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <Card className="max-w-4xl mx-auto border-0 shadow-sm rounded-xl overflow-hidden bg-white">
           <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 pb-6">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-2xl font-light tracking-tight">Editar Produto</CardTitle>
-                <CardDescription>Atualize as informações do produto</CardDescription>
+                <CardTitle className="text-2xl font-light tracking-tight">
+                  Editar Produto
+                </CardTitle>
+                <CardDescription>
+                  Atualize as informações do produto
+                </CardDescription>
               </div>
               {hasChanges && (
                 <motion.div
@@ -524,7 +607,11 @@ export default function EditProductPage() {
           </CardHeader>
 
           <form onSubmit={handleSubmit}>
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
               <TabsList className="grid grid-cols-4 max-w-2xl mx-auto my-4">
                 <TabsTrigger value="basic" className="flex items-center gap-2">
                   <Info className="h-4 w-4" />
@@ -534,11 +621,17 @@ export default function EditProductPage() {
                   <ImageIcon className="h-4 w-4" />
                   <span className="hidden sm:inline">Imagens</span>
                 </TabsTrigger>
-                <TabsTrigger value="features" className="flex items-center gap-2">
+                <TabsTrigger
+                  value="features"
+                  className="flex items-center gap-2"
+                >
                   <Tag className="h-4 w-4" />
                   <span className="hidden sm:inline">Características</span>
                 </TabsTrigger>
-                <TabsTrigger value="variants" className="flex items-center gap-2">
+                <TabsTrigger
+                  value="variants"
+                  className="flex items-center gap-2"
+                >
                   <Palette className="h-4 w-4" />
                   <span className="hidden sm:inline">Variantes</span>
                 </TabsTrigger>
@@ -546,7 +639,11 @@ export default function EditProductPage() {
 
               <CardContent className="p-6">
                 <TabsContent value="basic" className="mt-0 space-y-6">
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
                     {/* Nome e Categoria */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                       <div className="space-y-2">
@@ -571,7 +668,10 @@ export default function EditProductPage() {
                         <Select
                           value={formValues.category}
                           onValueChange={(value) => {
-                            setFormValues(prev => ({ ...prev, category: value }));
+                            setFormValues((prev) => ({
+                              ...prev,
+                              category: value,
+                            }));
                           }}
                           required
                         >
@@ -619,7 +719,9 @@ export default function EditProductPage() {
                       <div className="space-y-2">
                         <Label htmlFor="price">Preço</Label>
                         <div className="relative">
-                          <span className="absolute left-3 top-3 text-gray-500">R$</span>
+                          <span className="absolute left-3 top-3 text-gray-500">
+                            R$
+                          </span>
                           <Input
                             id="price"
                             name="price"
@@ -642,7 +744,9 @@ export default function EditProductPage() {
                       <div className="space-y-2">
                         <Label htmlFor="salePrice">Preço Promocional</Label>
                         <div className="relative">
-                          <span className="absolute left-3 top-3 text-gray-500">R$</span>
+                          <span className="absolute left-3 top-3 text-gray-500">
+                            R$
+                          </span>
                           <Input
                             id="salePrice"
                             name="salePrice"
@@ -695,7 +799,11 @@ export default function EditProductPage() {
                 </TabsContent>
 
                 <TabsContent value="images" className="mt-0 space-y-6">
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
                     {/* Imagem Principal */}
                     <div className="space-y-4 mb-8">
                       <h3 className="text-lg font-medium flex items-center gap-2">
@@ -719,9 +827,12 @@ export default function EditProductPage() {
                             >
                               <ImageIcon className="h-8 w-8 text-gray-400" />
                               <span className="text-sm text-gray-500">
-                                Clique para selecionar ou arraste uma nova imagem
+                                Clique para selecionar ou arraste uma nova
+                                imagem
                               </span>
-                              <span className="text-xs text-gray-400">JPEG, PNG ou WEBP (máx. 5MB)</span>
+                              <span className="text-xs text-gray-400">
+                                JPEG, PNG ou WEBP (máx. 5MB)
+                              </span>
                             </label>
                           </div>
                           {formErrors.image && (
@@ -755,7 +866,9 @@ export default function EditProductPage() {
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 className="h-full"
                               >
-                                <ProductImagePreview src={images.main.current} />
+                                <ProductImagePreview
+                                  src={images.main.current}
+                                />
                               </motion.div>
                             ) : (
                               <div className="h-full bg-gray-100 rounded-lg flex items-center justify-center">
@@ -773,15 +886,15 @@ export default function EditProductPage() {
                         <ImageIcon className="h-5 w-5 text-gray-500" />
                         Imagens Adicionais
                       </h3>
-                      
+
                       <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center hover:bg-gray-50 transition-colors cursor-pointer">
                         <Input
-                            id="additionalImages"
-                            type="file"
-                            accept={ALLOWED_FILE_TYPES.join(",")}
-                            onChange={handleAdditionalImagesChange}
-                            className="hidden"
-                            multiple
+                          id="additionalImages"
+                          type="file"
+                          accept={ALLOWED_FILE_TYPES.join(",")}
+                          onChange={handleAdditionalImagesChange}
+                          className="hidden"
+                          multiple
                         />
                         <label
                           htmlFor="additionalImages"
@@ -791,7 +904,9 @@ export default function EditProductPage() {
                           <span className="text-sm text-gray-500">
                             Clique para selecionar ou arraste imagens adicionais
                           </span>
-                          <span className="text-xs text-gray-400">JPEG, PNG ou WEBP (máx. 5MB cada)</span>
+                          <span className="text-xs text-gray-400">
+                            JPEG, PNG ou WEBP (máx. 5MB cada)
+                          </span>
                         </label>
                       </div>
 
@@ -813,7 +928,6 @@ export default function EditProductPage() {
                             </motion.div>
                           ))}
 
-
                           {/* Novas imagens */}
                           {images.additional.new.map((item, index) => (
                             <motion.div
@@ -823,11 +937,15 @@ export default function EditProductPage() {
                               exit={{ opacity: 0, scale: 0.9 }}
                               transition={{ duration: 0.2 }}
                             >
-                                <ProductImagePreview
-                                  src={item.url}  // Use a URL pré-gerada
-                                  onRemove={() => removeAdditionalImage(images.additional.current.length + index)}
-                                  isNew
-                                />
+                              <ProductImagePreview
+                                src={item.url} // Use a URL pré-gerada
+                                onRemove={() =>
+                                  removeAdditionalImage(
+                                    images.additional.current.length + index
+                                  )
+                                }
+                                isNew
+                              />
                             </motion.div>
                           ))}
                         </AnimatePresence>
@@ -899,8 +1017,9 @@ export default function EditProductPage() {
                           ) : (
                             <Alert className="bg-gray-50 border-gray-200 text-gray-600 mt-4">
                               <AlertDescription>
-                                Nenhuma característica adicionada. Adicione características para destacar os
-                                diferenciais do produto.
+                                Nenhuma característica adicionada. Adicione
+                                características para destacar os diferenciais do
+                                produto.
                               </AlertDescription>
                             </Alert>
                           )}
@@ -930,7 +1049,9 @@ export default function EditProductPage() {
                             <Input
                               placeholder="Tamanho (ex: P, M, G)"
                               value={newSize.size}
-                              onChange={(e) => setNewSize({ ...newSize, size: e.target.value })}
+                              onChange={(e) =>
+                                setNewSize({ ...newSize, size: e.target.value })
+                              }
                             />
                           </div>
                           <div>
@@ -939,7 +1060,12 @@ export default function EditProductPage() {
                               placeholder="Estoque"
                               min="0"
                               value={newSize.stock}
-                              onChange={(e) => setNewSize({ ...newSize, stock: Number(e.target.value) || 0 })}
+                              onChange={(e) =>
+                                setNewSize({
+                                  ...newSize,
+                                  stock: Number(e.target.value) || 0,
+                                })
+                              }
                             />
                           </div>
                         </div>
@@ -961,7 +1087,9 @@ export default function EditProductPage() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.3 }}
                           >
-                            <h4 className="text-sm font-medium text-gray-700">Tamanhos Adicionados</h4>
+                            <h4 className="text-sm font-medium text-gray-700">
+                              Tamanhos Adicionados
+                            </h4>
                             <ScrollArea className="h-[200px] pr-4">
                               <div className="space-y-3">
                                 {formValues.sizes.map((size, index) => (
@@ -976,7 +1104,13 @@ export default function EditProductPage() {
                                     <div className="col-span-2">
                                       <Input
                                         value={size.size}
-                                        onChange={(e) => updateSize(index, "size", e.target.value)}
+                                        onChange={(e) =>
+                                          updateSize(
+                                            index,
+                                            "size",
+                                            e.target.value
+                                          )
+                                        }
                                       />
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -984,7 +1118,13 @@ export default function EditProductPage() {
                                         type="number"
                                         min="0"
                                         value={size.stock}
-                                        onChange={(e) => updateSize(index, "stock", e.target.value)}
+                                        onChange={(e) =>
+                                          updateSize(
+                                            index,
+                                            "stock",
+                                            e.target.value
+                                          )
+                                        }
                                       />
                                       <Button
                                         type="button"
@@ -1004,7 +1144,8 @@ export default function EditProductPage() {
                         ) : (
                           <Alert className="bg-gray-50 border-gray-200 text-gray-600 mt-4">
                             <AlertDescription>
-                              Nenhum tamanho adicionado. Adicione tamanhos se o produto possuir variações.
+                              Nenhum tamanho adicionado. Adicione tamanhos se o
+                              produto possuir variações.
                             </AlertDescription>
                           </Alert>
                         )}
@@ -1024,7 +1165,12 @@ export default function EditProductPage() {
                             <Input
                               placeholder="Nome da cor"
                               value={newColor.colorName}
-                              onChange={(e) => setNewColor({ ...newColor, colorName: e.target.value })}
+                              onChange={(e) =>
+                                setNewColor({
+                                  ...newColor,
+                                  colorName: e.target.value,
+                                })
+                              }
                             />
                           </div>
                           <div>
@@ -1032,7 +1178,12 @@ export default function EditProductPage() {
                               <Input
                                 type="color"
                                 value={newColor.colorCode}
-                                onChange={(e) => setNewColor({ ...newColor, colorCode: e.target.value })}
+                                onChange={(e) =>
+                                  setNewColor({
+                                    ...newColor,
+                                    colorCode: e.target.value,
+                                  })
+                                }
                                 className="h-11 w-11 p-1"
                               />
                               <div
@@ -1048,7 +1199,10 @@ export default function EditProductPage() {
                               min="0"
                               value={newColor.stock}
                               onChange={(e) =>
-                                setNewColor({ ...newColor, stock: Number(e.target.value) || 0 })
+                                setNewColor({
+                                  ...newColor,
+                                  stock: Number(e.target.value) || 0,
+                                })
                               }
                             />
                           </div>
@@ -1071,7 +1225,9 @@ export default function EditProductPage() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.3 }}
                           >
-                            <h4 className="text-sm font-medium text-gray-700">Cores Adicionadas</h4>
+                            <h4 className="text-sm font-medium text-gray-700">
+                              Cores Adicionadas
+                            </h4>
                             <ScrollArea className="h-[200px] pr-4">
                               <div className="space-y-3">
                                 {formValues.colors.map((color, index) => (
@@ -1086,19 +1242,33 @@ export default function EditProductPage() {
                                     <div>
                                       <Input
                                         value={color.colorName}
-                                        onChange={(e) => updateColor(index, "colorName", e.target.value)}
+                                        onChange={(e) =>
+                                          updateColor(
+                                            index,
+                                            "colorName",
+                                            e.target.value
+                                          )
+                                        }
                                       />
                                     </div>
                                     <div className="flex items-center gap-2">
                                       <Input
                                         type="color"
                                         value={color.colorCode}
-                                        onChange={(e) => updateColor(index, "colorCode", e.target.value)}
+                                        onChange={(e) =>
+                                          updateColor(
+                                            index,
+                                            "colorCode",
+                                            e.target.value
+                                          )
+                                        }
                                         className="h-10 w-10 p-1"
                                       />
                                       <div
                                         className="w-10 h-10 rounded-lg border border-gray-200"
-                                        style={{ backgroundColor: color.colorCode }}
+                                        style={{
+                                          backgroundColor: color.colorCode,
+                                        }}
                                       />
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -1106,7 +1276,13 @@ export default function EditProductPage() {
                                         type="number"
                                         min="0"
                                         value={color.stock}
-                                        onChange={(e) => updateColor(index, "stock", e.target.value)}
+                                        onChange={(e) =>
+                                          updateColor(
+                                            index,
+                                            "stock",
+                                            e.target.value
+                                          )
+                                        }
                                       />
                                       <Button
                                         type="button"
@@ -1126,7 +1302,8 @@ export default function EditProductPage() {
                         ) : (
                           <Alert className="bg-gray-50 border-gray-200 text-gray-600 mt-4">
                             <AlertDescription>
-                              Nenhuma cor adicionada. Adicione cores se o produto possuir variações de cor.
+                              Nenhuma cor adicionada. Adicione cores se o
+                              produto possuir variações de cor.
                             </AlertDescription>
                           </Alert>
                         )}

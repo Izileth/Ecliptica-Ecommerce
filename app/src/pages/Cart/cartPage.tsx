@@ -43,32 +43,42 @@ export const CartPage: React.FC = () => {
   if (error) {
     return (
       <div className="container mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-6">Seu Carrinho</h1>
-        <div className="bg-red-100 p-4 rounded-md text-red-700 mb-6">
-          Erro ao carregar o carrinho: {error}
+        <h1 className="text-2xl font-semibold mb-6 text-neutral-900 dark:text-neutral-100">
+          Seu Carrinho
+        </h1>
+        <div className="bg-neutral-100 dark:bg-neutral-800 p-4 rounded-md border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 mb-6">
+          Ocorreu um problema ao carregar seu carrinho. <br />
+          <span className="italic">{error}</span>
         </div>
-        <Button onClick={getCart}>Tentar novamente</Button>
+        <Button variant="outline" onClick={getCart}>
+          Tentar novamente
+        </Button>
       </div>
     );
   }
-
+  
   if (!cart || !cart.items || cart.items.length === 0) {
     return (
       <div className="container mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-6">Seu Carrinho</h1>
-        <div className="bg-gray-50 p-8 rounded-lg text-center">
-          <ShoppingBag className="mx-auto h-16 w-16 text-gray-400 mb-4" />
-          <h2 className="text-xl font-medium mb-2">Seu carrinho está vazio</h2>
-          <p className="text-gray-600 mb-6">
+        <h1 className="text-2xl font-semibold mb-6 text-neutral-900 dark:text-neutral-100">
+          Seu Carrinho
+        </h1>
+        <div className="bg-neutral-100 dark:bg-neutral-800 p-8 rounded-lg text-center border border-neutral-300 dark:border-neutral-700">
+          <ShoppingBag className="mx-auto h-16 w-16 text-neutral-400 dark:text-neutral-500 mb-4" />
+          <h2 className="text-xl font-medium text-neutral-800 dark:text-neutral-100 mb-2">
+            Seu carrinho está vazio
+          </h2>
+          <p className="text-neutral-600 dark:text-neutral-400 mb-6">
             Parece que você ainda não adicionou nenhum produto ao carrinho.
           </p>
           <Link to="/products">
-            <Button>Continuar comprando</Button>
+            <Button variant="outline">Continuar comprando</Button>
           </Link>
         </div>
       </div>
     );
   }
+  
 
   return (
     <div className="container mx-auto p-6">
