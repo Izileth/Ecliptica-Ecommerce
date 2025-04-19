@@ -140,75 +140,85 @@ export const ProductService = {
    */
   toFormData: (values: ProductFormValues): FormData => {
     const formData = new FormData();
-
+  
     // Campos básicos
     formData.append("name", values.name);
     formData.append("description", values.description);
     formData.append("price", values.price);
     formData.append("category", values.category);
     formData.append("countInStock", values.countInStock);
-
+  
     // Campos opcionais
     if (values.salePrice !== undefined) {
       formData.append("salePrice", values.salePrice || "");
     }
-
+  
     if (values.collection) {
       formData.append("collection", values.collection);
     }
-
+  
     // Imagem principal
     if (values.image instanceof File) {
       formData.append("image", values.image);
     } else if (typeof values.image === "string" && values.image) {
       // Se for string (URL existente), não precisa enviar novamente
     }
-
-    // Imagens adicionais
-    if (values.additionalImages) {
-      values.additionalImages.forEach((img, index) => {
+  
+    // CORREÇÃO: Usar additionalImagesFiles para envio
+    if (values.additionalImagesFiles && values.additionalImagesFiles.length > 0) {
+      values.additionalImagesFiles.forEach(file => {
+        formData.append("additionalImages", file);
+      });
+    }
+    // Ou manter também a lógica antiga para compatibilidade
+    else if (values.additionalImages) {
+      values.additionalImages.forEach(img => {
         if (img instanceof File) {
           formData.append("additionalImages", img);
         }
-        // URLs existentes são tratadas no backend
       });
     }
-
+  
     // Imagens removidas
     if (values.removedImages && values.removedImages.length > 0) {
       formData.append("removedImages", JSON.stringify(values.removedImages));
     }
-
+  
     // Features
-    values.features.forEach((feature, index) => {
-      formData.append(`features[${index}]`, feature);
-    });
-
+    if (values.features && values.features.length > 0) {
+      values.features.forEach((feature, index) => {
+        formData.append(`features[${index}]`, feature);
+      });
+    }
+  
     // Tamanhos
-    values.sizes.forEach((size, index) => {
-      formData.append(`sizes[${index}][size]`, size.size);
-      formData.append(`sizes[${index}][stock]`, String(size.stock));
-      if (size.id) {
-        formData.append(`sizes[${index}][id]`, size.id);
-      }
-    });
-
+    if (values.sizes && values.sizes.length > 0) {
+      values.sizes.forEach((size, index) => {
+        formData.append(`sizes[${index}][size]`, size.size);
+        formData.append(`sizes[${index}][stock]`, String(size.stock));
+        if (size.id) {
+          formData.append(`sizes[${index}][id]`, size.id);
+        }
+      });
+    }
+  
     // Cores
-    values.colors.forEach((color, index) => {
-      formData.append(`colors[${index}][colorName]`, color.colorName);
-      formData.append(`colors[${index}][colorCode]`, color.colorCode);
-      formData.append(`colors[${index}][stock]`, String(color.stock));
-      if (color.imageUrl) {
-        formData.append(`colors[${index}][imageUrl]`, color.imageUrl);
-      }
-      if (color.id) {
-        formData.append(`colors[${index}][id]`, color.id);
-      }
-    });
-
+    if (values.colors && values.colors.length > 0) {
+      values.colors.forEach((color, index) => {
+        formData.append(`colors[${index}][colorName]`, color.colorName);
+        formData.append(`colors[${index}][colorCode]`, color.colorCode);
+        formData.append(`colors[${index}][stock]`, String(color.stock));
+        if (color.imageUrl) {
+          formData.append(`colors[${index}][imageUrl]`, color.imageUrl);
+        }
+        if (color.id) {
+          formData.append(`colors[${index}][id]`, color.id);
+        }
+      });
+    }
+  
     return formData;
   },
-
   /**
    * Prepara dados iniciais para o formulário
    */
