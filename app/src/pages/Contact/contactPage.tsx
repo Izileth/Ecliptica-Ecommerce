@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 
 import BlogBanner from "~/src/components/common/Banner/banner";
 import Carousel from "~/src/components/common/Carousel/carousel";
+import Container from "~/src/components/layout/Container/container";
 
 import { MapPin, Phone, Mail, Clock, ChevronDown } from "lucide-react";
 
@@ -154,7 +155,7 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="bg-neutral-50 py-16 md:py-24">
+    <Container maxWidth="full" padding={false}>
       <div className="container max-w-full px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -282,80 +283,12 @@ export default function ContactPage() {
               </div>
             </motion.div>
           </div>
-
-          {/* Contact Form Section - Optional, can be uncommented if needed */}
-          {/* 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="mt-12 rounded-2xl bg-white p-6 shadow-sm sm:p-8"
-          >
-            <h2 className="mb-6 text-xl font-light text-neutral-900 sm:text-2xl">Send us a message</h2>
-            <form className="space-y-6">
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="name" className="mb-2 block text-sm font-medium text-neutral-700">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    className="w-full rounded-lg border border-neutral-200 p-2.5 text-neutral-900 focus:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-500"
-                    placeholder="Your name"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="email" className="mb-2 block text-sm font-medium text-neutral-700">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    className="w-full rounded-lg border border-neutral-200 p-2.5 text-neutral-900 focus:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-500"
-                    placeholder="your.email@example.com"
-                    required
-                  />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="subject" className="mb-2 block text-sm font-medium text-neutral-700">
-                  Subject
-                </label>
-                <input
-                  type="text"
-                  id="subject"
-                  className="w-full rounded-lg border border-neutral-200 p-2.5 text-neutral-900 focus:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-500"
-                  placeholder="How can we help you?"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="message" className="mb-2 block text-sm font-medium text-neutral-700">
-                  Message
-                </label>
-                <textarea
-                  id="message"
-                  rows={4}
-                  className="w-full rounded-lg border border-neutral-200 p-2.5 text-neutral-900 focus:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-500"
-                  placeholder="Your message..."
-                ></textarea>
-              </div>
-              <button
-                type="submit"
-                className="rounded-full bg-neutral-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-700 focus:ring-offset-2"
-              >
-                Send Message
-              </button>
-            </form>
-          </motion.div>
-          */}
         </div>
       </div>
+      
       <div className="mt-20">
         <BlogBanner/>
       </div>
-    </div>
+    </Container>
   );
 }

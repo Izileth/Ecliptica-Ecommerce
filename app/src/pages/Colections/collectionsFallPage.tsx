@@ -14,7 +14,7 @@ const FallPage = () => {
     }
   };
   return (
-    <Container maxWidth="full" padding="lg" className="mt-20">
+    <Container maxWidth="full" padding={false} className="mt-20">
       <CollectionBanner
         collection="Outono"
         title="Sua Essência, Seu Estilo"
@@ -31,7 +31,7 @@ const FallPage = () => {
           <ArrowDown/>
         </Button>
       </CollectionBanner>
-      <Container maxWidth="full" padding="sm" id="grid">
+      <Container maxWidth="full" padding={false} id="grid">
       <CollectionGrid 
         collection="Coleção Outono"
         title="A leveza das folhas no seu Estilo"

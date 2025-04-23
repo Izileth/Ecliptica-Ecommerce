@@ -14,7 +14,7 @@ const SummerPage = () => {
     }
   };
   return (
-    <Container maxWidth="full" padding="lg" className="mt-20">
+    <Container maxWidth="full" padding={false} className="mt-20">
       <CollectionBanner
         collection="Verão"
         title="Leveza Que Veste Bem"
@@ -31,7 +31,7 @@ const SummerPage = () => {
           <ArrowDown/>
         </Button>
       </CollectionBanner>
-      <Container maxWidth="full" padding="sm" id="grid">
+      <Container maxWidth="full" padding={false} id="grid">
       <CollectionGrid 
         title="Coleção Verão"
         description="Leveza, cor e frescor para brilhar sob o sol"

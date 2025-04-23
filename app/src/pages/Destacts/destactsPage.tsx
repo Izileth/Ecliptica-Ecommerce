@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLatestReleases } from "~/src/hooks/useRenderBy";
 import ProductCard from "~/src/components/products/Card/card";
-import { ShoppingBag, RefreshCw, ArrowRight, Package, ChevronDown } from "lucide-react";
+import { RefreshCw, ArrowRight, Package, ChevronDown } from "lucide-react";
 import { Button } from "~/src/components/imported/button";
 import { Skeleton } from "~/src/components/imported/skeleton";
-import { GlobalBanner } from "~/src/components/ui/Banner/banner";
+import Container from "~/src/components/layout/Container/container";
 import BlogBanner from "~/src/components/common/Banner/banner";
 import Carousel from "~/src/components/common/Carousel/carousel";
 import { DataDestacts } from "~/src/data/static/destacts/destact";
 
-export default function LatestReleasesPage() {
+export default function DestactsPage() {
   const { latestProducts, loading, error, refreshLatestProducts } =
     useLatestReleases(6, 12);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -77,11 +77,11 @@ export default function LatestReleasesPage() {
   };
 
   return (
-    <div className="min-h-screen max-w-full bg-neutral-50">
-      {/* Hero section */}
-      <section className="relative max-w-full overflow-hidden bg-white">
+    <Container maxWidth="full" padding={false}>
+       {/* Hero section */}
+       <section className="relative max-w-full overflow-hidden bg-white">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(0,0,0,0.02)_0%,rgba(0,0,0,0.01)_100%)]" />
-        <div className="container max-w-full py-16 px-4 sm:py-24 ">
+        <div className="container max-w-full py-16  sm:py-24 ">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -281,6 +281,6 @@ export default function LatestReleasesPage() {
         )}
       </section>
       <BlogBanner/>
-    </div>
+    </Container>
   );
 }

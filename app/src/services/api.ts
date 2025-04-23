@@ -9,7 +9,7 @@ let lastRedirectTime = 0;
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'https://api-ecliptica.onrender.com/api',
-  timeout: 10000,
+  timeout: 100000,
   withCredentials: true,
   
   

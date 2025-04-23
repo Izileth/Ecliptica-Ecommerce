@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 
 import { useCart } from '~/src/hooks/useCart';
 
+import Container from '~/src/components/layout/Container/container';
 import CartItemList from '~/src/components/cart/List/cart.list';
 import CartSummary from '~/src/components/cart/Summary/cart.summary';
 import { Button } from '~/src/components/ui/Button/button';
@@ -81,7 +82,7 @@ export const CartPage: React.FC = () => {
   
 
   return (
-    <div className="container mx-auto p-6">
+    <Container maxWidth='full' padding={false}>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Seu Carrinho ({itemCount})</h1>
         <Button 
@@ -108,6 +109,6 @@ export const CartPage: React.FC = () => {
           <CartSummary cart={cart} />
         </div>
       </div>
-    </div>
+    </Container>
   );
 };

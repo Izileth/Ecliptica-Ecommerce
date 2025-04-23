@@ -17,7 +17,7 @@ export function Products() {
     getProducts(1, filters);
   };
   return (
-    <Container maxWidth="full" padding="sm">
+    <Container maxWidth="full" padding={false}>
       <Carousel
         items={DataProducts}
         variant="overlay"
@@ -27,13 +27,17 @@ export function Products() {
         height="h-[80vh]"
         className="mt-20"
       />
-      <ProductFilter
-        onFilter={handleFilter}
-        maxPriceLimit={2000}
-        initialCategory=""
-        collections={["Verão", "Inverno", "Casual", "Fitness"]}
-      />
-      <ProductGrid />
+      <Container maxWidth="full" padding={false}>
+        <ProductFilter
+          onFilter={handleFilter}
+          maxPriceLimit={2000}
+          initialCategory=""
+          collections={["Verão", "Inverno", "Outono", "Primavera"]}
+        />
+      </Container>
+      <Container maxWidth="full" padding={false}>
+        <ProductGrid />
+      </Container>
       <BlogBanner />
     </Container>
   );

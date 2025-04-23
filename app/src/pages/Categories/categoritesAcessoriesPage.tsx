@@ -14,7 +14,7 @@ const AcessoriosGrid = () => {
     }
   };
   return (
-    <Container maxWidth="full" padding="sm" className="mt-20">
+    <Container maxWidth="full" padding={false} className="mt-20">
       <CategoryBanner
         category="Acessórios"
         title="O Detalhe Que Transforma"
@@ -29,12 +29,12 @@ const AcessoriosGrid = () => {
           <ArrowDown/>
         </Button>
       </CategoryBanner>
-      <Container maxWidth="full" className="px-0 mx-0 p-0" padding="sm" id="grid">
-      <CategoryGrid
-        category="Acessórios"
-        title="Detalhes Que Se Destacam"
-        description="Seu visual completo começa nos detalhes"
-      />
+      <Container maxWidth="full" className="px-0 mx-0 p-0" padding={false} id="grid">
+        <CategoryGrid
+          category="Acessórios"
+          title="Detalhes Que Se Destacam"
+          description="Seu visual completo começa nos detalhes"
+        />
       </Container>
       <BlogBanner/>
     </Container>

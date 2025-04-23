@@ -7,7 +7,7 @@ import { DiscountCTA } from "~/src/components/hero/Offers/offers";
 import CategoriesGrid from "~/src/components/common/Grid/grid";
 import Container from "~/src/components/layout/Container/container";
 import Section from "~/src/components/common/Section/section";
-import EnhancedTagCarousel from "~/src/components/hero/Tags/carousel";
+import WordCarousel from "~/src/components/hero/Words/carousel";
 import BlogBanner from "~/src/components/common/Banner/banner";
 //Icones
 import { ChevronDown } from "lucide-react";
@@ -17,7 +17,7 @@ import { DataCarousel } from "~/src/data/carousel/carousel";
 import { DataTestimonials } from "~/src/data/testmonials/testmonial";
 import { DataTags } from "~/src/data/items/items";
 
-export default function Welcome() {
+export default function Hero() {
   const scrollToContent = () => {
     const categoriesSection = document.getElementById("categories-section");
     if (categoriesSection) {
@@ -26,9 +26,9 @@ export default function Welcome() {
   };
 
   return (
-    <Container maxWidth="full" padding="sm">
+    <Container maxWidth="full" padding={false}>
       {/* Hero Carousel Section */}
-      <Section background="white" padding="sm" className="relative">
+      <Section background="white" padding={false} className="relative max-w-full">
         <Carousel
           items={DataCarousel}
           variant="minimal"
@@ -52,7 +52,7 @@ export default function Welcome() {
         </div>
       </Section>
 
-      <Section id="categories-section" background="white" className="relative">
+      <Section id="categories-section" padding={false} background="white" className="relative">
         <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
           <Title
             title="Categorias"
@@ -72,7 +72,7 @@ export default function Welcome() {
         </div>
       </Section>
 
-      <Section background="white" className="relative">
+      <Section background="white" padding={false} className="relative">
         <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
           <Title
             title="Depoimentos"
@@ -83,7 +83,7 @@ export default function Welcome() {
         </div>
       </Section>
 
-      <Section background="white" className="relative">
+      <Section background="white" padding={false} className="relative">
         <div className="mx-auto max-w-full  px-4 sm:px-6 lg:px-8">
           <div className="mb-6">
             <Title
@@ -120,7 +120,7 @@ export default function Welcome() {
         </div>
       </Section>
 
-      <Section background="white" className="relative">
+      <Section background="white" padding={false} className="relative">
         <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <Title
@@ -128,19 +128,18 @@ export default function Welcome() {
               subtitle="Principais tendencias da Temporada"
               color="dark"
             />
-            <EnhancedTagCarousel
-              tags={DataTags.slice(0, 10)}
-              itemsPerView={1}
-              autoplayInterval={3000}
-            />
           </div>
+          <WordCarousel 
+            words={['Descontos Exclusivos', 'Financiamento Facilitado', 'Garantia Estendida']} 
+                speed={60}
+                className="text-zinc-950 text-xl mb-6 mt-6"
+                separator="  - "
+              />
         </div>
       </Section>
 
-      <Section background="white" className="relative">
-        <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
-          <BlogBanner/>
-        </div>
+      <Section background="white" padding={false} className="relative">
+        <BlogBanner/>
       </Section>
     </Container>
   );

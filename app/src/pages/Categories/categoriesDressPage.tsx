@@ -14,7 +14,7 @@ const VestidosGrid = () => {
     }
   };
   return (
-    <Container maxWidth="full" padding="sm" className="mt-20">
+    <Container maxWidth="full" padding={false} className="mt-20">
       <CategoryBanner
         category="Vestidos"
         title="Fluidez Que Encanta"
@@ -28,12 +28,12 @@ const VestidosGrid = () => {
           <ArrowDown/>
         </Button>
       </CategoryBanner>
-      <Container maxWidth="full" className="px-0 mx-0 p-0" padding="sm" id="grid">
-      <CategoryGrid
-        category="Vestidos"
-        title="Vestidos Que Encantam"
-        description="Leveza e elegância para todos os momentos"
-      />
+      <Container maxWidth="full" className="px-0 mx-0 p-0" padding={false} id="grid">
+        <CategoryGrid
+          category="Vestidos"
+          title="Vestidos Que Encantam"
+          description="Leveza e elegância para todos os momentos"
+        />
       </Container>
       <BlogBanner/>
     </Container>

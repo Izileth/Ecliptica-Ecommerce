@@ -1,5 +1,5 @@
 import type { Route } from "./+types/releases";
-import LatestReleasesPage from "~/src/pages/Releases/releasesPage";
+import DestactsPage from "~/src/pages/Destacts/destactsPage";
 
 export function meta({}: Route.MetaArgs) {
     return [
@@ -9,5 +9,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Release() {
-    return <LatestReleasesPage/> ;
+    return <DestactsPage/> ;
 }

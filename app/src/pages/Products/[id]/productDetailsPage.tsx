@@ -6,6 +6,8 @@ import { useProducts } from "~/src/hooks/useProducts"
 import { useCart } from "~/src/hooks/useCart"
 import { useProductRatings } from "~/src/hooks/useProductsRating"
 
+import toast from "react-hot-toast"
+
 import { formatPrice } from "~/src/utils/format"
 
 import { Button } from "~/src/components/imported/button"
@@ -29,7 +31,6 @@ const ProductDetails: React.FC = () => {
   const [addedToCart, setAddedToCart] = useState(false)
   const [selectedColor, setSelectedColor] = useState<string | null>(null)
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
-  const [isFavorite, setIsFavorite] = useState(false)
   const [activeTab, setActiveTab] = useState("description")
   const mainImageRef = useRef<HTMLDivElement>(null)
 
@@ -116,6 +117,46 @@ const ProductDetails: React.FC = () => {
     toggleLike()
     // Adicione qualquer lógica adicional de favoritos aqui
   }
+
+   const handleShare = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      const productUrl = `${window.location.origin}/products/${product?.id}`;
+  
+      if (navigator.share) {
+        navigator
+          .share({
+            title: product?.name,
+            text: `Confira este produto incrível: ${product?.name}`,
+            url: productUrl,
+          })
+          .catch((err) => {
+            console.log("Erro ao compartilhar:", err);
+            copyToClipboard(productUrl);
+          });
+      } else {
+        copyToClipboard(productUrl);
+      }
+    };
+
+    const copyToClipboard = (text: string) => {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          toast.success("Link copiado para a área de transferência!");
+        })
+        .catch((err) => {
+          console.error("Erro ao copiar:", err);
+          // Fallback para navegadores mais antigos
+          const textarea = document.createElement("textarea");
+          textarea.value = text;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand("copy");
+          document.body.removeChild(textarea);
+          toast.success("Link copiado para a área de transferência!");
+        });
+    };
+  
 
   const scrollToImage = (index: number) => {
     setSelectedImageIndex(index)
@@ -262,9 +303,11 @@ const ProductDetails: React.FC = () => {
                 <Heart className={`h-5 w-5 ${hasLiked ? "fill-rose-500 text-rose-500" : "fill-transparent"}`} />
               </motion.button>
                 <motion.button
+                  onClick={handleShare}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-sm text-gray-600 hover:text-gray-900 transition-colors"
+                  aria-label="Compartilhar produto"
                 >
                   <Share2 className="h-5 w-5" />
                 </motion.button>

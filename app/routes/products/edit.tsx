@@ -1,5 +1,5 @@
 import type { Route } from "./+types/edit";
-import EditProductPage from "~/src/pages/Products/productUpdatePage";
+import EditProductPage from "~/src/pages/Products/[id]/productUpdatePage";
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "Atualização de Produto | Ecliptica" },

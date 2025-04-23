@@ -15,7 +15,7 @@ const MensPage = () => {
     }
   };
   return (
-    <Container  maxWidth="full" padding="lg" className="mt-20">
+    <Container  maxWidth="full" padding={false} className="mt-20">
       <CollectionBanner
         collection="Masculina"
         title="Estilo que Impõe Presença"
@@ -32,7 +32,7 @@ const MensPage = () => {
           <ArrowDown/>
         </Button>
       </CollectionBanner>
-      <Container maxWidth="full" className="px-0 mx-0 p-0" padding="sm" id="grid">
+      <Container maxWidth="full" className="px-0 mx-0 p-0" padding={false} id="grid">
       <CollectionGrid 
         title="Coleção Masculina"
         description="Decubra o poder da Masculinhidade"
