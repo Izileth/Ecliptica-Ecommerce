@@ -148,21 +148,27 @@ const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   // Loading state
   if (loading) {
     return (
-      <div className="space-y-8 py-8">
-        {title && (
-          <div className="text-center mb-10">
-            <div className="h-6 w-40 bg-gray-100 mx-auto mb-3"></div>
-            {subtitle && <div className="h-4 w-64 bg-gray-50 mx-auto"></div>}
-          </div>
-        )}
-        <div className={`grid ${gridColumns[columns as keyof typeof gridColumns]} gap-6`}>
-          {[...Array(isMobile ? 2 : columns * 2)].map((_, i) => (
-            <div key={i} className="aspect-[3/4] bg-gray-50 animate-pulse"></div>
+      <section className="bg-transparent py-10 sm:py-16">
+      <div className="mx-auto max-w-full px-2 sm:px-2 lg:px-4">
+        <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 md:gap-x-6 lg:grid-cols-4 lg:gap-x-8">
+          {[...Array(4)].map((_, index) => (
+            <div
+              key={`skeleton-${index}`}
+              className="flex flex-col space-y-3"
+            >
+              <div className="aspect-[3/4] w-full animate-pulse rounded-sm bg-neutral-200"></div>
+              <div className="h-4 w-2/3 animate-pulse rounded-sm bg-neutral-200"></div>
+              <div className="h-3 w-1/2 animate-pulse rounded-sm bg-neutral-200"></div>
+              <div className="h-4 w-1/4 animate-pulse rounded-sm bg-neutral-200"></div>
+            </div>
           ))}
         </div>
       </div>
+    </section>
     )
   }
+
+
 
   // Error state
   if (error) {

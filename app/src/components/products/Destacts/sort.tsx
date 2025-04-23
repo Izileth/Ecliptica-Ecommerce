@@ -54,7 +54,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   if (loading) {
     return (
       <section className="bg-neutral-50 py-10 sm:py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-full px-2 sm:px-2 lg:px-4">
           <div className="text-center">
             <Title title={title} subtitle={subtitle} color="dark" />
           </div>

@@ -66,15 +66,23 @@ export function CollectionGrid({
 
   if (loading && !products.length) {
     return (
-      <div className={`flex justify-center items-center max-w-full h-64 ${className}`}>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-        >
-          <Spinner className="h-10 w-full text-neutral-300" />
-        </motion.div>
+      <section className="bg-transparent py-10 sm:py-16">
+      <div className="mx-auto max-w-full px-2 sm:px-2 lg:px-4">
+        <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 md:gap-x-6 lg:grid-cols-4 lg:gap-x-8">
+          {[...Array(4)].map((_, index) => (
+            <div
+              key={`skeleton-${index}`}
+              className="flex flex-col space-y-3"
+            >
+              <div className="aspect-[3/4] w-full animate-pulse rounded-sm bg-neutral-200"></div>
+              <div className="h-4 w-2/3 animate-pulse rounded-sm bg-neutral-200"></div>
+              <div className="h-3 w-1/2 animate-pulse rounded-sm bg-neutral-200"></div>
+              <div className="h-4 w-1/4 animate-pulse rounded-sm bg-neutral-200"></div>
+            </div>
+          ))}
+        </div>
       </div>
+    </section>
     );
   }
 
