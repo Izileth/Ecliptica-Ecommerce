@@ -53,11 +53,13 @@ export default function Hero() {
       </Section>
 
       <Section id="categories-section" padding={false} background="white" className="relative">
-        <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8 py-8">
           <Title
             title="Categorias"
             subtitle="Desubra o Estilo Perfeito"
             color="dark"
+            align="center"
+            titleClassName="minimal"
           />
           <CategoriesGrid />
         </div>
@@ -73,23 +75,25 @@ export default function Hero() {
       </Section>
 
       <Section background="white" padding={false} className="relative">
-        <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8 py-6">
           <Title
             title="Depoimentos"
             subtitle="Ficou na Duvida na hora de Pedir?, Veja os Relatos dos Compradores"
             color="dark"
+            align="center"
           />
           <TestimonialCarousel testimonials={DataTestimonials} />
         </div>
       </Section>
 
       <Section background="white" padding={false} className="relative">
-        <div className="mx-auto max-w-full  px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-full  px-4 sm:px-6 lg:px-8 py-6">
           <div className="mb-6">
             <Title
               title="Destaques e promoções"
               subtitle="Desubra o Estilo Perfeito"
               color="dark"
+              align="center"
             />
           </div>
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -121,12 +125,13 @@ export default function Hero() {
       </Section>
 
       <Section background="white" padding={false} className="relative">
-        <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <Title
               title="Fique Por Dentro"
               subtitle="Principais tendencias da Temporada"
               color="dark"
+              align="center"
             />
           </div>
           <WordCarousel 

@@ -1,5 +1,5 @@
 import type { Route } from "./+types/releases";
-import DestactsPage from "~/src/pages/Destacts/destactsPage";
+import DestactsPage from "~/src/pages/_destacts/destactsPage";
 
 export function meta({}: Route.MetaArgs) {
     return [

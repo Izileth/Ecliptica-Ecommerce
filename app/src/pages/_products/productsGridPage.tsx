@@ -36,7 +36,7 @@ export function Products() {
         />
       </Container>
       <Container maxWidth="full" padding={false}>
-        <ProductGrid />
+        <ProductGrid  />
       </Container>
       <BlogBanner />
     </Container>

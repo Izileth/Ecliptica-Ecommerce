@@ -90,9 +90,9 @@ export default function CartItemList({ items = [], onUpdate, onRemove, loading =
             className="overflow-hidden rounded-lg border bg-card"
           >
             <div className="p-4">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+              <div className="flex flex-row gap-4 sm:flex-row sm:items-start">
                 {/* Product image */}
-                <div className="relative h-24 w-full overflow-hidden rounded-md sm:h-24 sm:w-24">
+                <div className="relative h-auto w-28 overflow-hidden rounded-md sm:h-auto sm:w-24">
                   {item.product?.image ? (
                     <motion.img
                       src={item.product.image}

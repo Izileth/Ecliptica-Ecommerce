@@ -1,5 +1,5 @@
 import type { Route } from "./+types/pants";
-import CalcasGrid from "~/src/pages/Categories/categoriesPantsPage";
+import CalcasGrid from "~/src/pages/_categories/categoriesPantsPage";
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "Calças | Ecliptica " },

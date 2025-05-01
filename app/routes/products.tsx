@@ -1,5 +1,5 @@
 import type { Route } from "./products/+types/edit";
-import { Products } from "~/src/pages/Products/productsGridPage";
+import { Products } from "~/src/pages/_products/productsGridPage";
 
 export function meta({}: Route.MetaArgs) {
   return [

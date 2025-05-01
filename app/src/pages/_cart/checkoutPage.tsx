@@ -23,7 +23,7 @@ const CartSummary: React.FC<{ cart: any }> = ({ cart }) => {
   if (!cart) return null;
 
   return (
-    <Card className="p-6 sticky top-6">
+    <Card className="p-6 sticky top-6 shadow-none border-none">
       <h2 className="text-xl font-medium mb-4">Ordem de Pedidos</h2>
       <div className="space-y-4">
         <div className="space-y-2">
@@ -33,7 +33,7 @@ const CartSummary: React.FC<{ cart: any }> = ({ cart }) => {
                 <img
                   src={item.product.image}
                   alt={item.product.name}
-                  className="w-12 h-12 object-cover rounded-md bg-muted"
+                  className="w-12 h-auto object-cover rounded-md bg-muted"
                 />
               )}
               <div className="flex-1 min-w-0">
@@ -43,7 +43,7 @@ const CartSummary: React.FC<{ cart: any }> = ({ cart }) => {
                 </p>
               </div>
               <p className="font-medium">
-                ${(item.product?.price * item.quantity).toFixed(2)}
+                R${(item.product?.price * item.quantity).toFixed(2)}
               </p>
             </div>
           ))}
@@ -51,15 +51,15 @@ const CartSummary: React.FC<{ cart: any }> = ({ cart }) => {
         <div className="border-t pt-4 space-y-2">
           <div className="flex justify-between">
             <span className="text-muted-foreground">Subtotal</span>
-            <span>${cart.subtotal?.toFixed(2) || "0.00"}</span>
+            <span>R${cart.subtotal?.toFixed(2) || "0.00"}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Frete</span>
-            <span>${cart.shippingCost?.toFixed(2) || "0.00"}</span>
+            <span>R${cart.shippingCost?.toFixed(2) || "0.00"}</span>
           </div>
           <div className="flex justify-between font-medium text-lg">
             <span>Total</span>
-            <span>${cart.total?.toFixed(2) || "0.00"}</span>
+            <span>R${cart.total?.toFixed(2) || "0.00"}</span>
           </div>
         </div>
       </div>
@@ -128,15 +128,14 @@ export default function CheckoutPage() {
     if (!cart || !user) return;
 
     // Ajuste para corresponder ao CheckoutSessionRequest
-    const request: CheckoutSessionRequest = {
+      const request: CheckoutSessionRequest = {
       lineItems: cart.items.map((item: any) => ({
-        // Renomeado para lineItems
         productId: item.product.id,
         name: item.product.name,
         quantity: item.quantity,
         price: item.product.price,
       })),
-      userId: user.id, // Adicione o userId diretamente
+      userId: user.id,
       customer: {
         userId: user.id,
         email: user.email,
@@ -162,10 +161,18 @@ export default function CheckoutPage() {
 
     try {
       await initiateCheckout(request);
+      navigate('/order-success', {
+        state: {
+        }
+      });
     } catch (error) {
       console.error("Checkout failed:", error);
     }
   };
+
+  const handleSubmitDefault = () =>{
+    navigate('/order-sucess')
+  }
 
   const handleInputChange = (
     step: "shipping" | "payment",
@@ -237,10 +244,10 @@ export default function CheckoutPage() {
   }
 
   return (
-    <Container maxWidth="full" padding={false}>
-      <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+    <Container maxWidth="full" padding={false} className="mt-24 lg:p-6">
+      <h1 className="text-3xl font-light mb-8 p-2">Checkout</h1>
         {/* Progress Steps */}
-        <div className="flex justify-between mb-12 max-w-2xl mx-auto">
+        <div className="flex justify-between mb-12 max-w-2xl mx-auto p-6 lg:p-0">
           <div className="flex flex-col items-center">
             <div
               className={cn(
@@ -256,7 +263,7 @@ export default function CheckoutPage() {
                 <Check className="h-5 w-5" />
               )}
             </div>
-            <span className="mt-2 text-sm font-medium">Entrega</span>
+            <span className="mt-2 text-sm font-light">Entrega</span>
           </div>
           <div className="flex-1 border-t-2 self-center mx-4 border-gray-300"></div>
           <div className="flex flex-col items-center">
@@ -272,7 +279,7 @@ export default function CheckoutPage() {
             >
               {step === "review" ? <Check className="h-5 w-5" /> : <span>2</span>}
             </div>
-            <span className="mt-2 text-sm font-medium">Pagamento</span>
+            <span className="mt-2 text-sm font-light">Pagamento</span>
           </div>
           <div className="flex-1 border-t-2 self-center mx-4 border-gray-300"></div>
           <div className="flex flex-col items-center">
@@ -286,24 +293,24 @@ export default function CheckoutPage() {
             >
               <span>3</span>
             </div>
-            <span className="mt-2 text-sm font-medium">Review</span>
+            <span className="mt-2 text-sm font-light">Review</span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 shadow-none border-none">
+          <div className="lg:col-span-2 shadow-none border-none">
             {step === "shipping" && (
               <motion.div
                 initial="hidden"
                 animate="visible"
                 variants={fadeIn}
-                className="bg-white rounded-lg shadow-sm border p-6"
+                className="bg-white rounded-lg shadow-none-sm border-none p-6"
               >
                 <h2 className="text-xl font-medium mb-6 flex items-center">
                   <Truck className="mr-2 h-5 w-5" />
                   Endereço de Entrega
                 </h2>
-                <div className="space-y-5">
+                <div className="space-y-5 shadow-none">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="space-y-2">
                       <Label htmlFor="name">Nome Completo</Label>
@@ -564,7 +571,7 @@ export default function CheckoutPage() {
                     >
                       Voltar
                     </Button>
-                    <Button onClick={handleSubmit} size="lg">
+                    <Button onClick={handleSubmitDefault} size="lg">
                       Finalizar Compra
                     </Button>
                   </div>

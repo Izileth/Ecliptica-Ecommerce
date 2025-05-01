@@ -239,17 +239,14 @@ export default function DestactsPage() {
               variants={itemVariants}
               className="mx-auto max-w-xl text-center space-y-5"
             >
-              <p className="text-sm text-neutral-500 font-light tracking-wide">
-                Quer mais Promoções?
-              </p>
 
               <Button
                 asChild
-                className="group inline-flex items-center gap-2 bg-black text-white hover:bg-neutral-800 px-5 py-2 rounded-full text-sm font-medium transition-colors"
+                className="group inline-flex bg-transparent border-0 border-transparent shadow-transparent rounded-none text-zinc-950  font-light hover:bg-transparent items-center gap-2  px-5 py-2  text-sm  transition-colors"
               >
                 <a href="/products">
                   <span>Explore Nossos Produtos</span>
-                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 text-zinc-950" />
                 </a>
               </Button>
             </motion.div>

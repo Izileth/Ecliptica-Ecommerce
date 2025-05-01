@@ -70,7 +70,7 @@ export function CollectionBanner({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            className="relative w-full overflow-hidden rounded-lg sm:rounded-xl md:rounded-2xl"
+            className="relative w-full overflow-hidden rounded-none"
             style={{ height: "clamp(240px, 60vh, 680px)" }}
         >
             {/* Imagem de fundo */}

@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
 import { useMediaQuery } from "~/src/hooks/useMobile";
 import { useProducts } from "~/src/hooks/useProducts";
-
 import type { ProductFilterApiParams } from "~/src/types/type";
-
 import ProductCard from "~/src/components/products/Card/card";
 import { Spinner } from "~/src/components/ui/Spinner/spinner";
 import { Title } from "~/src/components/hero/Titles/titles";
-
-import { ChevronLeft, ChevronRight } from "lucide-react";
-
+import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
 import { cn } from "~/src/lib/utils";
+import { Button } from "~/src/components/imported/button";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getPaginationRowModel,
+} from "@tanstack/react-table";
+import type { PaginationState } from "@tanstack/react-table";
 
 interface CategoryGridProps {
   category: string;
@@ -33,17 +35,57 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
   const [appliedFilters, setAppliedFilters] = useState<Record<string, any>>({});
   const isMobile = useMediaQuery("(max-width: 640px)");
 
+  // Estado local para a paginação
+  const [tableState, setTableState] = useState<PaginationState>({
+    pageIndex: (pagination?.page || 1) - 1, // TanStack Table usa base-0 para as páginas
+    pageSize: pagination?.limit || 10,
+  });
+
+  // Sincronizar o estado local com o estado do backend
   useEffect(() => {
-    getProducts(1, { ...appliedFilters, category });
-  }, [category, appliedFilters, getProducts]);
+    if (pagination) {
+      setTableState({
+        pageIndex: pagination.page - 1,
+        pageSize: pagination.limit,
+      });
+    }
+  }, [pagination?.page, pagination?.limit]);
+
+  // Configuração da tabela TanStack
+  const table = useReactTable({
+    data: products,
+    columns: [
+      {
+        id: "product",
+        accessorFn: (row) => row,
+      },
+    ],
+    pageCount: pagination?.pages || 1,
+    state: {
+      pagination: tableState,
+    },
+    onPaginationChange: setTableState,
+    manualPagination: true, // Importante para paginação controlada pelo servidor
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
+
+  // Efeito para carregar produtos quando a página muda
+  useEffect(() => {
+    const page = tableState.pageIndex + 1; // Convertendo de volta para base-1
+    getProducts(page, { ...appliedFilters, category });
+  }, [tableState.pageIndex, appliedFilters, category, getProducts]);
 
   const handleFilter = (filters: ProductFilterApiParams) => {
-    // No need for adapter anymore as the component returns the correct format
     getProducts(1, filters);
   };
-  const handlePageChange = (page: number) => {
-    getProducts(page, { ...appliedFilters, category });
-  };
+
+  // Componente para ellipsis
+  const PaginationEllipsis = () => (
+    <Button variant="outline" size="sm" className="px-2.5" disabled>
+      <MoreHorizontal className="h-4 w-4" />
+    </Button>
+  );
 
   // Animation variants
   const containerVariants = {
@@ -125,7 +167,7 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
             transition={{ duration: 0.5 }}
             className="mb-10 px-2 text-center"
           >
-            {title && <Title title={title} subtitle={description}></Title>}
+            {title && <Title align="center" title={title} subtitle={description}></Title>}
           </motion.div>
         )}
       </AnimatePresence>
@@ -153,103 +195,136 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
               "sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
             )}
           >
-            {products.map((product, index) => (
-              <motion.div
-                key={product.id}
-                variants={itemVariants}
-                custom={index}
-                className="h-full"
-              >
-                <ProductCard product={product} />
-              </motion.div>
-            ))}
+            {table.getRowModel().rows.map((row, index) => {
+              const product = row.original;
+              return (
+                <motion.div
+                  key={product.id || `product-${index}`}
+                  variants={itemVariants}
+                  custom={index}
+                  className="h-full"
+                >
+                  <ProductCard product={product} />
+                </motion.div>
+              );
+            })}
           </motion.div>
 
           {/* Paginação com animação */}
-          {pagination.pages > 1 && (
+          {pagination?.pages > 1 && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="mt-12 flex items-center justify-center"
+              className="mt-12 flex flex-col items-center justify-center gap-4"
             >
-              <nav
-                className="flex items-center space-x-1"
-                aria-label="Pagination"
-              >
-                <button
-                  onClick={() =>
-                    handlePageChange(Math.max(1, pagination.page - 1))
-                  }
-                  disabled={pagination.page === 1}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-neutral-200 text-neutral-400 transition-colors hover:border-neutral-900 hover:text-neutral-900 disabled:opacity-50"
-                  aria-label="Previous page"
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage() || loading}
+                  className="gap-1 px-2.5"
                 >
                   <ChevronLeft className="h-4 w-4" />
-                </button>
+                  <span className="sr-only sm:not-sr-only">Anterior</span>
+                </Button>
 
-                <div className="flex items-center space-x-1">
-                  {Array.from(
-                    { length: pagination.pages },
-                    (_, i) => i + 1
-                  ).map((page) => {
-                    const isCurrentPage = pagination.page === page;
-                    const isFirstPage = page === 1;
-                    const isLastPage = page === pagination.pages;
-                    const isNearCurrentPage =
-                      Math.abs(page - pagination.page) <= 1;
+                {/* Primeira página e ellipsis */}
+                {table.getPageCount() > 5 && table.getState().pagination.pageIndex > 1 && (
+                  <>
+                    <Button
+                      variant={table.getState().pagination.pageIndex === 0 ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => table.setPageIndex(0)}
+                      disabled={loading}
+                      className="px-3.5"
+                    >
+                      1
+                    </Button>
+                    {table.getState().pagination.pageIndex > 2 && (
+                      <PaginationEllipsis key="ellipsis-start" />
+                    )}
+                  </>
+                )}
 
-                    if (isFirstPage || isLastPage || isNearCurrentPage) {
-                      return (
-                        <motion.button
-                          key={page}
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.3 }}
-                          onClick={() => handlePageChange(page)}
-                          className={`inline-flex h-9 w-9 items-center justify-center rounded-full text-sm ${
-                            isCurrentPage
-                              ? "bg-neutral-900 text-white"
-                              : "text-neutral-600 hover:bg-neutral-100"
-                          }`}
-                          aria-current={isCurrentPage ? "page" : undefined}
-                        >
-                          {page}
-                        </motion.button>
-                      );
-                    } else if (
-                      (page === 2 && pagination.page > 3) ||
-                      (page === pagination.pages - 1 &&
-                        pagination.page < pagination.pages - 2)
-                    ) {
-                      return (
-                        <motion.span
-                          key={page}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="inline-flex h-9 w-9 items-center justify-center text-sm text-neutral-400"
-                        >
-                          …
-                        </motion.span>
-                      );
-                    }
-                    return null;
-                  })}
-                </div>
+                {/* Páginas vizinhas */}
+                {Array.from({ length: Math.min(5, table.getPageCount()) }, (_, i) => {
+                  let pageIndex: number;
+                  const currentPageIndex = table.getState().pagination.pageIndex;
+                  const pageCount = table.getPageCount();
 
-                <button
-                  onClick={() =>
-                    handlePageChange(
-                      Math.min(pagination.pages, pagination.page + 1)
-                    )
+                  if (pageCount <= 5) {
+                    pageIndex = i;
+                  } else if (currentPageIndex < 2) {
+                    pageIndex = i;
+                  } else if (currentPageIndex > pageCount - 3) {
+                    pageIndex = pageCount - 5 + i;
+                  } else {
+                    pageIndex = currentPageIndex - 2 + i;
                   }
-                  disabled={pagination.page === pagination.pages}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-neutral-200 text-neutral-400 transition-colors hover:border-neutral-900 hover:text-neutral-900 disabled:opacity-50"
-                  aria-label="Next page"
+
+                  if (pageIndex < 0 || pageIndex >= pageCount) return null;
+                  const pageNumber = pageIndex + 1;
+
+                  return (
+                    <Button
+                      key={`page-btn-${pageNumber}`}
+                      variant={currentPageIndex === pageIndex ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => table.setPageIndex(pageIndex)}
+                      disabled={loading}
+                      className="px-3.5"
+                    >
+                      {pageNumber}
+                    </Button>
+                  );
+                })}
+
+                {/* Última página e ellipsis */}
+                {table.getPageCount() > 5 && 
+                 table.getState().pagination.pageIndex < table.getPageCount() - 2 && (
+                  <>
+                    {table.getState().pagination.pageIndex < table.getPageCount() - 3 && (
+                      <PaginationEllipsis key="ellipsis-end" />
+                    )}
+                    <Button
+                      variant={
+                        table.getState().pagination.pageIndex === table.getPageCount() - 1
+                          ? "default"
+                          : "outline"
+                      }
+                      size="sm"
+                      onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                      disabled={loading}
+                      className="px-3.5"
+                    >
+                      {table.getPageCount()}
+                    </Button>
+                  </>
+                )}
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage() || loading}
+                  className="gap-1 px-2.5"
                 >
+                  <span className="sr-only sm:not-sr-only">Próximo</span>
                   <ChevronRight className="h-4 w-4" />
-                </button>
-              </nav>
+                </Button>
+              </div>
+
+              <div className="text-center text-sm text-gray-500">
+                Mostrando {products.length} de {pagination.total} produtos
+                {pagination.total > pagination.limit && (
+                  <span>
+                    {" "}
+                    (Página {pagination.page} de {pagination.pages})
+                  </span>
+                )}
+              </div>
             </motion.div>
           )}
         </>

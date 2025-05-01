@@ -1,5 +1,5 @@
 import type { Route } from "./+types/[id]";
-import ProductDetails from "~/src/pages/Products/[id]/productDetailsPage";
+import ProductDetails from "~/src/pages/_products/_[id]/productDetailsPage";
 export function meta({}: Route.MetaArgs) {
     return [
         { title: "Visualização do Produto | Ecliptica" },

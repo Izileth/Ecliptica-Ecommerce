@@ -1,6 +1,6 @@
 
 import type { Route } from "./+types/new";
-import NewProductPage from "~/src/pages/Products/[id]/productNewPage";
+import NewProductPage from "~/src/pages/_products/_[id]/productNewPage";
 
 export function meta({}: Route.MetaArgs) {
   return [

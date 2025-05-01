@@ -1,5 +1,5 @@
 import type { Route } from "./+types/password";
-import { ForgotPassword } from "~/src/pages/Auth/passwordPage";
+import { ForgotPassword } from "~/src/pages/_auth/passwordPage";
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "Redefiniçaõ de Senha | Ecliptica " },

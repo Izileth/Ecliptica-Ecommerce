@@ -1,6 +1,6 @@
 import { Wine } from "lucide-react";
 import type { Route } from "./+types/winter";
-import WinterPage from "~/src/pages/Colections/colectionsWinterPage";
+import WinterPage from "~/src/pages/_colections/colectionsWinterPage";
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "Temporada De Inverno | Ecliptica " },
@@ -9,7 +9,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Seasson() {
-  return (
-    <WinterPage/>
-  );
+  return <WinterPage />;
 }

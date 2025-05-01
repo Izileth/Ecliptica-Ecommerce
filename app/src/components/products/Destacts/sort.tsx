@@ -106,7 +106,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
     <section className="py-10 sm:py-16">
       <div className="mx-auto max-w-full  sm:px-6 lg">
         <div className="text-center">
-          <Title title={title} subtitle={subtitle} color="dark" />
+          <Title title={title} subtitle={subtitle} color="dark" align="center" />
         </div>
         <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 md:gap-x-6 lg:grid-cols-4 lg:gap-x-8">
           {safeProducts.map((product) => (

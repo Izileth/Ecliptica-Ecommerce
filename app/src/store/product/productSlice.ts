@@ -34,6 +34,7 @@ const productSlice = createSlice({
       .addCase(fetchProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.products = []; // Limpa os produtos antigos
       })
 
       .addCase(fetchProducts.fulfilled, (state, action) => {

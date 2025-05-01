@@ -586,9 +586,9 @@ export default function EditProductPage() {
           <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 pb-6">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-2xl font-light tracking-tight">
-                  Editar Produto
-                </CardTitle>
+                <CardTitle className="text-2xl font-light tracking-tight mt-4">
+                  Adicionar Novo Produto
+                </CardTitle>                
                 <CardDescription>
                   Atualize as informações do produto
                 </CardDescription>
@@ -612,30 +612,39 @@ export default function EditProductPage() {
               onValueChange={setActiveTab}
               className="w-full"
             >
-              <TabsList className="grid grid-cols-4 max-w-2xl mx-auto my-4">
-                <TabsTrigger value="basic" className="flex items-center gap-2">
-                  <Info className="h-4 w-4" />
+            <TabsList className="grid grid-cols-4 max-w-2xl mx-auto my-4 bg-transparent">
+                <TabsTrigger
+                  value="basic"
+                  className="flex items-center gap-2 px-4 py-2 border-b-2 border-transparent text-zinc-600 rounded-none  transition-all duration-300 ease-in-out hover:text-zinc-900 hover:border-b-zinc-600 data-[state=active]:text-zinc-950 data-[state=active]:border-b-zinc-950 shadow-transparent"
+                >
+                  <Info className="h-4 w-4 transition-transform duration-300 ease-in-out data-[state=active]:scale-110" />
                   <span className="hidden sm:inline">Básico</span>
                 </TabsTrigger>
-                <TabsTrigger value="images" className="flex items-center gap-2">
-                  <ImageIcon className="h-4 w-4" />
+
+                <TabsTrigger
+                  value="images"
+                  className="flex items-center gap-2 px-4 py-2 border-b-2 border-transparent text-zinc-600 rounded-none  transition-all duration-300 ease-in-out hover:text-zinc-900 hover:border-b-zinc-600 data-[state=active]:text-zinc-950 data-[state=active]:border-b-zinc-950 shadow-transparent"
+                >
+                  <ImageIcon className="h-4 w-4 transition-transform duration-300 ease-in-out data-[state=active]:scale-110" />
                   <span className="hidden sm:inline">Imagens</span>
                 </TabsTrigger>
+
                 <TabsTrigger
                   value="features"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 px-4 py-2 border-b-2 border-transparent text-zinc-600 rounded-none  transition-all duration-300 ease-in-out hover:text-zinc-900 hover:border-b-zinc-600 data-[state=active]:text-zinc-950 data-[state=active]:border-b-zinc-950 shadow-transparent"
                 >
-                  <Tag className="h-4 w-4" />
+                  <Tag className="h-4 w-4 transition-transform duration-300 ease-in-out data-[state=active]:scale-110" />
                   <span className="hidden sm:inline">Características</span>
                 </TabsTrigger>
+
                 <TabsTrigger
                   value="variants"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 px-4 py-2 border-b-2 border-transparent text-zinc-600 rounded-none  transition-all duration-300 ease-in-out hover:text-zinc-900 hover:border-b-zinc-600 data-[state=active]:text-zinc-950 data-[state=active]:border-b-zinc-950 shadow-transparent"
                 >
-                  <Palette className="h-4 w-4" />
+                  <Palette className="h-4 w-4 transition-transform duration-300 ease-in-out data-[state=active]:scale-110" />
                   <span className="hidden sm:inline">Variantes</span>
                 </TabsTrigger>
-              </TabsList>
+              </TabsList>              
 
               <CardContent className="p-6">
                 <TabsContent value="basic" className="mt-0 space-y-6">
@@ -718,8 +727,8 @@ export default function EditProductPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                       <div className="space-y-2">
                         <Label htmlFor="price">Preço</Label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-3 text-gray-500">
+                        <div className="relative flex items-center justify-center">
+                          <span className="absolute left-2 text-gray-500">
                             R$
                           </span>
                           <Input
@@ -743,8 +752,8 @@ export default function EditProductPage() {
 
                       <div className="space-y-2">
                         <Label htmlFor="salePrice">Preço Promocional</Label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-3 text-gray-500">
+                        <div className="relative flex items-center justify-center">
+                          <span className="absolute left-3  text-gray-500">
                             R$
                           </span>
                           <Input

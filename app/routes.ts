@@ -29,7 +29,8 @@ export default [
 
     route("profile", "routes/profile.tsx"),
     route("cart", "routes/cart/cart.tsx"),
-    route("checkout", "routes/cart/checkout.tsx")
+    route("checkout", "routes/cart/checkout.tsx"),
+    route("order-sucess", "routes/cart/order.tsx")
     
     
 ] satisfies RouteConfig;

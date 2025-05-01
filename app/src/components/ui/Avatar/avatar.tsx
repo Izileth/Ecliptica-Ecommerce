@@ -32,6 +32,7 @@ export const UserAvatar = ({
         return initials;
     };
 
+
     return (
         <div className={cn("flex items-center gap-2", showName ? 'w-full' : 'w-auto')}>
             <Avatar className={cn(
@@ -47,10 +48,10 @@ export const UserAvatar = ({
             
             {showName && (
                 <div className="flex-1 min-w-0">
-                    <h4 className="font-medium truncate">
+                    <h4 className="font-medium truncate text-xs text-zinc-950">
                         {user?.name || 'Usuário'}
                     </h4>
-                    <p className="text-muted-foreground text-xs truncate">
+                    <p className=" text-xs truncate text-zinc-950">
                         {user?.email || 'email@exemplo.com'}
                     </p>
                 </div>
