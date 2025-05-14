@@ -64,7 +64,7 @@ export const useProducts = (): UseProductsReturn => {
       error: null,
       pagination: {
         page: 1,
-        limit: 10,
+        limit: 100,
         total: 0,
         pages: 1,
         hasNextPage: false,
@@ -76,7 +76,7 @@ export const useProducts = (): UseProductsReturn => {
           data: [],
           pagination: {
             page: 1,
-            limit: 10,
+            limit: 100,
             total: 0,
             pages: 1,
             hasNextPage: false,

@@ -25,7 +25,7 @@ export const initialState: ProductState = {
   error: null,
   pagination: {
     page: 1,
-    limit: 10,
+    limit: 100,
     total: 0,
     pages: 1,
     hasNextPage: false,
@@ -33,6 +33,6 @@ export const initialState: ProductState = {
   },
   filters: {
     page: 1,
-    limit: 10,
+    limit: 100,
   },
 };
