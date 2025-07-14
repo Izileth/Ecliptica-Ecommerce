@@ -196,9 +196,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
               className={cn(
                 "h-3 w-3",
                 star <= Math.floor(rating)
-                  ? "fill-amber-400 text-amber-400"
+                  ? "fill-zinc-950 text-zinc-950"
                   : star - 0.5 <= rating
-                  ? "fill-amber-400/50 text-amber-400"
+                  ? "fill-zinc-50/50 text-zinc-950"
                   : "text-gray-300"
               )}
             />
@@ -266,7 +266,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: -20, opacity: 0 }}
               >
-                <Badge className="bg-rose-500 hover:bg-rose-600 text-white border-0 px-2.5 py-1 rounded-full shadow-sm">
+                <Badge className="bg-zinc-50 hover:bg-zinc-200 text-zinc-950 border-0 px-2.5 py-1 rounded-full shadow-sm">
                   {discountPercentage}% OFF
                 </Badge>
               </motion.div>
@@ -454,12 +454,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
         {/* Product Name */}
         <h3
           className={cn(
-            "font-medium text-gray-900 transition-colors group-hover:text-gray-700",
+            "font-semibold text-gray-900 transition-colors group-hover:text-gray-700",
             compact
-              ? "text-sm line-clamp-1"
+              ? "text-2xl line-clamp-1"
               : featured
-              ? "text-lg line-clamp-2"
-              : "text-base line-clamp-1"
+              ? "text-xl line-clamp-2"
+              : "text-2xl line-clamp-1"
           )}
         >
           {product.name}
@@ -479,15 +479,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <div className="flex items-baseline gap-2 mt-auto">
           <span
             className={cn(
-              "font-medium",
-              compact ? "text-sm" : featured ? "text-xl" : "text-base",
-              hasDiscount ? "text-rose-600" : "text-gray-900"
+              "font-semibold",
+              compact ? "text-xl" : featured ? "text-3xl" : "text-2xl",
+              hasDiscount ? "text-zinc-600" : "text-gray-900"
             )}
           >
             {formatPrice(displayPrice)}
           </span>
           {hasDiscount && (
-            <span className="text-xs text-gray-400 line-through">
+            <span className="text-xl text-gray-400 line-through">
               {formatPrice(product.price)}
             </span>
           )}
@@ -508,7 +508,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             "md:opacity-100 md:group-hover:opacity-0 md:transition-opacity md:duration-300"
           )}
         >
-          <div className="text-xs">
+          <div className="text-md">
             {product.countInStock > 0 ? (
               <span className="text-emerald-600 font-medium">
                 {product.countInStock} disponível

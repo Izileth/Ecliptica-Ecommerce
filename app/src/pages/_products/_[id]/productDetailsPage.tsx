@@ -281,7 +281,7 @@ const ProductDetails: React.FC = () => {
               {/* Badges */}
               <div className="absolute top-4 left-4 flex flex-col space-y-2">
                 {hasDiscount && (
-                  <Badge className="bg-rose-500 hover:bg-rose-600 text-white border-none px-3 py-1.5 rounded-full">
+                  <Badge className="bg-zinc-950 hover:bg-zinc-600 text-zinc-50 border-none px-3 py-1.5 rounded-full">
                     {discountPercentage}% OFF
                   </Badge>
                 )}
@@ -373,10 +373,10 @@ const ProductDetails: React.FC = () => {
 
           {/* Preços */}
           <div className="flex items-baseline gap-4">
-            <span className={`text-2xl font-medium ${hasDiscount ? "text-rose-600" : "text-gray-900"}`}>
+            <span className={` text-4xl  md:text-6xl font-semibold ${hasDiscount ? "text-zinc-700" : "text-gray-900"}`}>
               {formatPrice(displayPrice)}
             </span>
-            {hasDiscount && <span className="text-gray-400 line-through">{formatPrice(product.price)}</span>}
+            {hasDiscount && <span className="text-gray-400 line-through text-2xl">{formatPrice(product.price)}</span>}
           </div>
 
           {/* Avaliação (placeholder) */}
@@ -387,9 +387,9 @@ const ProductDetails: React.FC = () => {
                   key={star}
                   className={`w-4 h-4 ${
                     star <= Math.floor(rating)
-                      ? "fill-amber-400 text-amber-400"
+                      ? "fill-zinc-950 text-zinc-900"
                       : star - 0.5 <= rating
-                        ? "fill-amber-400/50 text-amber-400"
+                        ? "fill-zinc-50/50 text-zinc-900"
                         : "text-gray-300"
                   }`}
                 />
