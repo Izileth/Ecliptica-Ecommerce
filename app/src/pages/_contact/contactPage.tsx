@@ -155,8 +155,8 @@ export default function ContactPage() {
   ];
 
   return (
-    <Container maxWidth="full" padding={false}>
-      <div className="container max-w-full px-4">
+    <Container maxWidth="full" padding={false} >
+      <div className="container max-w-full pt-16 ">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -169,7 +169,7 @@ export default function ContactPage() {
               contentPosition="center"
               showDots={true}
               showProgress={false}
-              height="h-[80vh]"
+              height="h-[90vh]"
               className="absolute inset-0"
             />
             <div className="absolute bottom-20 left-1/2 -translate-x-1/2 transform">

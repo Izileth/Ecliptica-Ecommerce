@@ -53,16 +53,16 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
 
   if (loading) {
     return (
-      <section className="bg-neutral-50 py-10 sm:py-16">
+      <section className="bg-transparent py-10 sm:py-16">
         <div className="mx-auto max-w-full px-2 sm:px-2 lg:px-4">
-          <div className="text-center">
+          <div className="text-center w-full max-w-full flex flex-col justify-center items-center">
             <Title title={title} subtitle={subtitle} color="dark" />
           </div>
           <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 md:gap-x-6 lg:grid-cols-4 lg:gap-x-8">
             {[...Array(4)].map((_, index) => (
               <div
                 key={`skeleton-${index}`}
-                className="flex flex-col space-y-3"
+                className="flex flex-col space-y-3 bg-transparent"
               >
                 <div className="aspect-[3/4] w-full animate-pulse rounded-sm bg-neutral-200"></div>
                 <div className="h-4 w-2/3 animate-pulse rounded-sm bg-neutral-200"></div>
@@ -80,7 +80,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
     return (
       <section className="bg-neutral-50 py-10 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
+          <div className="text-center w-full">
             <Title title={title} subtitle={subtitle} color="dark" />
             <p className="mx-auto mt-3 max-w-2xl text-sm font-light text-red-400 sm:mt-4">
               Não foi possível carregar os produtos em destaque
@@ -105,7 +105,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   return (
     <section className="py-10 sm:py-16">
       <div className="mx-auto max-w-full  sm:px-6 lg">
-        <div className="text-center">
+        <div className="text-center w-full flex flex-col justify-center items-center">
           <Title title={title} subtitle={subtitle} color="dark" align="center" />
         </div>
         <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 md:gap-x-6 lg:grid-cols-4 lg:gap-x-8">

@@ -9,5 +9,8 @@ export default defineConfig({
     alias: {
       '@reduxjs/toolkit': 'node_modules/@reduxjs/toolkit'
     }
+  },
+  server: {
+    port: 4949,
   }
 });

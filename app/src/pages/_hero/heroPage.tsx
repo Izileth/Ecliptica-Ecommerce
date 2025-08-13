@@ -15,7 +15,7 @@ import { ChevronDown } from "lucide-react";
 //Dados Estáticos
 import { DataCarousel } from "~/src/data/carousel/carousel";
 import { DataTestimonials } from "~/src/data/testmonials/testmonial";
-import { DataTags } from "~/src/data/items/items";
+
 
 export default function Hero() {
   const scrollToContent = () => {
@@ -28,14 +28,14 @@ export default function Hero() {
   return (
     <Container maxWidth="full" padding={false}>
       {/* Hero Carousel Section */}
-      <Section background="white" padding={false} className="relative max-w-full">
+      <Section background="white" padding={false} className="relative max-w-full pt-16">
         <Carousel
           items={DataCarousel}
           variant="minimal"
           contentPosition="center"
           showDots={true}
           showProgress={false}
-          height="h-[80vh]"
+          height="h-[90vh]"
           className="absolute inset-0"
         />
         <div className="absolute bottom-20 left-1/2 -translate-x-1/2 transform">
@@ -66,8 +66,8 @@ export default function Hero() {
       </Section>
 
       <Section background="white" className="relative">
-        <div className="mx-auto max-w-full sm:px-6 lg:px-8">
-          <FeaturedProducts
+        <div className="mx-auto max-w-full sm:px-6 lg:px-8 text-center">
+          <FeaturedProducts 
             title="Produtos em Destaque"
             subtitle="Selecionados com exclusividade para você"
           />
